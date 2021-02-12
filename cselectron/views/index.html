@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Management System</title>
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css' />
+  <link rel='stylesheet' href='../public/css/theme.css' />
+  <script src="../public/js/index.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" rel="stylesheet">
+</head>
+<body class="bg">
+  <div class="outsidecontainer">
+    <div class="leftcontainer">
+      <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block">Choose a Role</span>
+      <br/>
+      <br/>
+      <div>
+        <div class="elevatedframe" style="margin-right: 12px;display: inline-block;margin-left: 5px;margin-right: 5px;">
+          <span style="text-align: center;color:white;font-size: 18px;font-weight: 600;display:inline-block;margin-right: 20px;">Director</span>
+          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 15px;padding: 8px 15px 8px 15px;" class="elevatedbutton" type="button" id="enterRole" value="Enter Role"/>
+        </div>
+        <div class="elevatedframe" style="margin-right: 12px;display: inline-block;margin-left: 5px;margin-right: 5px;">
+          <span style="text-align: center;color:white;font-size: 18px;font-weight: 600;display:inline-block;margin-right: 20px;">Director</span>
+          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 15px;padding: 8px 15px 8px 15px;" class="elevatedbutton" type="button" value="Enter Role"/>
+        </div>
+        <div class="elevatedframe" style="margin-right: 12px;display: inline-block;margin-left: 5px;margin-right: 5px;">
+          <span style="text-align: center;color:white;font-size: 18px;font-weight: 600;display:inline-block;margin-right: 20px;">Director</span>
+          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 15px;padding: 8px 15px 8px 15px;" class="elevatedbutton" type="button" value="Enter Role"/>
+        </div>
+      </div>
+      
+      
+    </div>
+    <div class="rightcontainer">
+      <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block">Now Playing</span>
+      <br/>
+      <br/>
+      <div class="elevatedframe" style="width: 100%;text-align: center;">
+        <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block">You'll Be In My Heart</span><br/>
+        <span style="text-align: center;color:white;font-size: 20px;font-weight: 600;display:inline-block">Act 1 - Song 2</span><br/>
+        <div style="border: 3px solid white;height: 25px;width: 50%;display: inline-block;border-radius: 18px;background-color: transparent;padding-left: 3px;padding-right: 3px;text-align: left;margin-top: 30px;">
+          <div style="border: none;height: 11px;width: 50%;display: inline-block;border-radius: 18px;background-color: white"></div>
+        </div><br/>
+        <div style="display: inline-block;width: 50%;text-align: right;">
+          <span style="color:white;font-size: 20px;display:inline-block">2:56 / 3:45</span>
+        </div><br/>
+        <div style="text-align: center;display: flex;margin-top: 30px;justify-content: center;">
+          <div style="text-align: center;width: 100%;">
+            <div style="width: 30%;float: left;">
+              <span class="material-icons-round iconbutton" style="font-size:16px;display: inline-block;margin-top: 4px;">volume_up</span>
+              <div style="border: 3px solid white;height: 16px;display: inline-block;width: 75%;border-radius: 18px;background-color: transparent;padding-left: 3px;padding-right: 3px;text-align: left;margin-top: 20px;padding: 2px;">
+                <div style="border: none;height: 6px;width: 50%;border-radius: 18px;background-color: white"></div>
+              </div>
+            </div>
+            <div class="dropdowncontrol" style="width: 30%;float: right;">
+              <span class="material-icons-round iconbutton" style="font-size:56px;display: inline-block;margin-top: 4px;">more_horiz</span>
+            </div>
+            <div class="regcontrolbuttons" style="width: 30%;float: right;margin-top: 10px;">
+              <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-right: 10px;" class="elevatedbutton" type="button" value="Lock"/>
+              <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;" class="elevatedbutton" type="button" value="Autoplay"/>
+            </div>
+            
+            <span class="material-icons-round iconbutton" style="font-size:56px;display: inline-block;">skip_previous</span>
+            <span class="material-icons-round iconbutton" style="font-size:56px;display: inline-block;">play_arrow</span>
+            <span class="material-icons-round iconbutton" style="font-size:56px;display: inline-block;">skip_next</span>
+            
+          </div>
+        </div>
+      </div>
+      
+      
+    </div>
+    <div class="statuscontainer">
+      <div style="display: flex;">
+        
+        <div class="elevatedframe" style="display: inline-block;margin-right: 12px;padding-top: 8px;padding-bottom: 8px;">
+          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block">Act 1</span>
+        </div>
+        <div class="elevatedframe" style="display: inline-block;padding-top: 8px;padding-bottom: 8px;margin-right: 12px;">
+          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;margin-right: 5px;">Choosing Role</span>
+          <span style="height: 10px;width: 10px;background-color: #828282;display: inline-block;border-radius: 50%;" title="You Are Online!"></span>
+          
+        </div>
+        <input style="display:inline-block;text-align: center;border-radius: 20px;font-size: 15px;padding: 8px 15px 8px 15px;" class="elevatedbutton" id="closeApp" type="button" value="Exit App"/>
+      </div>
+      
+    </div>
+  </div>
+  
+  
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</body>
+
+<script>
+
+  const {ipcRenderer} = require('electron');
+  const closeApp = document.getElementById('closeApp');
+  closeApp.addEventListener('click', () => {
+    ipcRenderer.send('quitapp');
+  });
+</script>
+
+</html>
