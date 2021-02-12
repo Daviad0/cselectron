@@ -9,23 +9,12 @@
 </head>
 <body class="bg">
   <div class="outsidecontainer">
-    <div class="leftcontainer">
-      <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block">Choose a Role</span>
+    <div class="leftcontainer" style="height:80%;overflow-y:scroll">
+      <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block">Songs</span>
       <br/>
       <br/>
-      <div>
-        <div class="elevatedframe" style="margin-right: 12px;display: inline-block;margin-left: 5px;margin-right: 5px;">
-          <span style="text-align: center;color:white;font-size: 18px;font-weight: 600;display:inline-block;margin-right: 20px;">Director</span>
-          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 15px;padding: 8px 15px 8px 15px;" class="elevatedbutton" type="button" id="enterRole" value="Enter Role"/>
-        </div>
-        <div class="elevatedframe" style="margin-right: 12px;display: inline-block;margin-left: 5px;margin-right: 5px;">
-          <span style="text-align: center;color:white;font-size: 18px;font-weight: 600;display:inline-block;margin-right: 20px;">Director</span>
-          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 15px;padding: 8px 15px 8px 15px;" class="elevatedbutton" type="button" value="Enter Role"/>
-        </div>
-        <div class="elevatedframe" style="margin-right: 12px;display: inline-block;margin-left: 5px;margin-right: 5px;">
-          <span style="text-align: center;color:white;font-size: 18px;font-weight: 600;display:inline-block;margin-right: 20px;">Director</span>
-          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 15px;padding: 8px 15px 8px 15px;" class="elevatedbutton" type="button" value="Enter Role"/>
-        </div>
+      <div id="songList">
+
       </div>
       
       
@@ -35,20 +24,20 @@
       <br/>
       <br/>
       <div class="elevatedframe" style="width: 100%;text-align: center;">
-        <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block">You'll Be In My Heart</span><br/>
-        <span style="text-align: center;color:white;font-size: 20px;font-weight: 600;display:inline-block">Act 1 - Song 2</span><br/>
-        <div style="border: 3px solid white;height: 25px;width: 50%;display: inline-block;border-radius: 18px;background-color: transparent;padding-left: 3px;padding-right: 3px;text-align: left;margin-top: 30px;">
-          <div style="border: none;height: 11px;width: 50%;display: inline-block;border-radius: 18px;background-color: white"></div>
+        <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block" id="songNamePlaying">You'll Be In My Heart</span><br/>
+        <span style="text-align: center;color:white;font-size: 20px;font-weight: 600;display:inline-block" id="songPositionPlaying">Act 1 - Song 2</span><br/>
+        <div style="border: 3px solid white;height: 25px;width: 50%;display: inline-block;border-radius: 18px;background-color: transparent;padding-left: 3px;padding-right: 3px;text-align: left;margin-top: 30px;" id="progressSlider">
+          <div style="border: none;height: 11px;display: inline-block;border-radius: 18px;background-color: white" class="songprogress" id="songProgress"></div>
         </div><br/>
         <div style="display: inline-block;width: 50%;text-align: right;">
-          <span style="color:white;font-size: 20px;display:inline-block">2:56 / 3:45</span>
+          <span style="color:white;font-size: 20px;display:inline-block" id="progressText">0:00 / 0:00</span>
         </div><br/>
         <div style="text-align: center;display: flex;margin-top: 30px;justify-content: center;">
           <div style="text-align: center;width: 100%;">
             <div style="width: 30%;float: left;">
               <span class="material-icons-round iconbutton" style="font-size:16px;display: inline-block;margin-top: 4px;">volume_up</span>
-              <div style="border: 3px solid white;height: 16px;display: inline-block;width: 75%;border-radius: 18px;background-color: transparent;padding-left: 3px;padding-right: 3px;text-align: left;margin-top: 20px;padding: 2px;">
-                <div style="border: none;height: 6px;width: 50%;border-radius: 18px;background-color: white"></div>
+              <div style="border: 3px solid white;height: 16px;display: inline-block;width: 75%;border-radius: 18px;background-color: transparent;padding-left: 3px;padding-right: 3px;text-align: left;margin-top: 20px;padding: 2px;" id="volumeSlider">
+                <div style="border: none;height: 6px;width: 50%;border-radius: 18px;background-color: white" id="volumeVisual"></div>
               </div>
             </div>
             <div class="dropdowncontrol" style="width: 30%;float: right;">
@@ -60,11 +49,12 @@
             </div>
             
             <span class="material-icons-round iconbutton" style="font-size:56px;display: inline-block;">skip_previous</span>
-            <span class="material-icons-round iconbutton" style="font-size:56px;display: inline-block;">play_arrow</span>
+            <span class="material-icons-round iconbutton" style="font-size:56px;display: inline-block;" id="playSong">play_arrow</span>
             <span class="material-icons-round iconbutton" style="font-size:56px;display: inline-block;">skip_next</span>
             
           </div>
         </div>
+        
       </div>
       
       
@@ -90,10 +80,167 @@
 
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 </body>
-
+<script src="../vendor/howler/dist/howler.js"></script>
 <script>
 
+  class Song{
+    constructor(name, filetype, location){
+      this.name = name;
+      this.filetype = filetype;
+      this.location = location;
+    }
+  }
+
+  // THERE IS NO CAP ON THIS NUMBER
+  // WHATEVER YOU DO, DO NOT PUT THIS OVER 1
+  var setVolume = .5
+  var currentlyChangingVolume = false;
+
+  let songList = []
+  var sound = undefined
+
+  document.getElementById("songNamePlaying").innerHTML = songList[0]
+  document.getElementById("songPositionPlaying").innerHTML = "Act 1 - Song 1";
+
+  
+
+  function changeVolume(event){
+    // For some reason it can trigger the visual???
+    var actualElement = document.getElementById("volumeSlider");
+    console.log(actualElement.clientWidth)
+    let widthToHandle = (actualElement.clientWidth)-4;
+    // Check if in bar
+    if(event.offsetX <= widthToHandle && event.offsetX >= 0){
+      let percentage = (event.offsetX / (actualElement.clientWidth-4))*100
+      document.getElementById("volumeVisual").style.width = percentage + "%"
+      setVolume = percentage/100;
+      sound.volume(setVolume);
+    }
+  }
+
+  document.getElementById("volumeSlider").addEventListener("click", changeVolume)
+
+  function changeSongPos(event){
+    // For some reason it can trigger the visual???
+    var actualElement = document.getElementById("progressSlider");
+    console.log(actualElement.clientWidth)
+    let widthToHandle = (actualElement.clientWidth)-6;
+    // Check if in bar
+    if(event.offsetX <= widthToHandle && event.offsetX >= 0){
+      let multiplier = (event.offsetX / (actualElement.clientWidth-6))
+      document.getElementById("songProgress").style.width = (multiplier*100) + "%"
+      sound.seek(sound.duration()*multiplier);
+    }
+  }
+
+  document.getElementById("progressSlider").addEventListener("click", changeSongPos)
+
+  function setSongAndPlay(element){
+    if(sound != undefined){
+      if(sound._src != element.srcElement.id){
+        if(sound._src != undefined && sound.playing()){
+          sound.stop();
+        }
+        var indexOfSong = songList.indexOf(songList.filter(el => el.name == element.srcElement.id)[0])
+        document.getElementById("songNamePlaying").innerHTML = songList[indexOfSong].name;
+        document.getElementById("songPositionPlaying").innerHTML = "Act 1 - Song " + (indexOfSong + 1);
+
+        sound = new Howl({
+          src: [songList[indexOfSong].location + songList[indexOfSong].name + "." + songList[indexOfSong].filetype],
+          volume: setVolume,
+          onend: function(){
+            document.getElementById("playSong").innerHTML = "play_arrow";
+            document.getElementById("songProgress").style.width = "0%"
+          }
+        });
+        sound.play();
+        document.getElementById("playSong").innerHTML = "pause";
+      }
+    }else{
+      var indexOfSong = songList.indexOf(songList.filter(el => el.name == element.srcElement.id)[0])
+        document.getElementById("songNamePlaying").innerHTML = songList[indexOfSong].name;
+        document.getElementById("songPositionPlaying").innerHTML = "Act 1 - Song " + (indexOfSong + 1);
+
+        sound = new Howl({
+          src: [songList[indexOfSong].location + songList[indexOfSong].name + "." + songList[indexOfSong].filetype],
+          volume: setVolume,
+          onend: function(){
+            document.getElementById("playSong").innerHTML = "play_arrow";
+            document.getElementById("songProgress").style.width = "0%"
+          }
+        });
+        sound.play();
+        document.getElementById("playSong").innerHTML = "pause";
+    }
+    
+    
+  }
+
+  function updateTextTime(inSong, outOfSong){
+    inSong = Math.round(inSong);
+    
+  }
+
+  setInterval(() => {
+    updateWidth();
+  },100);
+
+  function updateWidth() {
+    if(sound != undefined){
+      var inSong = sound.seek()
+      var outOfSong = sound.duration()
+      if (sound.playing()) {
+        let width = (inSong/outOfSong)*100;
+        width = width > 100 ? 100 : width;
+        document.getElementById("songProgress").style.width = width + "%"
+      }
+      inSong = Math.round(inSong)
+      outOfSong = Math.round(outOfSong)
+      var inSongM = Math.floor(inSong / 60)
+      var inSongS = Math.floor(inSong % 60)
+      var inSongF = inSongM + ":" + (inSongS.toString().length == 1 ? "0" + inSongS : inSongS);
+      var outOfSongM = Math.floor(outOfSong / 60)
+      var outOfSongS = Math.floor(outOfSong % 60)
+      var outOfSongF = outOfSongM + ":" + (outOfSongS.toString().length == 1 ? "0" + outOfSongS : outOfSongS);
+      document.getElementById("progressText").innerHTML = inSongF + " / " + outOfSongF;
+    }
+    
+  }
+
+  document.getElementById("playSong").addEventListener("click", function (){
+    if(!sound.playing()){
+      sound.play();
+      document.getElementById("playSong").innerHTML = "pause";
+      
+    }else{
+      sound.pause();
+      document.getElementById("playSong").innerHTML = "play_arrow";
+    }
+    
+  });
+  
+
   const {ipcRenderer} = require('electron');
+
+  ipcRenderer.on("songsToLoad", (event,args) => {
+    args['songs'].forEach(song => {
+      var filetype = song.split(".")[song.split(".").length-1]
+      var name = song.substring(0, song.length - filetype.length - 1)
+      
+      var location = "../public/audio/"
+      songList.push(new Song(name, filetype, location))
+    });
+    songList.forEach(song => {
+    document.getElementById("songList").innerHTML = document.getElementById("songList").innerHTML + `<div class="elevatedframe" style="display: inline-block;margin:5px">
+          <span style="text-align: center;color:white;font-size: 18px;font-weight: 600;display:inline-block;margin-right: 20px">${song.name}</span>
+          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 15px;padding: 8px 15px 8px 15px;" class="elevatedbutton thissong" id="${song.name}" type="button" value="Play Song"/>
+        </div>`
+        Array.from(document.getElementsByClassName("thissong")).forEach(btn => {
+          btn.addEventListener("click", setSongAndPlay)
+        })
+    });
+  });
+  ipcRenderer.send("getMeSpiderman")
   const closeApp = document.getElementById('closeApp');
   closeApp.addEventListener('click', () => {
     ipcRenderer.send('quitapp');

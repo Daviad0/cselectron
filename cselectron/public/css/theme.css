@@ -9,6 +9,22 @@
     background-attachment: fixed;
     user-select: none;
 }
+
+*::-webkit-scrollbar {
+    width: 18px;
+  }
+  *::-webkit-scrollbar-track {
+    background-color: #1D1F3A;
+    box-shadow: inset 0 0 5px rgba(0,0,0,.16); 
+    border-radius: 10px;
+  }
+   
+  /* Handle */
+  *::-webkit-scrollbar-thumb {
+    background: #242852; 
+    border-radius: 10px;
+  }
+
 .outsidecontainer {
     height: 100vh;
     position: relative;
@@ -17,7 +33,7 @@
     position: absolute;
     top: 5%;
     left: 5%;
-    width: 45%;
+    width: 43%;
 }
 .rightcontainer {
     position: absolute;
@@ -70,6 +86,10 @@
 }
 .dropdowncontrol{
     display: none;
+}
+
+.songprogress{
+    transition: width .02s ease-in-out
 }
 
 @media (max-width: 1197px){

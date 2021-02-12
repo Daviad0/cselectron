@@ -1,6 +1,8 @@
 const {app, BrowserWindow} = require('electron')
 const {ipcMain} = require('electron')
 const communicate = require("./communicate")
+const audioFolder = "./public/audio/"
+const fs = require('fs')
 
 class HostState {
   constructor(token, time, role, connected){
@@ -40,8 +42,20 @@ function createWindow () {
   
   mainWindow.on('closed', function () {
     mainWindow = null
-  })
+  });
+
+  
+  
 }
+
+ipcMain.on("getMeSpiderman", (event, args) => {
+  console.log("Get me Spiderman!!!")
+  fs.readdir(audioFolder, (err, files) => {
+    console.log("Read files")
+    mainWindow.webContents.send("songsToLoad", {'songs' : files})
+  });
+});
+
 
 app.on('ready', createWindow)
 
