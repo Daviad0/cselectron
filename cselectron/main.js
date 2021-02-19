@@ -3,6 +3,30 @@ const {ipcMain} = require('electron')
 const communicate = require("./communicate")
 const audioFolder = "./public/audio/"
 const fs = require('fs')
+const io = require("socket.io-client")
+
+// This is socket.io simulation
+const server = require('./app')
+
+
+const socket = io.connect("http://localhost:3000", {reconnect: true});
+
+socket.on("connect", function(instance){
+  socket.emit("requestRoles", false);
+})
+socket.on('rolesSent', (roles) => {
+  // Login page
+});
+socket.on('majorEvent', (sender, message) => {
+  // Handle sending to client
+});
+socket.on('songUpdateFromServer', (songName, subtitle, progress) => {
+  // Handle sending to client
+});
+socket.on('roleRegisterAs', (roleIdentifier) => {
+  // Logic to make sure that all of the required event handlers are here.
+});
+
 
 class HostState {
   constructor(token, time, role, connected){
@@ -23,7 +47,11 @@ ipcMain.on('sendMainMessage', (evt, arg) => {
   console.log(arg["greeting"])
 })
 
-const server = require('./app');
+ipcMain.on('songControl', (evt, arg) => {
+  
+  socket.emit('songUpdate', arg["seek"], arg["duration"], arg["paused"], arg["name"], arg["subtitle"]);
+})
+
 
 let mainWindow;
 

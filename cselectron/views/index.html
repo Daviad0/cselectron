@@ -380,14 +380,12 @@
     
   }
 
-  setInterval(() => {
-    updateWidth();
-  },100);
+  
 
-  function updateWidth() {
+  function updateWidth(to, outOf) {
     if(sound != undefined){
-      var inSong = sound.seek()
-      var outOfSong = sound.duration()
+      var inSong = to 
+      var outOfSong = outOf
       if (sound.playing()) {
         let width = (inSong/outOfSong)*100;
         width = width > 100 ? 100 : width;
@@ -421,6 +419,18 @@
   
 
   const {ipcRenderer} = require('electron');
+
+  setInterval(() => {
+    try{
+      var to = sound.seek()
+      var outOf = sound.duration();
+      updateWidth(to, outOf);
+      ipcRenderer.send("songControl", { seek: to, duration: outOf, paused: !sound.playing(), name: currentSong.name, subtitle: "Act 1 - Song " +  (songList.indexOf(songList.filter(el => el == currentSong)[0])+1)})
+    }catch(err){
+
+    }
+    
+  },100);
 
   ipcRenderer.on("songsToLoad", (event,args) => {
     args['songs'].forEach(song => {
