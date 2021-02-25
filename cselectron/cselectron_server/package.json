@@ -1,0 +1,17 @@
+{
+  "name": "cselectron_server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "node-id3": "^0.2.2",
+    "socket.io": "^3.1.1"
+  }
+}

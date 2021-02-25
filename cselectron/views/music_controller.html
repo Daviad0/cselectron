@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Management System</title>
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css' />
+  <link rel='stylesheet' href='../public/css/theme.css' />
+  <script src="../public/js/index.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" rel="stylesheet">
+</head>
+<body class="bg">
+  <div class="outsidecontainer">
+    <div class="leftcontainer" style="height:80%">
+      <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block">Songs</span>
+      <br/>
+      <br/>
+      <div id="songList" style="height:90%;overflow-y:auto">
+
+      </div>
+      
+      
+    </div>
+    <div class="rightcontainer">
+      <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block">Now Playing</span>
+      <br/>
+      <br/>
+      <div class="elevatedframe" style="width: 100%;text-align: center;">
+        <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:100%" id="songNamePlaying">You'll Be In My Heart</span><br/>
+        <span style="text-align: center;color:white;font-size: 20px;font-weight: 600;display:inline-block" id="songPositionPlaying">Act 1 - Song 2</span><br/>
+        <!--<span class="material-icons-round iconbutton" style="font-size:24px;display: inline-block;vertical-align:middle" id="restartSong">replay</span>-->
+        <div style="border: 3px solid white;height: 25px;width: 50%;display: inline-block;border-radius: 18px;background-color: transparent;padding-left: 3px;padding-right: 3px;text-align: left;margin-top: 30px;margin-left:0px" id="progressSlider">
+          <div style="border: none;height: 11px;display: inline-block;border-radius: 18px;background-color: white" class="songprogress" id="songProgress"></div>
+        </div><br/>
+        <div style="display: inline-block;width: 50%;text-align: right;">
+          <span style="color:white;font-size: 20px;display:inline-block" id="progressText">0:00 / 0:00</span>
+        </div><br/>
+        <div style="text-align: center;display: flex;margin-top: 30px;justify-content: center;">
+          <div style="text-align: center;width: 100%;">
+            <div style="width: 30%;float: left;">
+              <span class="material-icons-round iconbutton" style="font-size:16px;display: inline-block;margin-top: 4px;" id="muteVolume">volume_up</span>
+              <div style="border: 3px solid white;height: 16px;display: inline-block;width: 75%;border-radius: 18px;background-color: transparent;padding-left: 3px;padding-right: 3px;text-align: left;margin-top: 20px;padding: 2px;" id="volumeSlider">
+                <div style="border: none;height: 6px;width: 50%;border-radius: 18px;background-color: white" id="volumeVisual"></div>
+              </div>
+            </div>
+            <div class="dropdowncontrol" style="width: 30%;float: right;">
+              <span class="material-icons-round iconbutton" style="font-size:56px;display: inline-block;margin-top: 4px;">more_horiz</span>
+            </div>
+            <div class="regcontrolbuttons" style="width: 30%;float: right;margin-top: 10px;">
+              <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-right: 10px;" class="elevatedbutton" type="button" value="Lock"/>
+              <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;" class="elevatedbutton" type="button" id="changeAutoplay" value="Autoplay"/>
+            </div>
+            
+            <span class="material-icons-round iconbutton" style="font-size:56px;display: inline-block;" id="prevSong">skip_previous</span>
+            <span class="material-icons-round iconbutton" style="font-size:56px;display: inline-block;" id="playSong">play_arrow</span>
+            <span class="material-icons-round iconbutton" style="font-size:56px;display: inline-block;" id="nextSong">skip_next</span>
+            
+          </div>
+        </div>
+        
+      </div>
+      
+      
+    </div>
+    <div class="statuscontainer">
+      <div style="display: flex;">
+        
+        <div class="elevatedframe" style="display: inline-block;margin-right: 12px;padding-top: 8px;padding-bottom: 8px;">
+          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block">Act 1</span>
+        </div>
+        <div class="elevatedframe" style="display: inline-block;padding-top: 8px;padding-bottom: 8px;margin-right: 12px;">
+          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;margin-right: 5px;">Music Controller</span>
+          <span style="height: 10px;width: 10px;background-color: green;display: inline-block;border-radius: 50%;" title="You Are Online!"></span>
+          
+        </div>
+        <input style="display:inline-block;text-align: center;border-radius: 20px;font-size: 15px;padding: 8px 15px 8px 15px;" class="elevatedbutton" id="closeApp" type="button" value="Exit App"/>
+      </div>
+      
+    </div>
+  </div>
+  
+  
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</body>
+<script src="../vendor/howler/dist/howler.js"></script>
+<script>
+
+  class Song{
+    constructor(name, filetype, location, downloaded){
+      this.name = name;
+      this.filetype = filetype;
+      this.location = location;
+      this.downloaded = downloaded;
+    }
+  }
+
+  // THERE IS NO CAP ON THIS NUMBER
+  // WHATEVER YOU DO, DO NOT PUT THIS OVER 1
+  var setVolume = .5
+  var currentTrack = "";
+  var currentlyChangingVolume = false;
+  let rawTrackList = []
+  let downloadedSongs = []
+  var currentSong = undefined;
+  let autoplay = false;
+  let songList = []
+  var sound = undefined
+
+  document.getElementById("songNamePlaying").innerHTML = "No Song Playing!"
+  document.getElementById("songPositionPlaying").innerHTML = "Please Select a Song...";
+
+  function changeSongListView(previousSongName){
+    try{
+      document.getElementById(currentTrack + "|" + previousSongName["songName"] + "." + previousSongName["fileType"]).innerHTML = "play_arrow"
+    }catch(ex){
+
+    }
+    try{
+      document.getElementById(currentSong["songName"]).innerHTML = "pause"
+    }catch(ex){
+
+    }
+  }
+
+  function muteVolume(){
+    document.getElementById("muteVolume").innerHTML = "volume_off";
+    try{
+      document.getElementById("volumeVisual").animate([{width: (setVolume*100) + "%"}, {width: "0%"}], {duration: 500, easing: 'ease-in-out'})
+      document.getElementById("volumeVisual").style.width = "0%"
+      setVolume = 0;
+      
+      sound.fade(sound.volume(), 0, 500);
+    }catch(err){
+
+    }
+  }
+
+  function changeVolume(event){
+    // For some reason it can trigger the visual???
+    var actualElement = document.getElementById("volumeSlider");
+    console.log(actualElement.clientWidth)
+    let widthToHandle = (actualElement.clientWidth)-4;
+    // Check if in bar
+    if(event.offsetX <= widthToHandle && event.offsetX >= 0){
+      let percentage = (event.offsetX / (actualElement.clientWidth-4))*100
+      if(percentage > 0){
+        document.getElementById("muteVolume").innerHTML = "volume_up";
+      }else{
+        document.getElementById("muteVolume").innerHTML = "volume_off";
+      }
+      document.getElementById("volumeVisual").animate([{width: (setVolume*100) + "%"}, {width: percentage + "%"}], {duration: 500, easing: 'ease-in-out'})
+      document.getElementById("volumeVisual").style.width = percentage + "%"
+      setVolume = percentage/100;
+      try{
+        sound.fade(sound.volume(), setVolume, 500);
+        //sound.volume(setVolume);
+      }catch(err){
+
+      }
+    }
+  }
+  document.getElementById("muteVolume").addEventListener("click", muteVolume)
+  document.getElementById("volumeSlider").addEventListener("click", changeVolume)
+
+  function changeSongPos(event){
+    // For some reason it can trigger the visual???
+    var actualElement = document.getElementById("progressSlider");
+    console.log(actualElement.clientWidth)
+    let widthToHandle = (actualElement.clientWidth)-6;
+    // Check if in bar
+    if(event.offsetX <= widthToHandle && event.offsetX >= 0){
+      let multiplier = (event.offsetX / (actualElement.clientWidth-6))
+      document.getElementById("songProgress").style.width = (multiplier*100) + "%"
+      sound.seek(sound.duration()*multiplier);
+    }
+  }
+
+  document.getElementById("progressSlider").addEventListener("click", changeSongPos)
+
+  function playNextSong(useIndex){
+    var prevSong = "";
+    var track = currentTrack;
+    var trackIndex = rawTrackList.indexOf(track);
+    var indexOfSong = useIndex
+    try{
+      prevSong = currentSong;
+    }catch(ex){
+
+    }
+    document.getElementById("songNamePlaying").innerHTML = songList[trackIndex]["trackSongs"][useIndex]["songName"];
+    document.getElementById("songPositionPlaying").innerHTML = track + " - Song " + (useIndex + 1);
+    var location = downloadedSongs.includes(songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"]) ? "../public/audio/" : "http://localhost:3000/audio/"
+    sound = new Howl({
+      src: [location + (songList[trackIndex]["trackSongs"][indexOfSong]["songName"]) + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"]],
+          volume: setVolume,
+          onend: function(){
+            document.getElementById("songProgress").style.width = "0%"
+            if(autoplay && indexOfSong < (songList[trackIndex]["trackSongs"].length-1)){
+              playNextSong(indexOfSong+1)
+            }else{
+              document.getElementById("playSong").innerHTML = "play_arrow";
+              document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"]).innerHTML = "play_arrow"
+            }
+          }
+        });
+        currentSong = songList[trackIndex]["trackSongs"][indexOfSong]
+        changeSongListView(prevSong)
+        sound.play();
+        document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"]).innerHTML = "pause";
+        document.getElementById("playSong").innerHTML = "pause";
+  }
+
+  function setSongAndPlay(element){
+    var filetype = element.srcElement.id.split("|")[1].split(".")[element.srcElement.id.split("|")[1].split(".").length-1]
+    var name = element.srcElement.id.split("|")[1].substring(0, element.srcElement.id.split("|")[1].length - filetype.length - 1)
+    var track = element.srcElement.id.split("|")[0]
+    if(element.srcElement.innerHTML == "play_arrow"){
+      var prevSong = "";
+      try{
+        prevSong = currentSong;
+      }catch(ex){
+
+      }
+      if(sound != undefined){
+        if(currentSong["songName"] != name){
+          if(sound._src != undefined && sound.playing()){
+            sound.stop();
+          }
+          var trackIndex = rawTrackList.indexOf(track);
+          var indexOfSong = songList[trackIndex]["trackSongs"].indexOf(songList[trackIndex]["trackSongs"].filter(song => song["songName"] == name)[0]);
+          document.getElementById("songNamePlaying").innerHTML = name;
+          document.getElementById("songPositionPlaying").innerHTML = track + " - Song " + (indexOfSong + 1);
+          var location = downloadedSongs.includes(name + "." + filetype) ? "../public/audio/" : "http://localhost:3000/audio/"
+          sound = new Howl({
+            src: [location + name + "." + filetype],
+            volume: setVolume,
+            onend: function(){
+              
+              document.getElementById("songProgress").style.width = "0%"
+              if(autoplay && indexOfSong < (songList[trackIndex]["trackSongs"].length-1)){
+                playNextSong(indexOfSong+1)
+              }else{
+                document.getElementById("playSong").innerHTML = "play_arrow";
+                document.getElementById(element.srcElement.id).innerHTML = "play_arrow"
+              }
+            }
+          });
+          currentSong = songList[trackIndex]["trackSongs"][indexOfSong]
+          changeSongListView(prevSong)
+
+          sound.play();
+          document.getElementById("playSong").innerHTML = "pause";
+          document.getElementById(element.srcElement.id).innerHTML = "pause"
+          currentTrack = track
+        }else{
+          document.getElementById("playSong").innerHTML = "pause";
+          document.getElementById(element.srcElement.id).innerHTML = "pause"
+          sound.play()
+        }
+      }else{
+        var trackIndex = rawTrackList.indexOf(track);
+          var indexOfSong = songList[trackIndex]["trackSongs"].indexOf(songList[trackIndex]["trackSongs"].filter(song => song["songName"] == name)[0]);
+          document.getElementById("songNamePlaying").innerHTML = name;
+          document.getElementById("songPositionPlaying").innerHTML = track + " - Song " + (indexOfSong + 1);
+          var location = downloadedSongs.includes(name + "." + filetype) ? "../public/audio/" : "http://localhost:3000/audio/"
+          sound = new Howl({
+            src: [location + name + "." + filetype],
+            volume: setVolume,
+            onend: function(){
+              
+              document.getElementById("songProgress").style.width = "0%"
+              if(autoplay && indexOfSong < (songList[trackIndex]["trackSongs"].length-1)){
+                playNextSong(indexOfSong+1)
+              }else{
+                document.getElementById("playSong").innerHTML = "play_arrow";
+                document.getElementById(element.srcElement.id).innerHTML = "play_arrow"
+              }
+            }
+          });
+          currentSong = songList[trackIndex]["trackSongs"][indexOfSong]
+          changeSongListView(prevSong)
+          currentTrack = track
+          sound.play();
+          document.getElementById("playSong").innerHTML = "pause";
+          document.getElementById(element.srcElement.id).innerHTML = "pause"
+      }
+    }else{
+      document.getElementById("playSong").innerHTML = "play_arrow";
+      document.getElementById(element.srcElement.id).innerHTML = "play_arrow";
+      sound.pause();
+    }
+    
+    
+    
+  }
+
+  function restartSong(){
+    try{
+      sound.seek(0);
+    }catch(error){
+
+    }
+  }
+
+  //document.getElementById("restartSong").addEventListener("click", restartSong)
+  function nextSongControl(){
+    var prevSong = "";
+    var track = currentTrack;
+    var trackIndex = rawTrackList.indexOf(track);
+    try{
+      prevSong = currentSong;
+    }catch(ex){
+
+    }
+    try{
+      var indexOfPrevSong = songList[trackIndex]["trackSongs"].indexOf(songList[trackIndex]["trackSongs"].filter(song => song["songName"] == currentSong["songName"])[0])
+      if(indexOfPrevSong < (songList[trackIndex]["trackSongs"].length-1)){
+        try{
+          sound.stop();
+        }catch(snd){
+
+        }
+        var indexOfSong = indexOfPrevSong + 1;
+        document.getElementById("songNamePlaying").innerHTML = songList[trackIndex]["trackSongs"][indexOfSong]["songName"];
+        document.getElementById("songPositionPlaying").innerHTML = track + " - Song " + (indexOfSong + 1);
+        var location = downloadedSongs.includes(songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"]) ? "../public/audio/" : "http://localhost:3000/audio/"
+        sound = new Howl({
+          src: [location + (songList[trackIndex]["trackSongs"][indexOfSong]["songName"]) + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"]],
+          volume: setVolume,
+          onend: function(){
+            document.getElementById("songProgress").style.width = "0%"
+            if(autoplay && indexOfSong < (songList[trackIndex]["trackSongs"].length-1)){
+              playNextSong(indexOfSong+1)
+            }else{
+              document.getElementById("playSong").innerHTML = "play_arrow";
+              document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"]).innerHTML = "play_arrow"
+            }
+          }
+        });
+        currentSong = songList[trackIndex]["trackSongs"][indexOfSong]
+        changeSongListView(prevSong)
+        sound.play();
+        document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"]).innerHTML = "pause";
+        document.getElementById("playSong").innerHTML = "pause";
+      }
+      // Error message handling
+        
+    }catch(err){
+      console.log(err)
+    }
+  }
+  function prevSongControl(){
+    var prevSong = "";
+    var track = currentTrack;
+    var trackIndex = rawTrackList.indexOf(track);
+    try{
+      prevSong = currentSong;
+    }catch(ex){
+
+    }
+    try{
+      var indexOfPrevSong = songList[trackIndex]["trackSongs"].indexOf(songList[trackIndex]["trackSongs"].filter(song => song["songName"] == currentSong["songName"])[0])
+      if(indexOfPrevSong > 0){
+        try{
+          sound.stop();
+        }catch(snd){
+
+        }
+        var indexOfSong = indexOfPrevSong - 1;
+        document.getElementById("songNamePlaying").innerHTML = songList[trackIndex]["trackSongs"][indexOfSong]["songName"];
+        document.getElementById("songPositionPlaying").innerHTML = track + " - Song " + (indexOfSong + 1);
+        var location = downloadedSongs.includes(songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"]) ? "../public/audio/" : "http://localhost:3000/audio/"
+        sound = new Howl({
+          src: [location + (songList[trackIndex]["trackSongs"][indexOfSong]["songName"]) + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"]],
+          volume: setVolume,
+          onend: function(){
+            document.getElementById("songProgress").style.width = "0%"
+            if(autoplay && indexOfSong < (songList[trackIndex]["trackSongs"].length-1)){
+              playNextSong(indexOfSong+1)
+            }else{
+              document.getElementById("playSong").innerHTML = "play_arrow";
+              document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"]).innerHTML = "play_arrow"
+            }
+          }
+        });
+        currentSong = songList[trackIndex]["trackSongs"][indexOfSong]
+        changeSongListView(prevSong)
+        sound.play();
+        document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"]).innerHTML = "pause";
+        document.getElementById("playSong").innerHTML = "pause";
+      }
+      // Error message handling
+        
+    }catch(err){
+      console.log(err)
+    }
+  }
+  document.getElementById("nextSong").addEventListener("click", nextSongControl)
+  document.getElementById("prevSong").addEventListener("click", prevSongControl)
+
+  function autoplayToggle(){
+    autoplay = !autoplay;
+    document.getElementById("changeAutoplay").style.backgroundColor = autoplay ? "white" : "#262947"
+    document.getElementById("changeAutoplay").style.color = autoplay ? "#262947" : "white"
+  }
+  document.getElementById("changeAutoplay").addEventListener("click", autoplayToggle)
+  function updateTextTime(inSong, outOfSong){
+    inSong = Math.round(inSong);
+    
+  }
+
+  
+
+  function updateWidth(to, outOf) {
+    if(sound != undefined){
+      var inSong = to 
+      var outOfSong = outOf
+      if (sound.playing()) {
+        let width = (inSong/outOfSong)*100;
+        width = width > 100 ? 100 : width;
+        document.getElementById("songProgress").style.width = width + "%"
+      }
+      inSong = Math.round(inSong)
+      outOfSong = Math.round(outOfSong)
+      var inSongM = Math.floor(inSong / 60)
+      var inSongS = Math.floor(inSong % 60)
+      var inSongF = inSongM + ":" + (inSongS.toString().length == 1 ? "0" + inSongS : inSongS);
+      var outOfSongM = Math.floor(outOfSong / 60)
+      var outOfSongS = Math.floor(outOfSong % 60)
+      var outOfSongF = outOfSongM + ":" + (outOfSongS.toString().length == 1 ? "0" + outOfSongS : outOfSongS);
+      document.getElementById("progressText").innerHTML = inSongF + " / " + outOfSongF;
+    }
+    
+  }
+
+  document.getElementById("playSong").addEventListener("click", function (){
+    if(!sound.playing()){
+      sound.play();
+      document.getElementById("playSong").innerHTML = "pause";
+      document.getElementById(currentTrack + "|" + currentSong["songName"] + "." + currentSong["fileType"]).innerHTML = "pause"
+    }else{
+      sound.pause();
+      document.getElementById("playSong").innerHTML = "play_arrow";
+      document.getElementById(currentTrack + "|" + currentSong["songName"] + "." + currentSong["fileType"]).innerHTML = "play_arrow"
+    }
+    
+  });
+  
+
+  const {ipcRenderer} = require('electron');
+
+  function download(event){
+    var filetype = event.srcElement.id.split("|")[1].split(".")[event.srcElement.id.split("|")[1].split(".").length-1]
+    var name = event.srcElement.id.split("|")[1].substring(0, event.srcElement.id.split("|")[1].length - filetype.length - 1)
+    var uselessButton = event.srcElement.cloneNode(true)
+    event.srcElement.parentNode.replaceChild(uselessButton, event.srcElement);
+    ipcRenderer.send("downloadFile", {'sourceFolder' : 'audio', 'fileName' : name, 'fileType' : filetype });
+    event.srcElement.innerHTML = "downloading";
+  }
+
+  setInterval(() => {
+    try{
+      var to = sound.seek()
+      var outOf = sound.duration();
+      updateWidth(to, outOf);
+      var trackIndex = rawTrackList.indexOf(currentTrack);
+      ipcRenderer.send("songControl", { seek: to, duration: outOf, paused: !sound.playing(), name: currentSong["songName"], subtitle: currentTrack + " - Song " +  (songList[trackIndex]["trackSongs"].indexOf(songList[trackIndex]["trackSongs"].filter(el => el["songName"] == currentSong["songName"])[0])+1)})
+    }catch(err){
+
+    }
+    
+  },100);
+  ipcRenderer.on('downloadSuccess', (event,args) => {
+    downloadedSongs.push(args["fileName"] + "." + args["fileType"])
+    document.getElementById("download|" + args["fileName"] + "." + args["fileType"]).innerHTML = "cloud_done"
+    setTimeout(function(){
+      document.getElementById("download|" + args["fileName"] + "." + args["fileType"]).animate([{opacity: 1}, {opacity:0}], {duration: 2000, easing: 'ease-in-out'})
+      document.getElementById("download|" + args["fileName"] + "." + args["fileType"]).style.opacity = 0;
+    }, 3000)
+    
+    
+  });
+  ipcRenderer.on("songsToLoad", (event,args) => {
+    // rename to songSchema soon
+    songList = args['songs']['tracks']
+    downloadedSongs = args["songsInSystem"]
+    var songFilesTracked = []; 
+    songList.forEach(track => {
+      rawTrackList.push(track["trackName"])
+      document.getElementById("songList").innerHTML = document.getElementById("songList").innerHTML + `<div id="${track["trackName"]}">
+          <span style="text-align: center;color:white;font-size: 30px;font-weight: 600;display:inline-block;margin-bottom:10px">${track["trackName"]}</span><br/>
+        </div><br/>`
+      track["trackSongs"].forEach(song => {
+        var inList = true;
+        if(!songFilesTracked.includes(song["songName"] + "." + song["fileType"])){
+          inList = false;
+          songFilesTracked.push(song["songName"] + "." + song["fileType"])
+        }
+        document.getElementById(track["trackName"]).innerHTML = document.getElementById(track["trackName"]).innerHTML + `<div class="elevatedframe" style="display: table;width:95%">
+          <span class="material-icons-round iconbutton thissong" style="font-size:24px;display: table-cell;vertical-align:middle;width:7%" id="${track["trackName"]}|${song["songName"] + "." + song["fileType"]}">play_arrow</span>
+          <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis;">${song["songName"]}</span>
+          <span class="material-icons-round iconbutton download" style="font-size:24px;display: ${args["songsInSystem"].includes(song["songName"] + "." + song["fileType"]) ? "none" : "table-cell"};vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="download|${song["songName"] + "." + song["fileType"]}">${ inList ? "cloud_queue" : "cloud_download" }</span>
+        </div><br/>`
+      });
+      
+    });
+    currentTrack = rawTrackList[0]
+    Array.from(document.getElementsByClassName("thissong")).forEach(btn => {
+      btn.addEventListener("click", setSongAndPlay)
+    })
+    Array.from(document.getElementsByClassName("download")).forEach(btn => {
+      btn.addEventListener("click", download)
+    })
+  });
+  ipcRenderer.send("getMeSpiderman")
+  const closeApp = document.getElementById('closeApp');
+  closeApp.addEventListener('click', () => {
+    ipcRenderer.send('quitapp');
+  });
+</script>
+
+</html>

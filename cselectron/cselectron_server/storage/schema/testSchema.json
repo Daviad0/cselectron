@@ -1,0 +1,67 @@
+{
+    "tracks": [
+        {
+            "trackName" : "Act 1",
+            "trackSongs" : [
+                {
+                    "songName" : "Overture",
+                    "fileType" : "mp3"
+                },
+                {
+                    "songName" : "The WHITE SPACE",
+                    "fileType" : "mp3"
+                },
+                {
+                    "songName" : "Let's Get Together Now!",
+                    "fileType" : "mp3"
+                },
+                {
+                    "songName" : "Lost at a Sleepover",
+                    "fileType" : "mp3"
+                },
+                {
+                    "songName" : "Push & Shove",
+                    "fileType" : "mp3"
+                },
+                {
+                    "songName" : "So, How'd We Do",
+                    "fileType" : "mp3"
+                },
+                {
+                    "songName" : "Trees...",
+                    "fileType" : "mp3"
+                }
+            ]
+        },
+        {
+            "trackName" : "Act 2",
+            "trackSongs" : [
+                {
+                    "songName" : "Trouble Brewing",
+                    "fileType" : "mp3"
+                },
+                {
+                    "songName" : "By Your Side.",
+                    "fileType" : "mp3"
+                },
+                {
+                    "songName" : "Let's Get Together Now!",
+                    "fileType" : "mp3"
+                }
+            ]
+        },
+        {
+            "trackName" : "Fun Songs",
+            "trackSongs" : [
+                {
+                    "songName" : "CantinaBand60",
+                    "fileType" : "wav"
+                },
+                {
+                    "songName" : "Spaces In-between",
+                    "fileType" : "mp3"
+                }
+            ]
+        }
+    ]
+}
