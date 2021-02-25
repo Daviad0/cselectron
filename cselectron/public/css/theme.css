@@ -35,6 +35,13 @@
     left: 5%;
     width: 43%;
 }
+.centercontainer {
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%)
+}
 .rightcontainer {
     position: absolute;
     top: 5%;

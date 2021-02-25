@@ -4,7 +4,8 @@
   "description": "Simple Node.js Desktop Application Template using Electron and Bootstrap",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "fileTest": "node tryUpdateId3.js"
   },
   "repository": "https://github.com/majikarp/node-desktop-app-template",
   "keywords": [
@@ -22,8 +23,10 @@
     "express": "^4.17.1",
     "howler": "^2.2.1",
     "jquery": "3.3.1",
+    "node-id3": "^0.2.2",
     "nodemon": "^2.0.2",
     "pizzip": "^3.0.6",
+    "request": "^2.88.2",
     "socket.io": "^3.1.1",
     "socket.io-client": "^3.1.1",
     "ws": "^7.4.3"
