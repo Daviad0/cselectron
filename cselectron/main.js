@@ -13,8 +13,8 @@ socket.on("connect", function(instance){
   
 })
 
-socket.on('majorEvent', (sender, message) => {
-  // Handle sending to client
+socket.on('notesSent', (notes) => {
+  console.log(notes["noteRoleGroups"][0]["notes"])
 });
 socket.on('songUpdateFromServer', (songName, subtitle, progress) => {
   // Handle sending to client
@@ -61,6 +61,7 @@ ipcMain.on('quitapp', (evt, arg) => {
 })
 
 ipcMain.on('selectRole', (evt, arg) => {
+  socket.emit('loginWithRole', arg["role"])
   console.log("Role Selected: " + arg["role"])
   if(arg["role"] == "controller_music"){
     createWindow(true);
@@ -159,6 +160,10 @@ ipcMain.on("getMeSpiderman", (event, args) => {
   // trying to get a list of current ids from the server
 });
 
+ipcMain.on("getNotes", (event, args) => {
+  socket.emit('getNoteList')
+  // trying to get a list of current ids from the server
+});
 
 app.on('ready', letUserSelectRole)
 

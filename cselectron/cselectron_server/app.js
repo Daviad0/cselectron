@@ -2,6 +2,7 @@ const express = require('express')
 const app = express();
 
 let jsonSchemaTest = ""
+let noteSchemaTest = ""
 
 
 
@@ -12,6 +13,10 @@ const path = require('path')
 
 fs.readFile('./storage/schema/testSchema.json', 'utf-8', (err, jsonString) => {
   jsonSchemaTest = jsonString;
+});
+
+fs.readFile('./storage/schema/testNoteSchema.json', 'utf-8', (err, jsonString) => {
+  noteSchemaTest = jsonString;
 });
 
 app.use(express.static(path.join(__dirname, 'storage')))
@@ -53,12 +58,18 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
   if(instances.filter(el => el.socketId == socket.id).length <= 0){
-    instances.push(new Instance(socket.id, new Date(), roles.filter(el => el.identifier == "admin_director")[0]))
-    console.log("Full instance list: \n\n" + JSON.stringify(instances))
+    instances.push(new Instance(socket.id, new Date(), null))
   }
   console.log('a user connected');
   socket.on('requestRoles', (loginRequest) => {
     socket.emit('rolesSent',roles)
+  });
+  socket.on('loginWithRole', (roleIdentifier) => {
+    console.log(socket.id + " logged in with role " + roleIdentifier)
+    instances.filter(el => el.socketId == socket.id)[0].role = roles.filter(el => el.identifier == roleIdentifier)[0]
+  });
+  socket.on('getNoteList', (loginRequest) => {
+    socket.emit('notesSent',JSON.parse(noteSchemaTest));
   });
   socket.on('getAudioList', (loginRequest) => {
     var songList = JSON.parse(jsonSchemaTest);

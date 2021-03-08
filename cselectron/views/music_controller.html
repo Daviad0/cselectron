@@ -512,6 +512,7 @@
     })
   });
   ipcRenderer.send("getMeSpiderman")
+  ipcRenderer.send("getNotes")
   const closeApp = document.getElementById('closeApp');
   closeApp.addEventListener('click', () => {
     ipcRenderer.send('quitapp');
