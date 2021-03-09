@@ -78,6 +78,16 @@
     border-color: #202342;
     color: rgba(255, 255, 255, .8);
 }
+.elevatedbutton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+.elevatedbutton:disabled:hover{
+    opacity: 0.7;
+    background-color: #262947;
+    border: 1px solid #262947;
+    color: lightgray;
+}
 .iconbutton{
     color: white;
     text-shadow:  1px 3px 6px 0px rgba(0,0,0,.16);
@@ -102,4 +112,20 @@
 @media (max-width: 1197px){
     .regcontrolbuttons { display: none; }
     .dropdowncontrol { display: inherit; }
+}
+
+.note{
+    width: 300px;
+    height: 150px;
+    transition: height 0.25s ease-in-out
+}
+.noteOption{
+    opacity: 0;
+    transition: opacity 0.25s ease-in-out
+}
+.note:hover{
+    height: 184px;
+}
+.note:hover .noteOption{
+    opacity: 1;
 }

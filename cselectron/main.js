@@ -5,7 +5,9 @@ const audioFolder = "./public/audio/"
 const fs = require('fs')
 const io = require("socket.io-client")
 const request = require('request')
+const filesize = require('filesize')
 
+let currentRole = "";
 
 const socket = io.connect("http://localhost:3000", {reconnect: true});
 
@@ -15,6 +17,9 @@ socket.on("connect", function(instance){
 
 socket.on('notesSent', (notes) => {
   console.log(notes["noteRoleGroups"][0]["notes"])
+  let roleNoteGroup = notes["noteRoleGroups"].filter(el => el.roleId == currentRole)[0]
+  let publicNoteGroup = notes["noteRoleGroups"].filter(el => el.roleId == "public")[0]
+  mainWindow.webContents.send("notesToLoad", { 'roleNotes' : (roleNoteGroup != undefined && roleNoteGroup["available"]) ? roleNoteGroup["notes"] : null, 'publicNotes' : (publicNoteGroup != undefined && publicNoteGroup["available"]) ? publicNoteGroup["notes"] : null })
 });
 socket.on('songUpdateFromServer', (songName, subtitle, progress) => {
   // Handle sending to client
@@ -61,6 +66,7 @@ ipcMain.on('quitapp', (evt, arg) => {
 })
 
 ipcMain.on('selectRole', (evt, arg) => {
+  currentRole = arg["role"]
   socket.emit('loginWithRole', arg["role"])
   console.log("Role Selected: " + arg["role"])
   if(arg["role"] == "controller_music"){
@@ -76,11 +82,23 @@ ipcMain.on('sendMainMessage', (evt, arg) => {
 
 ipcMain.on('downloadFile', (evt, arg) => {
   console.log(arg["fileName"])
+  var error = false;
   var newFileStream = request.get("http://localhost:3000/" + arg["sourceFolder"] + "/" + arg["fileName"] + "." + arg["fileType"]).pipe(fs.createWriteStream(audioFolder + arg["fileName"] + "." + arg["fileType"]))
   newFileStream.on('finish', function(){
-    console.log("Downloaded file " + arg["fileName"])
-    mainWindow.webContents.send("downloadSuccess", { 'fileName': arg["fileName"], 'fileType' : arg["fileType"] });
+    var newFileStats = fs.statSync(audioFolder + arg["fileName"] + "." + arg["fileType"])
+    var fileSizeInBytes = newFileStats.size;
+    console.log(fileSizeInBytes + " bytes")
+    // lmao this should be changed to support larger file names in a flexible fashion (size of name * x amount of bytes?)
+    if(fileSizeInBytes > 400){
+      console.log("Downloaded file " + arg["fileName"])
+      mainWindow.webContents.send("downloadSuccess", { 'fileName': arg["fileName"], 'fileType' : arg["fileType"] });
+    }else{
+      console.log("Failed to download file " + arg["fileName"])
+      mainWindow.webContents.send("downloadFailure", { 'fileName': arg["fileName"], 'fileType' : arg["fileType"] });
+    }
+    
   });
+  
 });
 
 ipcMain.on('songControl', (evt, arg) => {
