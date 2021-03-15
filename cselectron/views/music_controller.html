@@ -63,18 +63,7 @@
         <br/>
         <div style="text-align: center;display: flex;flex-wrap: wrap;height:38vh;overflow-y: auto;" id="noteList">
           
-          <div class="elevatedframe note" style="margin:5px;text-align: left;overflow:hidden;">
-            <span class="material-icons-round iconbutton thisispinned" style="font-size:18px;display: inline-block;text-align:left;margin-right:3px">push_pin</span><span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis">During "Overture" 1</span><br/>
-            <span style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>Director's Note - Only For You</i></span>
-            <span style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;">It's hard to hear and it's a bop :flushed: ajkdjkasdj asjdkjhasd ajksdjk asjhd ad dhakhjdas djhjh kadh jasd hjka</span>
-            <div style="display: inline-block;" class="noteOption">
-              <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton pinThisNote" type="button" id="" value="Pin" id="note1_pin"/>
-              <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton" type="button" id="" value="Edit" disabled title="You cannot edit a note that isn't yours!"/>
-              <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;color:pink;margin-top:8px" class="elevatedbutton" type="button" id="" value="Delete" disabled title="You cannot delete a note that isn't yours!"/>
-              
-            </div>
-            
-          </div>
+        
           
           
           
@@ -104,28 +93,81 @@
 
 <script src="../vendor/howler/dist/howler.js"></script>
 <script>
-
+  let notes = ["Act 1_Note 1_container","Act 1_Note 2_container","Act 1_Note 3_container","Act 1_Note 4_container","Act 1_Note 5_container","Act 1_Note 6_container","Act 1_Note 7_container","Act 1_Note 8_container","Act 1_Note 9_container"]
+  let currentlyUpNext = []
   let previouslyPinned = undefined;
+
+  notes.forEach(note => {
+    document.getElementById("noteList").innerHTML = document.getElementById("noteList").innerHTML + `
+    <div id="${note}" class="elevatedframe note" style="margin:5px;text-align: left;overflow:hidden;">
+      <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${note}</span><br/>
+      <span style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>Director's Note - Only For You</i></span>
+      <span style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;">It's hard to hear and it's a bop :flushed: ajkdjkasdj asjdkjhasd ajksdjk asjhd ad dhakhjdas djhjh kadh jasd hjka</span>
+      <div style="display: inline-block;" class="noteOption">
+        <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton pinThisNote" type="button" id="" value="Pin"/>
+        <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton" type="button" id="" value="Edit" disabled title="You cannot edit a note that isn't yours!"/>
+        <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;color:pink;margin-top:8px" class="elevatedbutton" type="button" id="" value="Delete" disabled title="You cannot delete a note that isn't yours!"/>
+        
+      </div>
+      
+    </div>
+    `
+  });
 
   $(document).ready(function(){
     $(".pinThisNote").live('click',function(){
       if($(this).attr("value") == "Unpin"){
-        $(this).css("background-color", "#202342")
+        $(this).css("background-color", "")
         $(this).css("color", "white")
         $(this).attr("value", "Pin")
+
+        $($(this).parent().parent().find(".thisispinned")[0]).css("margin-right", "0px")
+        $(this).parent().parent().find(".thisispinned")[0].innerHTML = ""
+        var notCurrentlyUpNext = notes.filter(note => !currentlyUpNext.includes(note))
+        var toSetBackTo = notes.indexOf(notCurrentlyUpNext.filter(note => note == ($($(this).parent().parent()).attr("id")))[0])
+        var save = $(this).parent().parent().clone()[0]
+        $(this).parent().parent().remove()
+        if(toSetBackTo > 0){
+          $(save).insertAfter("#noteList div:nth-child(" + (toSetBackTo) + ")")
+        }else{
+          $("#noteList").prepend(save);
+        }
+        previouslyPinned = undefined
+        //$(this).parent().parent().remove();
       }else{
+        if(previouslyPinned != undefined && $(previouslyPinned).parent().parent().attr("id") != $(this).parent().parent().attr("id")){
+          var element = $("#noteList").find("#" + $($(previouslyPinned).parent().parent()).attr("id"))
+          $(previouslyPinned).css("background-color", "")
+          console.log($(previouslyPinned).css("background-color"))
+          $(previouslyPinned).css("color", "white")
+          $(previouslyPinned).attr("value", "Pin")
+          $($(previouslyPinned).parent().parent().find(".thisispinned")[0]).css("margin-right", "0px")
+          $(previouslyPinned).parent().parent().find(".thisispinned")[0].innerHTML = ""
+          
+          var notCurrentlyUpNext = notes.filter(note => !currentlyUpNext.includes(note))
+          var toSetBackTo = notes.indexOf(notCurrentlyUpNext.filter(note => note == ($($(previouslyPinned).parent().parent()).attr("id")))[0])
+          var save = $(previouslyPinned).parent().parent().clone()[0]
+          $(previouslyPinned).parent().parent().remove()
+          if(toSetBackTo > 0){
+            $(save).insertAfter("#noteList div:nth-child(" + (toSetBackTo) + ")")
+          }else{
+            $("#noteList").prepend(save);
+          }
+          
+          
+          
+        }
         $(this).css("background-color", "white")
         $(this).attr("value", "Unpin")
         $(this).css("color", "#202342")
-        $(this).parent().parent().hide().prependTo("#noteList").slideDown();
-        if(previouslyPinned != undefined && previouslyPinned != this){
-          $(previouslyPinned).css("background-color", "#202342")
-          $(previouslyPinned).css("color", "white")
-          $(previouslyPinned).attr("value", "Pin")
-        }
+        $(this).parent().parent().find(".thisispinned")[0].innerHTML = "push_pin"
+        $($(this).parent().parent().find(".thisispinned")[0]).css("margin-right", "3px")
+        $(this).parent().parent().hide().prependTo("#noteList").show();
+        
+        previouslyPinned = this
       }
       
-      previouslyPinned = this
+      
     });
   });
 

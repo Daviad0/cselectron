@@ -71,7 +71,7 @@
     border: 1px solid #262947;
     box-shadow:  1px 3px 6px 0px rgba(0,0,0,.16);
     cursor: pointer;
-    transition: background-color .25s ease-in-out, border-color .25s ease-in-out, color .25s ease-in-out;
+    transition: background-color .25s ease-in-out, border-color .25s ease-in-out, color .25s ease-in-out, width .25s ease-in-out;
 }
 .elevatedbutton:hover{
     background-color: #202342;
