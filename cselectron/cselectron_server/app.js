@@ -50,7 +50,7 @@ class Instance {
 
 let instances = [];
 
-let roles = [new Role("controller_music", "Music Controller", 1, false), new Role("crew_backstage", "Backstage Progress Viewer", -1, false)]
+let roles = [new Role("controller_music", "Music Controller", 1, false), new Role("crew_backstage", "Backstage Progress Viewer", -1, false), new Role("controller_schema", "Schema Designer", 1, true)]
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');

@@ -69,11 +69,7 @@ ipcMain.on('selectRole', (evt, arg) => {
   currentRole = arg["role"]
   socket.emit('loginWithRole', arg["role"])
   console.log("Role Selected: " + arg["role"])
-  if(arg["role"] == "controller_music"){
-    createWindow(true);
-  }else{
-    createWindow(false);
-  }
+  createWindow(arg["role"]);
 })
 
 ipcMain.on('sendMainMessage', (evt, arg) => {
@@ -140,7 +136,7 @@ socket.on('rolesSent', (roles) => {
   roleSelectionWindow.webContents.send("rolesToSelect", {'roles' : roles});
 });
 
-function createWindow (isMusic) {
+function createWindow (role) {
 
   mainWindow = new BrowserWindow({
     width: 1000,
@@ -153,7 +149,17 @@ function createWindow (isMusic) {
   })
   //mainWindow.setFullScreen(true)
   //mainWindow.setMenu(null)
-  mainWindow.loadFile(isMusic ? "views/music_controller.html" : "views/viewer.html")
+  var fileToLoad = ""
+  console.log(role)
+  if(role == "controller_music"){
+    fileToLoad = "views/music_controller.html"
+  }else if(role == "controller_schema"){
+    fileToLoad = "views/schema_designer.html"
+    console.log("AAAA")
+  }else{
+    fileToLoad = "views/viewer.html"
+  }
+  mainWindow.loadFile(fileToLoad)
   mainWindow.isMenuBarVisible(false)
   
   mainWindow.on('closed', function () {
