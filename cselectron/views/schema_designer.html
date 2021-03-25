@@ -9,7 +9,7 @@
 </head>
 <body class="bg">
   <div class="outsidecontainer">
-    <div class="leftcontainer" style="height:80%;width:55%">
+    <div class="leftcontainer" style="height:80%;width:50%">
       <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block">Phases and Songs</span>
       <br/>
       <br/>
@@ -20,8 +20,18 @@
           <span class="material-icons-round iconbutton" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px">remove_moderator</span>
           <span class="material-icons-round iconbutton" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px">visibility</span>
           <span class="material-icons-round iconbutton" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px">visibility_off</span>
+          
         </div>
-        
+        <br/>
+        <div style="margin-left:5px" id="testSortableLeft" style="min-height: 200px;">
+          <div class="elevatedframe" style="width:70%;margin-bottom: 5px;">
+            <div style="display: table;width:100%;">
+              <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">Overture</span>
+              <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">cloud_download</span>
+            </div>
+            
+          </div>
+        </div>
       </div>
       
       
@@ -29,11 +39,15 @@
     <div class="rightcontainer" style="left:60%;width:35%">
       <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block">Toolbox</span>
       <br/>
-      <div class="elevatedframe" style="display: table;width:95%">
-          <span class="material-icons-round iconbutton thissong" style="font-size:24px;display: table-cell;vertical-align:middle;width:7%" id="test-a">play_arrow</span>
-          <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis;">Overture</span>
-          <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">cloud_download</span>
-        </div><br/>
+      <div id="testSortableRight" style="min-height: 200px;">
+        <div class="elevatedframe" style="width:70%;margin-bottom: 5px;">
+          <div style="display: table;width:100%;">
+            <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">Overture</span>
+            <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">cloud_download</span>
+          </div>
+        </div>
+      </div>
+      
       <br/>
       
       
@@ -57,10 +71,24 @@
   
 
 </body>
-
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script src="../vendor/howler/dist/howler.js"></script>
 <script>
-  
+  new Sortable(document.getElementById("testSortableRight"), {
+    group : {
+      name: 'songs',
+      pull: 'clone',
+      put: false
+    },
+    animation: 150,
+    sort: false
+  });
+  new Sortable(document.getElementById("testSortableLeft"), {
+    group : {
+      name: 'songs'
+    },
+    animation: 150,
+  });
 
   const {ipcRenderer} = require('electron');
 
@@ -81,7 +109,7 @@
     
     
   });
-  ipcRenderer.on("songsToLoad", (event,args) => {
+  ipcRenderer.on("serverSongFiles", (event,args) => {
     // rename to songSchema soon
     songList = args['songs']['tracks']
     downloadedSongs = args["songsInSystem"]
