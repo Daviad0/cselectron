@@ -4,7 +4,18 @@ const app = express();
 let jsonSchemaTest = ""
 let noteSchemaTest = ""
 
+let serverState = undefined;
 
+class TheaterState {
+  constructor(initDate, active, logging, musicStage){
+    this.initDate = initDate
+    this.active = active
+    this.logging = logging
+    this.musicStage = musicStage
+  }
+}
+
+serverState = new TheaterState(new Date(), true, true, "Pre-Show")
 
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
@@ -50,7 +61,7 @@ class Instance {
 
 let instances = [];
 
-let roles = [new Role("controller_music", "Music Controller", 1, false), new Role("crew_backstage", "Backstage Progress Viewer", -1, false), new Role("controller_schema", "Schema Designer", 1, true)]
+let roles = [new Role("controller_music", "Music Controller", 1, false), new Role("crew_backstage", "Backstage Progress Viewer", -1, false), new Role("controller_schema", "Schema Designer", 1, true), new Role("director", "Director", 1, true)]
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');

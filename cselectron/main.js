@@ -9,6 +9,10 @@ const filesize = require('filesize')
 
 let currentRole = "";
 
+
+
+
+
 const socket = io.connect("http://localhost:3000", {reconnect: true});
 
 socket.on("connect", function(instance){
