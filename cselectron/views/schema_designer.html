@@ -11,28 +11,34 @@
   <div class="outsidecontainer">
     <div class="leftcontainer" style="height:80%;width:55%">
       <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block;vertical-align: middle;">All Phases and Songs</span>
-      <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" type="button" value="Add Phase"/>
+      <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="addPhase" type="button" value="Add Phase"/>
       <br/>
       <br/>
       <div id="phaseList" style="height:95%;overflow-y:auto">
-        <div style="display:flex; flex-direction: row; align-items: center">
-          <input class="textbox" style="display:inline-block;font-size:20px"/>
-          <span class="material-icons-round iconbutton" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px">shield</span>
-          <span class="material-icons-round iconbutton" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px">remove_moderator</span>
-          <span class="material-icons-round iconbutton" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px">visibility</span>
-          <span class="material-icons-round iconbutton" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px">visibility_off</span>
-          
-        </div>
-        <br/>
-        <div style="margin-left:5px" id="testSortableLeft" style="min-height: 200px;">
-          <div class="elevatedframe" style="width:70%;margin-bottom: 5px;">
-            <div style="display: table;width:100%;">
-              <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">Overture</span>
-              <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">cloud_download</span>
-            </div>
+        <div id="df_phase_1">
+          <div style="display:flex; flex-direction: row; align-items: center">
+            <input class="textbox" style="display:inline-block;font-size:20px" placeholder="Name Me!"/>
+            <span class="material-icons-round iconbutton" title="There are stricter rules enforced during the show. Click me to turn them off!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:10px" id="df_phase_1_strict_on">shield</span>
+            <span class="material-icons-round iconbutton" title="There are less rules enforced during the show. Click me to turn stricter ones on!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:10px;display:none" id="df_phase_1_strict_off">remove_moderator</span>
+            <span class="material-icons-round iconbutton" title="Everyone can see this phase and add notes to it! Click me to hide this phase!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px;display:none" id="df_phase_1_visible_on">visibility</span>
+            <span class="material-icons-round iconbutton" title="No one but you can see this phase. Click me to make this phase public!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="df_phase_1_visible_off">visibility_off</span>
             
           </div>
+          <br/>
+          <div style="border-left: 2px solid white;border-radius:4px">
+            <div style="margin-left:15px" id="df_phase_1_sort" style="min-height: 200px">
+              <div class="elevatedframe" style="width:70%;margin-bottom: 5px;">
+                <div style="display: table;width:100%;">
+                  <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">Overture</span>
+                  <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">cloud_download</span>
+                </div>
+                
+              </div>
+            </div>
+          </div>
         </div>
+        
+        
       </div>
       
       
@@ -69,12 +75,131 @@
       
     </div>
   </div>
-  
+  <div id="createPhase" class="overlayBox" style="display:none;text-align:center;">
+    <div style="width:100%;height:100%;display: flex;align-items:center;justify-content:center">
+      <div class="elevatedframe" style="display:inline-block;height:200px;width:500px">
+        <input class="textbox" style="display:inline-block;font-size:20px" id="name_createPhase" placeholder="Phase Name"/><br/>
+        <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="cancel_addPhase" type="button" value="Cancel"/>
+        <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="save_addPhase" type="button" value="Save"/>
+      </div>
+    </div>
+    
+  </div>
 
 </body>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script src="../vendor/howler/dist/howler.js"></script>
 <script>
+
+  class Phase{
+    constructor(id, name, visible, strict){
+      this.id = id
+      this.name = name
+      this.visible = visible
+      this.strict = strict
+    }
+  }
+
+  phases = [new Phase("df_phase_1", "Default", true, false)]
+  // SET THIS TO LEN OF PHASES WHEN IMPORTED
+  phaseCreationIndex = 1;
+
+  function changeName(evt){
+    var phaseId = evt.srcElement.id.split("_")[0] + "_" + evt.srcElement.id.split("_")[1] + "_" + evt.srcElement.id.split("_")[2]
+    var phaseObject = phases.filter(el => el.id == phaseId)[0]
+
+    var isUniqueName = phases.filter(el => el.name == document.getElementById(evt.srcElement.id).value).length > 0 ? false : true
+
+    if(isUniqueName){
+      phases.filter(el => el.id == phaseId)[0].name = document.getElementById(evt.srcElement.id).value;
+    }
+  }
+
+  function toggleStrict(evt){
+    var phaseId = evt.srcElement.id.split("_")[0] + "_" + evt.srcElement.id.split("_")[1] + "_" + evt.srcElement.id.split("_")[2]
+    var phaseObject = phases.filter(el => el.id == phaseId)[0]
+    if(phaseObject.strict){
+      document.getElementById(phaseId + "_strict_on").style.display = "none";
+      document.getElementById(phaseId + "_strict_off").style.display = "";
+      phases.filter(el => el.id == phaseId)[0].strict = false;
+    }else{
+      document.getElementById(phaseId + "_strict_off").style.display = "none";
+      document.getElementById(phaseId + "_strict_on").style.display = "";
+      phases.filter(el => el.id == phaseId)[0].strict = true;
+    }
+    
+  }
+  function toggleVisible(evt){
+    var phaseId = evt.srcElement.id.split("_")[0] + "_" + evt.srcElement.id.split("_")[1] + "_" + evt.srcElement.id.split("_")[2]
+    var phaseObject = phases.filter(el => el.id == phaseId)[0]
+    if(phaseObject.visible){
+      document.getElementById(phaseId + "_visible_on").style.display = "none";
+      document.getElementById(phaseId + "_visible_off").style.display = "";
+      phases.filter(el => el.id == phaseId)[0].visible = false;
+    }else{
+      document.getElementById(phaseId + "_visible_off").style.display = "none";
+      document.getElementById(phaseId + "_visible_on").style.display = "";
+      phases.filter(el => el.id == phaseId)[0].visible = true;
+    }
+    
+  }
+
+  function createPhase(){
+    document.getElementById("phaseList").innerHTML = document.getElementById("phaseList").innerHTML + `<br/><div id="cp_phase_` + phaseCreationIndex + `">
+          <div style="display:flex; flex-direction: row; align-items: center" class="topDivForPhase">
+            <input class="textbox" style="display:inline-block;font-size:20px" value="` + document.getElementById("name_createPhase").value + `" placeholder="Name Me!"/>
+            <span class="material-icons-round iconbutton" title="There are stricter rules enforced during the show. Click me to turn them off!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="cp_phase_` + phaseCreationIndex + `_strict_on">shield</span>
+            <span class="material-icons-round iconbutton" title="There are less rules enforced during the show. Click me to turn stricter ones on!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px;display:none" id="cp_phase_` + phaseCreationIndex + `_strict_off">remove_moderator</span>
+            <span class="material-icons-round iconbutton" title="Everyone can see this phase and add notes to it! Click me to hide this phase!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px;display:none" id="cp_phase_` + phaseCreationIndex + `_visible_on">visibility</span>
+            <span class="material-icons-round iconbutton" title="No one but you can see this phase. Click me to make this phase public!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="cp_phase_` + phaseCreationIndex + `_visible_off">visibility_off</span>
+            
+          </div>
+          <br/>
+          <div style="border-left: 2px solid white;border-radius:4px">
+            <div style="margin-left:15px" id="cp_phase_` + phaseCreationIndex + `_sort" style="min-height: 200px">
+              <div class="elevatedframe" style="width:70%;margin-bottom: 5px;">
+                <div style="display: table;width:100%;">
+                  <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">Overture</span>
+                  <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">cloud_download</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`
+    phases.push(new Phase("cp_phase_" + phaseCreationIndex, "NON GENERIC NAME", false, true));
+    phases.forEach(phase => {
+      new Sortable(document.getElementById(phase.id + "_sort"), {
+        group : {
+          name: 'songs'
+
+        },
+        animation: 150,
+        filter: 'topDivForPhase'
+      });
+    });
+    document.getElementById("cp_phase_" + phaseCreationIndex + "_strict_on").addEventListener('click', toggleStrict)
+    document.getElementById("cp_phase_" + phaseCreationIndex + "_strict_off").addEventListener('click', toggleStrict)
+    document.getElementById("cp_phase_" + phaseCreationIndex + "_visible_on").addEventListener('click', toggleVisible)
+    document.getElementById("cp_phase_" + phaseCreationIndex + "_visible_off").addEventListener('click', toggleVisible)
+    phaseCreationIndex = phaseCreationIndex + 1;
+    document.getElementById("createPhase").style.display = "none";
+    
+  }
+  document.getElementById("save_addPhase").addEventListener('click', createPhase)
+
+  document.getElementById("addPhase").addEventListener('click', function(evt){
+    document.getElementById("createPhase").style.display = "block";
+  });
+
+  document.getElementById("cancel_addPhase").addEventListener('click', function(evt){
+    document.getElementById("createPhase").style.display = "none";
+  });
+  document.getElementById("df_phase_" + 1 + "_strict_on").addEventListener('click', toggleStrict)
+  document.getElementById("df_phase_" + 1 + "_strict_off").addEventListener('click', toggleStrict)
+  document.getElementById("df_phase_" + 1 + "_visible_on").addEventListener('click', toggleVisible)
+  document.getElementById("df_phase_" + 1 + "_visible_off").addEventListener('click', toggleVisible)
+
+
   new Sortable(document.getElementById("testSortableRight"), {
     group : {
       name: 'songs',
@@ -84,7 +209,7 @@
     animation: 150,
     sort: false
   });
-  new Sortable(document.getElementById("testSortableLeft"), {
+  new Sortable(document.getElementById("df_phase_1_sort"), {
     group : {
       name: 'songs'
     },
