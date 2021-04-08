@@ -68,6 +68,7 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
+  // I need to sort by role so that I can use socket.off() in the client side in order to improve security/performance
   if(instances.filter(el => el.socketId == socket.id).length <= 0){
     instances.push(new Instance(socket.id, new Date(), null))
   }
@@ -90,6 +91,14 @@ io.on('connection', (socket) => {
     });
     
   });
+  socket.on('getSystemAudioList', (loginRequest) => {
+    fs.readdir(audioFolder, (err, files) => {
+      console.log("Server audio files requested by client")
+      socket.emit('recSystemAudioList',files)
+    });
+    
+  });
+  
   socket.on('songUpdate', (to, outOf, paused, name, subtitle) => {
     console.log("Current Song" + (paused ? " (PAUSED)" : "") + ": " + name + " (" + subtitle + ") >>> " + Math.round((to/outOf)*100))
     socket.broadcast.emit("songUpdate", to, outOf, paused, name, subtitle);

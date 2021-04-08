@@ -200,6 +200,15 @@
   document.getElementById("df_phase_" + 1 + "_visible_off").addEventListener('click', toggleVisible)
 
 
+  let availableSongs = [];
+  class Song{
+    constructor(name, filetype, location, downloaded){
+      this.name = name;
+      this.filetype = filetype;
+      this.location = location;
+      this.downloaded = downloaded;
+    }
+  }
   new Sortable(document.getElementById("testSortableRight"), {
     group : {
       name: 'songs',
@@ -235,28 +244,20 @@
     
     
   });
-  ipcRenderer.on("serverSongFiles", (event,args) => {
+  ipcRenderer.on("systemSongFiles", (event,args) => {
     // rename to songSchema soon
-    songList = args['songs']['tracks']
-    downloadedSongs = args["songsInSystem"]
+    songList = args['songs']
+    console.log(songList)
     var songFilesTracked = []; 
     songList.forEach(track => {
       rawTrackList.push(track["trackName"])
-      document.getElementById("songList").innerHTML = document.getElementById("songList").innerHTML + `<div id="${track["trackName"]}">
-          <span style="text-align: center;color:white;font-size: 30px;font-weight: 600;display:inline-block;margin-bottom:10px">${track["trackName"]}</span><br/>
-        </div><br/>`
-      track["trackSongs"].forEach(song => {
-        var inList = true;
-        if(!songFilesTracked.includes(song["songName"] + "." + song["fileType"])){
-          inList = false;
-          songFilesTracked.push(song["songName"] + "." + song["fileType"])
-        }
-        document.getElementById(track["trackName"]).innerHTML = document.getElementById(track["trackName"]).innerHTML + `<div class="elevatedframe" style="display: table;width:95%">
-          <span class="material-icons-round iconbutton thissong" style="font-size:24px;display: table-cell;vertical-align:middle;width:7%" id="${track["trackName"]}|${song["songName"] + "." + song["fileType"]}">play_arrow</span>
-          <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis;">${song["songName"]}</span>
-          <span class="material-icons-round iconbutton download" style="font-size:24px;display: ${args["songsInSystem"].includes(song["songName"] + "." + song["fileType"]) ? "none" : "table-cell"};vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="download|${song["songName"] + "." + song["fileType"]}">${ inList ? "cloud_queue" : "cloud_download" }</span>
-        </div><br/>`
-      });
+      document.getElementById("songList").innerHTML = document.getElementById("songList").innerHTML + `<div class="elevatedframe" style="width:70%;margin-bottom: 5px;">
+          <div style="display: table;width:100%;">
+            <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">Overture</span>
+            <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">cloud_download</span>
+          </div>
+        </div>`
+      
       
     });
     currentTrack = rawTrackList[0]
@@ -274,7 +275,7 @@
     
     
   });
-  ipcRenderer.send("getMeSpiderman")
+  ipcRenderer.send("requestServerSongs")
   ipcRenderer.send("getNotes")
   const closeApp = document.getElementById('closeApp');
   closeApp.addEventListener('click', () => {

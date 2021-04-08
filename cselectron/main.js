@@ -53,6 +53,12 @@ socket.on('recAudioList', (listOfFiles) => {
   });
 });
 
+socket.on('recSystemAudioList', (listOfFiles) => {
+  // sending down the schema and then the songs that the client has downloaded to make it more easier
+  // downloaded items should work in an array and calculated on the fly (because then we can just get rid of a lot of the beginning logic)
+  mainWindow.webContents.send("systemSongFiles", {'songs' : listOfFiles })
+});
+
 // every request needs to include a hoststate!
 class HostState {
   constructor(token, time, role, connected){
@@ -185,6 +191,11 @@ function createWindow (role) {
 ipcMain.on("getMeSpiderman", (event, args) => {
   console.log("Get me Spiderman!!!")
   socket.emit('getAudioList')
+  // trying to get a list of current ids from the server
+});
+
+ipcMain.on("requestServerSongs", (event, args) => {
+  socket.emit('getSystemAudioList')
   // trying to get a list of current ids from the server
 });
 
