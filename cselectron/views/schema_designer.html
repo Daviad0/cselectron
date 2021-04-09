@@ -9,19 +9,20 @@
 </head>
 <body class="bg">
   <div class="outsidecontainer">
-    <div class="leftcontainer" style="height:80%;width:55%">
+    <div class="leftcontainer" style="height:80%;width:50%">
       <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block;vertical-align: middle;">All Phases and Songs</span>
       <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="addPhase" type="button" value="Add Phase"/>
       <br/>
       <br/>
       <div id="phaseList" style="height:95%;overflow-y:auto">
-        <div id="df_phase_1">
+        <div id="df_phase_1" style="margin-top:20px;margin-bottom:20px">
           <div style="display:flex; flex-direction: row; align-items: center">
             <input class="textbox" style="display:inline-block;font-size:20px" placeholder="Name Me!"/>
             <span class="material-icons-round iconbutton" title="There are stricter rules enforced during the show. Click me to turn them off!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:10px" id="df_phase_1_strict_on">shield</span>
             <span class="material-icons-round iconbutton" title="There are less rules enforced during the show. Click me to turn stricter ones on!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:10px;display:none" id="df_phase_1_strict_off">remove_moderator</span>
             <span class="material-icons-round iconbutton" title="Everyone can see this phase and add notes to it! Click me to hide this phase!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px;display:none" id="df_phase_1_visible_on">visibility</span>
             <span class="material-icons-round iconbutton" title="No one but you can see this phase. Click me to make this phase public!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="df_phase_1_visible_off">visibility_off</span>
+            <span class="material-icons-round iconbutton" title="No one but you can see this phase. Click me to make this phase public!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="df_phase_1_removePhase">delete</span>
             
           </div>
           <br/>
@@ -85,7 +86,17 @@
     </div>
     
   </div>
-
+  <div id="deletePhase" class="overlayBox" style="display:none;text-align:center;">
+    <div style="width:100%;height:100%;display: flex;align-items:center;justify-content:center">
+      <div class="elevatedframe" style="display:inline-block;height:200px;width:500px">
+        <input style="display: none;" id="selected_removePhase" value=""/>
+        <span style="color: white;">Are you sure?</span><br/>
+        <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="cancel_removePhase" type="button" value="No"/>
+        <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="delete_removePhase" type="button" value="Yes"/>
+      </div>
+    </div>
+    
+  </div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script src="../vendor/howler/dist/howler.js"></script>
@@ -100,7 +111,7 @@
     }
   }
 
-  phases = [new Phase("df_phase_1", "Default", true, false)]
+  phases = [new Phase("df_phase_1", "Default", false, true)]
   // SET THIS TO LEN OF PHASES WHEN IMPORTED
   phaseCreationIndex = 1;
 
@@ -144,25 +155,43 @@
     
   }
 
+  function askDelete(evt){
+    var phaseId = evt.srcElement.id.split("_")[0] + "_" + evt.srcElement.id.split("_")[1] + "_" + evt.srcElement.id.split("_")[2]
+    var phaseObject = phases.filter(el => el.id == phaseId)[0]
+    document.getElementById("selected_removePhase").value = phaseId;
+    document.getElementById("deletePhase").style.display = "";
+  }
+
+  function cancelDelete(){
+    document.getElementById("selected_removePhase").value = "";
+    document.getElementById("deletePhase").style.display = "none";
+  }
+
+  function confirmDelete(){
+    var phaseId = document.getElementById("selected_removePhase").value
+    var phaseObject = phases.filter(el => el.id == phaseId)[0]
+    delete phases[phases.indexOf(phaseObject)]
+    document.getElementById(phaseId).remove();
+    document.getElementById("deletePhase").style.display = "none";
+  }
+
+  document.getElementById("cancel_removePhase").addEventListener('click', cancelDelete);
+  document.getElementById("delete_removePhase").addEventListener('click', confirmDelete);
+
   function createPhase(){
-    document.getElementById("phaseList").innerHTML = document.getElementById("phaseList").innerHTML + `<br/><div id="cp_phase_` + phaseCreationIndex + `">
-          <div style="display:flex; flex-direction: row; align-items: center" class="topDivForPhase">
+    document.getElementById("phaseList").innerHTML = document.getElementById("phaseList").innerHTML + `<div style="margin-top:20px;margin-bottom:20px" id="cp_phase_` + phaseCreationIndex + `">
+          <div style="display:flex; flex-direction: row; align-items: center;margin-top:5px" class="topDivForPhase">
             <input class="textbox" style="display:inline-block;font-size:20px" value="` + document.getElementById("name_createPhase").value + `" placeholder="Name Me!"/>
-            <span class="material-icons-round iconbutton" title="There are stricter rules enforced during the show. Click me to turn them off!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="cp_phase_` + phaseCreationIndex + `_strict_on">shield</span>
-            <span class="material-icons-round iconbutton" title="There are less rules enforced during the show. Click me to turn stricter ones on!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px;display:none" id="cp_phase_` + phaseCreationIndex + `_strict_off">remove_moderator</span>
+            <span class="material-icons-round iconbutton" title="There are stricter rules enforced during the show. Click me to turn them off!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:10px" id="cp_phase_` + phaseCreationIndex + `_strict_on">shield</span>
+            <span class="material-icons-round iconbutton" title="There are less rules enforced during the show. Click me to turn stricter ones on!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:10px;display:none" id="cp_phase_` + phaseCreationIndex + `_strict_off">remove_moderator</span>
             <span class="material-icons-round iconbutton" title="Everyone can see this phase and add notes to it! Click me to hide this phase!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px;display:none" id="cp_phase_` + phaseCreationIndex + `_visible_on">visibility</span>
             <span class="material-icons-round iconbutton" title="No one but you can see this phase. Click me to make this phase public!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="cp_phase_` + phaseCreationIndex + `_visible_off">visibility_off</span>
-            
+            <span class="material-icons-round iconbutton" title="No one but you can see this phase. Click me to make this phase public!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="cp_phase_` + phaseCreationIndex + `_removePhase">delete</span>
           </div>
           <br/>
-          <div style="border-left: 2px solid white;border-radius:4px">
+          <div style="border-left: 2px solid white;border-radius:4px;margin-bottom:5px">
             <div style="margin-left:15px" id="cp_phase_` + phaseCreationIndex + `_sort" style="min-height: 200px">
-              <div class="elevatedframe" style="width:70%;margin-bottom: 5px;">
-                <div style="display: table;width:100%;">
-                  <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">Overture</span>
-                  <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">cloud_download</span>
-                </div>
-              </div>
+
             </div>
           </div>
         </div>`
@@ -176,11 +205,13 @@
         animation: 150,
         filter: 'topDivForPhase'
       });
+      document.getElementById(phase.id + "_strict_on").addEventListener('click', toggleStrict)
+      document.getElementById(phase.id + "_strict_off").addEventListener('click', toggleStrict)
+      document.getElementById(phase.id + "_visible_on").addEventListener('click', toggleVisible)
+      document.getElementById(phase.id + "_visible_off").addEventListener('click', toggleVisible)
+      document.getElementById(phase.id + "_removePhase").addEventListener('click', askDelete)
     });
-    document.getElementById("cp_phase_" + phaseCreationIndex + "_strict_on").addEventListener('click', toggleStrict)
-    document.getElementById("cp_phase_" + phaseCreationIndex + "_strict_off").addEventListener('click', toggleStrict)
-    document.getElementById("cp_phase_" + phaseCreationIndex + "_visible_on").addEventListener('click', toggleVisible)
-    document.getElementById("cp_phase_" + phaseCreationIndex + "_visible_off").addEventListener('click', toggleVisible)
+    
     phaseCreationIndex = phaseCreationIndex + 1;
     document.getElementById("createPhase").style.display = "none";
     
@@ -198,6 +229,7 @@
   document.getElementById("df_phase_" + 1 + "_strict_off").addEventListener('click', toggleStrict)
   document.getElementById("df_phase_" + 1 + "_visible_on").addEventListener('click', toggleVisible)
   document.getElementById("df_phase_" + 1 + "_visible_off").addEventListener('click', toggleVisible)
+  document.getElementById("df_phase_" + 1 + "_removePhase").addEventListener('click', askDelete)
 
 
   let availableSongs = [];
@@ -225,6 +257,12 @@
     animation: 150,
   });
 
+  new Sortable(document.getElementById("phaseList"), {
+    group : {
+      name: 'phases'
+    },
+    animation: 150,
+  });
   const {ipcRenderer} = require('electron');
 
 
