@@ -92,10 +92,14 @@
     color:white;
     border-radius: 8px;
     border: 2px solid #262947;
-    transition: border .25s ease-in-out
+    transition: border .25s ease-in-out;
+    
 }
 .textbox:hover{
     border: 2px solid #343755;
+}
+.textbox::placeholder{
+    color:#45486b;
 }
 .elevatedbutton:hover{
     background-color: #202342;
