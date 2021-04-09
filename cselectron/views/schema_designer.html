@@ -47,13 +47,8 @@
     <div class="rightcontainer" style="left:60%;width:35%">
       <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block">Toolbox</span>
       <br/>
-      <div id="testSortableRight" style="min-height: 200px;">
-        <div class="elevatedframe" style="width:70%;margin-bottom: 5px;">
-          <div style="display: table;width:100%;">
-            <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">Overture</span>
-            <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">cloud_download</span>
-          </div>
-        </div>
+      <div id="songList" style="min-height: 200px;">
+        
       </div>
       
       <br/>
@@ -72,6 +67,18 @@
           
         </div>
         <input style="display:inline-block;text-align: center;border-radius: 20px;font-size: 15px;padding: 8px 15px 8px 15px;" class="elevatedbutton" id="closeApp" type="button" value="Exit App"/>
+      </div>
+      
+    </div>
+    <div class="additionalcontainer">
+      <div style="display: flex;">
+        
+        <div class="elevatedframe" style="display: inline-block;margin-right: 12px;padding:14px">
+          <span class="material-icons-round iconbutton" style="font-size:24px;display: inline-block;vertical-align: middle;margin-right:6px">info</span>
+          <span style="text-align: center;color:white;font-size: 18px;font-weight: 600;display:inline-block;vertical-align: middle;">You have unsaved changes!</span>
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="saveAll" type="button" value="Save"/>
+        </div>
+      
       </div>
       
     </div>
@@ -104,6 +111,24 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script src="../vendor/howler/dist/howler.js"></script>
 <script>
+
+  $(document).ready(function(){
+    $(".additionalcontainer").animate({bottom:'20px'},500, 'swing');
+    $("#saveAll").click(function(){
+      $(".additionalcontainer").animate({bottom:'-100px'},300, 'swing');
+    });
+  });
+
+  defaultSongs = [];
+
+  class Song{
+    constructor(name, filetype, location, downloaded){
+      this.name = name;
+      this.filetype = filetype;
+      this.location = location;
+      this.downloaded = downloaded;
+    }
+  }
 
   class Phase{
     constructor(id, name, visible, strict){
@@ -235,24 +260,6 @@
   document.getElementById("df_phase_" + 1 + "_removePhase").addEventListener('click', askDelete)
 
 
-  let availableSongs = [];
-  class Song{
-    constructor(name, filetype, location, downloaded){
-      this.name = name;
-      this.filetype = filetype;
-      this.location = location;
-      this.downloaded = downloaded;
-    }
-  }
-  new Sortable(document.getElementById("testSortableRight"), {
-    group : {
-      name: 'songs',
-      pull: 'clone',
-      put: false
-    },
-    animation: 150,
-    sort: false
-  });
   new Sortable(document.getElementById("df_phase_1_sort"), {
     group : {
       name: 'songs'
@@ -291,14 +298,26 @@
     console.log(songList)
     var songFilesTracked = []; 
     songList.forEach(track => {
-      rawTrackList.push(track["trackName"])
-      document.getElementById("songList").innerHTML = document.getElementById("songList").innerHTML + `<div class="elevatedframe" style="width:70%;margin-bottom: 5px;">
+      var filetype = track.split(".")[track.split(".").length-1]
+      var filename = track.substring(0, track.length - filetype.length - 1)
+      console.log(filename + " . " + filetype)
+      // No need to specify location :D
+      defaultSongs.push(new Song(filename, filetype, "Somewhere over the rainbow :)", true))
+      document.getElementById("songList").innerHTML = document.getElementById("songList").innerHTML + `<div class="elevatedframe" style="width:70%;margin-bottom: 5px;" class="song_${filename + filetype}">
           <div style="display: table;width:100%;">
-            <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">Overture</span>
-            <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">cloud_download</span>
+            <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">${filename}</span>
+            <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">lock</span>
           </div>
         </div>`
-      
+      new Sortable(document.getElementById("songList"), {
+        group : {
+          name: 'songs',
+          pull: 'clone',
+          put: false
+        },
+        animation: 150,
+        sort: false
+      });
       
     });
     currentTrack = rawTrackList[0]
