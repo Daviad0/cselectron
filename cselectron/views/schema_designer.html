@@ -17,24 +17,19 @@
       <div id="phaseList" style="height:95%;overflow-y:auto">
         <div id="df_phase_1" style="margin-top:20px;margin-bottom:20px">
           <div style="display:flex; flex-direction: row; align-items: center">
-            <input class="textbox" style="display:inline-block;font-size:20px" placeholder="Name Me!"/>
+            <input class="textbox" style="display:inline-block;font-size:20px" placeholder="Name Me!" id="df_phase_1_name"/>
             <span class="material-icons-round iconbutton" title="There are stricter rules enforced during the show. Click me to turn them off!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:10px" id="df_phase_1_strict_on">shield</span>
             <span class="material-icons-round iconbutton" title="There are less rules enforced during the show. Click me to turn stricter ones on!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:10px;display:none" id="df_phase_1_strict_off">remove_moderator</span>
             <span class="material-icons-round iconbutton" title="Everyone can see this phase and add notes to it! Click me to hide this phase!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px;display:none" id="df_phase_1_visible_on">visibility</span>
             <span class="material-icons-round iconbutton" title="No one but you can see this phase. Click me to make this phase public!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="df_phase_1_visible_off">visibility_off</span>
-            <span class="material-icons-round iconbutton" title="No one but you can see this phase. Click me to make this phase public!" style="text-align: center;color:#ffa3b9;font-size: 25px;display:inline-block;margin-left:5px" id="df_phase_1_removePhase">delete</span>
+            <span class="material-icons-round iconbutton" title="Duplicate me!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="df_phase_1_duplicate">content_copy</span>
+            <span class="material-icons-round iconbutton" title="Delete me!" style="text-align: center;color:#ffa3b9;font-size: 25px;display:inline-block;margin-left:5px" id="df_phase_1_removePhase">delete</span>
             
           </div>
           <br/>
           <div style="border-left: 2px solid white;border-radius:4px">
             <div style="margin-left:15px" id="df_phase_1_sort" style="min-height: 200px">
-              <div class="elevatedframe" style="width:70%;margin-bottom: 5px;">
-                <div style="display: table;width:100%;">
-                  <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">Overture</span>
-                  <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">cloud_download</span>
-                </div>
-                
-              </div>
+              
             </div>
           </div>
         </div>
@@ -85,10 +80,10 @@
   </div>
   <div id="createPhase" class="overlayBox" style="display:none;text-align:center;">
     <div style="width:100%;height:100%;display: flex;align-items:center;justify-content:center">
-      <div class="elevatedframe" style="display:inline-block;max-width:600px">
-        <span style="color: white;font-size:20px;font-weight:600">Create a Phase</span><br/>
-        <span style="color: white;font-size:12px">Phases are certain segments of your program that hold music and notes. The director may choose to hide a phase or enforce the use of a phase during a show.</span><br/>
-        <input class="textbox" style="display:inline-block;font-size:20px" id="name_createPhase" placeholder="Phase Name"/><br/>
+      <div class="elevatedframe" style="display:inline-block;max-width:500px;padding:30px">
+        <span style="color: white;font-size:20px;font-weight:600;margin-bottom: 5px;display:block">Create a Phase</span>
+        <span style="color: white;font-size:12px;margin-bottom: 20px;display:block">Phases are certain segments of your program that hold music and notes. The director may choose to hide a phase or enforce the use of a phase during a show.</span>
+        <span style="color: white;font-size:12px;margin-bottom: 20px;font-weight:600;">Phase Name   </span><input class="textbox" style="display:inline-block;font-size:14px;margin-bottom: 20px;margin-left:10px" id="name_createPhase" placeholder="Some Cool Name..."/><br/>
         <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="cancel_addPhase" type="button" value="Cancel"/>
         <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="save_addPhase" type="button" value="Save"/>
       </div>
@@ -97,11 +92,11 @@
   </div>
   <div id="deletePhase" class="overlayBox" style="display:none;text-align:center;">
     <div style="width:100%;height:100%;display: flex;align-items:center;justify-content:center">
-      <div class="elevatedframe" style="display:inline-block;padding:20px;max-width:600px">
+      <div class="elevatedframe" style="display:inline-block;padding:30px;max-width:500px">
         <input style="display: none;" id="selected_removePhase" value=""/>
-        <span style="color: white;font-size:20px;font-weight:600">Are you sure?</span><br/>
-        <span style="color: white;font-size:12px">You are about to permanately delete a phase and the order of the songs inside it.</span><br/><br/>
-        <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="cancel_removePhase" type="button" value="Cancel"/>
+        <span style="color: white;font-size:20px;font-weight:600;margin-bottom: 5px;display:block">Are you sure?</span>
+        <span style="color: white;font-size:12px;margin-bottom: 10px;display:block">You are about to permanately delete a phase and the order of the songs inside it.</span>
+        <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;margin-top: 5px;" class="elevatedbutton" id="cancel_removePhase" type="button" value="Cancel"/>
         <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="delete_removePhase" type="button" value="Delete"/>
       </div>
     </div>
@@ -131,39 +126,42 @@
   }
 
   class Phase{
-    constructor(id, name, visible, strict){
+    constructor(id, name, visible, strict, duplication){
       this.id = id
       this.name = name
       this.visible = visible
       this.strict = strict
+      this.duplication = duplication
     }
   }
 
-  phases = [new Phase("df_phase_1", "Default", false, true)]
+  phases = [new Phase("df_phase_1", "", false, true, 0)]
   // SET THIS TO LEN OF PHASES WHEN IMPORTED
   phaseCreationIndex = 1;
 
   function changeName(evt){
     var phaseId = evt.srcElement.id.split("_")[0] + "_" + evt.srcElement.id.split("_")[1] + "_" + evt.srcElement.id.split("_")[2]
     var phaseObject = phases.filter(el => el.id == phaseId)[0]
-
-    var isUniqueName = phases.filter(el => el.name == document.getElementById(evt.srcElement.id).value).length > 0 ? false : true
+    var newName = document.getElementById(phaseId + "_name").value
+    var isUniqueName = phases.filter(el => el.name == newName).length > 0 ? false : true
 
     if(isUniqueName){
-      phases.filter(el => el.id == phaseId)[0].name = document.getElementById(evt.srcElement.id).value;
+      phases.filter(el => el.id == phaseId)[0].name = newName;
     }
+    console.log(phases.filter(el => el.id == phaseId)[0].name)
   }
+
 
   function toggleStrict(evt){
     var phaseId = evt.srcElement.id.split("_")[0] + "_" + evt.srcElement.id.split("_")[1] + "_" + evt.srcElement.id.split("_")[2]
     var phaseObject = phases.filter(el => el.id == phaseId)[0]
     if(phaseObject.strict){
       document.getElementById(phaseId + "_strict_on").style.display = "none";
-      document.getElementById(phaseId + "_strict_off").style.display = "";
+      document.getElementById(phaseId + "_strict_off").style.display = "inline-block";
       phases.filter(el => el.id == phaseId)[0].strict = false;
     }else{
       document.getElementById(phaseId + "_strict_off").style.display = "none";
-      document.getElementById(phaseId + "_strict_on").style.display = "";
+      document.getElementById(phaseId + "_strict_on").style.display = "inline-block";
       phases.filter(el => el.id == phaseId)[0].strict = true;
     }
     
@@ -173,11 +171,11 @@
     var phaseObject = phases.filter(el => el.id == phaseId)[0]
     if(phaseObject.visible){
       document.getElementById(phaseId + "_visible_on").style.display = "none";
-      document.getElementById(phaseId + "_visible_off").style.display = "";
+      document.getElementById(phaseId + "_visible_off").style.display = "inline-block";
       phases.filter(el => el.id == phaseId)[0].visible = false;
     }else{
       document.getElementById(phaseId + "_visible_off").style.display = "none";
-      document.getElementById(phaseId + "_visible_on").style.display = "";
+      document.getElementById(phaseId + "_visible_on").style.display = "inline-block";
       phases.filter(el => el.id == phaseId)[0].visible = true;
     }
     
@@ -203,27 +201,7 @@
     document.getElementById("deletePhase").style.display = "none";
   }
 
-  document.getElementById("cancel_removePhase").addEventListener('click', cancelDelete);
-  document.getElementById("delete_removePhase").addEventListener('click', confirmDelete);
-
-  function createPhase(){
-    document.getElementById("phaseList").innerHTML = document.getElementById("phaseList").innerHTML + `<div style="margin-top:20px;margin-bottom:20px" id="cp_phase_` + phaseCreationIndex + `">
-          <div style="display:flex; flex-direction: row; align-items: center;margin-top:5px" class="topDivForPhase">
-            <input class="textbox" style="display:inline-block;font-size:20px" value="` + document.getElementById("name_createPhase").value + `" placeholder="Name Me!"/>
-            <span class="material-icons-round iconbutton" title="There are stricter rules enforced during the show. Click me to turn them off!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:10px" id="cp_phase_` + phaseCreationIndex + `_strict_on">shield</span>
-            <span class="material-icons-round iconbutton" title="There are less rules enforced during the show. Click me to turn stricter ones on!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:10px;display:none" id="cp_phase_` + phaseCreationIndex + `_strict_off">remove_moderator</span>
-            <span class="material-icons-round iconbutton" title="Everyone can see this phase and add notes to it! Click me to hide this phase!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px;display:none" id="cp_phase_` + phaseCreationIndex + `_visible_on">visibility</span>
-            <span class="material-icons-round iconbutton" title="No one but you can see this phase. Click me to make this phase public!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="cp_phase_` + phaseCreationIndex + `_visible_off">visibility_off</span>
-            <span class="material-icons-round iconbutton" title="No one but you can see this phase. Click me to make this phase public!" style="text-align: center;color:#ffa3b9;font-size: 25px;display:inline-block;margin-left:5px" id="cp_phase_` + phaseCreationIndex + `_removePhase">delete</span>
-          </div>
-          <br/>
-          <div style="border-left: 2px solid white;border-radius:4px;margin-bottom:5px">
-            <div style="margin-left:15px" id="cp_phase_` + phaseCreationIndex + `_sort" style="min-height: 200px">
-
-            </div>
-          </div>
-        </div>`
-    phases.push(new Phase("cp_phase_" + phaseCreationIndex, "NON GENERIC NAME", false, true));
+  function resetSortables(){
     phases.forEach(phase => {
       new Sortable(document.getElementById(phase.id + "_sort"), {
         group : {
@@ -233,12 +211,72 @@
         animation: 150,
         filter: 'topDivForPhase'
       });
+      document.getElementById(phase.id + "_name").value = phase.name
       document.getElementById(phase.id + "_strict_on").addEventListener('click', toggleStrict)
       document.getElementById(phase.id + "_strict_off").addEventListener('click', toggleStrict)
       document.getElementById(phase.id + "_visible_on").addEventListener('click', toggleVisible)
       document.getElementById(phase.id + "_visible_off").addEventListener('click', toggleVisible)
       document.getElementById(phase.id + "_removePhase").addEventListener('click', askDelete)
+      document.getElementById(phase.id + "_duplicate").addEventListener('click', duplicatePhase)
+      document.getElementById(phase.id + "_name").addEventListener('input', changeName)
     });
+  }
+
+
+  function duplicatePhase(evt){
+    var phaseId = evt.srcElement.id.split("_")[0] + "_" + evt.srcElement.id.split("_")[1] + "_" + evt.srcElement.id.split("_")[2]
+    var phaseObject = phases.filter(el => el.id == phaseId)[0]
+    var newId = "dp_phase_" + evt.srcElement.id.split("_")[2] + "(" + (phaseObject.duplication+1) + ")"
+    
+    phases.push(new Phase(newId, "Copy of " + phaseObject.name + (phaseObject.duplication > 0 ? phaseObject.duplication+1 : ""), phaseObject.visible, phaseObject.strict, 0))
+    document.getElementById("phaseList").innerHTML = document.getElementById("phaseList").innerHTML + `<div style="margin-top:20px;margin-bottom:20px" id="${newId}">
+          <div style="display:flex; flex-direction: row; align-items: center;margin-top:5px" class="topDivForPhase">
+            <input class="textbox" style="display:inline-block;font-size:20px" value="` + "Copy of " + phaseObject.name  + (phaseObject.duplication > 0 ? phaseObject.duplication+1 : "") + `" placeholder="Name Me!" id="${newId}_name"/>
+            <span class="material-icons-round iconbutton" title="There are stricter rules enforced during the show. Click me to turn them off!" style="text-align: center;color:white;font-size: 25px;display:${phaseObject.strict ? 'inline-block' : 'none'};margin-left:10px" id="${newId}_strict_on">shield</span>
+            <span class="material-icons-round iconbutton" title="There are less rules enforced during the show. Click me to turn stricter ones on!" style="text-align: center;color:white;font-size: 25px;display:${!phaseObject.strict ? 'inline-block' : 'none'};margin-left:10px" id="${newId}_strict_off">remove_moderator</span>
+            <span class="material-icons-round iconbutton" title="Everyone can see this phase and add notes to it! Click me to hide this phase!" style="text-align: center;color:white;font-size: 25px;display:${phaseObject.visible ? 'inline-block' : 'none'};margin-left:5px" id="${newId}_visible_on">visibility</span>
+            <span class="material-icons-round iconbutton" title="No one but you can see this phase. Click me to make this phase public!" style="text-align: center;color:white;font-size: 25px;display:${!phaseObject.visible ? 'inline-block' : 'none'};margin-left:5px" id="${newId}_visible_off">visibility_off</span>
+            <span class="material-icons-round iconbutton" title="Duplicate me!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="${newId}_duplicate">content_copy</span>
+            <span class="material-icons-round iconbutton" title="Delete me!" style="text-align: center;color:#ffa3b9;font-size: 25px;display:inline-block;margin-left:5px" id="${newId}_removePhase">delete</span>
+            
+          </div>
+          <br/>
+          <div style="border-left: 2px solid white;border-radius:4px;margin-bottom:5px">
+            <div style="margin-left:15px" id="${newId}_sort" style="min-height: 200px">
+
+            </div>
+          </div>
+        </div>`
+    phases.filter(el => el.id == phaseId)[0].duplication = phaseObject.duplication + 1
+    document.getElementById(phaseId + "_name").value = phaseObject.name
+    document.getElementById(newId + "_sort").innerHTML = document.getElementById(newId + "_sort").innerHTML + document.getElementById(phaseId + "_sort").innerHTML
+    resetSortables();
+  }
+
+  document.getElementById("cancel_removePhase").addEventListener('click', cancelDelete);
+  document.getElementById("delete_removePhase").addEventListener('click', confirmDelete);
+
+  function createPhase(){
+    document.getElementById("phaseList").innerHTML = document.getElementById("phaseList").innerHTML + `<div style="margin-top:20px;margin-bottom:20px" id="cp_phase_` + phaseCreationIndex + `">
+          <div style="display:flex; flex-direction: row; align-items: center;margin-top:5px" class="topDivForPhase">
+            <input class="textbox" style="display:inline-block;font-size:20px" value="` + document.getElementById("name_createPhase").value + `" placeholder="Name Me!" id="cp_phase_` + phaseCreationIndex + `_name"/>
+            <span class="material-icons-round iconbutton" title="There are stricter rules enforced during the show. Click me to turn them off!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:10px" id="cp_phase_` + phaseCreationIndex + `_strict_on">shield</span>
+            <span class="material-icons-round iconbutton" title="There are less rules enforced during the show. Click me to turn stricter ones on!" style="text-align: center;color:white;font-size: 25px;display:none;margin-left:10px" id="cp_phase_` + phaseCreationIndex + `_strict_off">remove_moderator</span>
+            <span class="material-icons-round iconbutton" title="Everyone can see this phase and add notes to it! Click me to hide this phase!" style="text-align: center;color:white;font-size: 25px;display:none;margin-left:5px" id="cp_phase_` + phaseCreationIndex + `_visible_on">visibility</span>
+            <span class="material-icons-round iconbutton" title="No one but you can see this phase. Click me to make this phase public!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="cp_phase_` + phaseCreationIndex + `_visible_off">visibility_off</span>
+            <span class="material-icons-round iconbutton" title="Duplicate me!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="cp_phase_` + phaseCreationIndex + `_duplicate">content_copy</span>
+            <span class="material-icons-round iconbutton" title="Delete me!" style="text-align: center;color:#ffa3b9;font-size: 25px;display:inline-block;margin-left:5px" id="cp_phase_` + phaseCreationIndex + `_removePhase">delete</span>
+            
+          </div>
+          <br/>
+          <div style="border-left: 2px solid white;border-radius:4px;margin-bottom:5px">
+            <div style="margin-left:15px" id="cp_phase_` + phaseCreationIndex + `_sort" style="min-height: 200px">
+
+            </div>
+          </div>
+        </div>`
+    phases.push(new Phase("cp_phase_" + phaseCreationIndex, document.getElementById("name_createPhase").value, false, true));
+    resetSortables();
     
     phaseCreationIndex = phaseCreationIndex + 1;
     document.getElementById("createPhase").style.display = "none";
@@ -258,6 +296,8 @@
   document.getElementById("df_phase_" + 1 + "_visible_on").addEventListener('click', toggleVisible)
   document.getElementById("df_phase_" + 1 + "_visible_off").addEventListener('click', toggleVisible)
   document.getElementById("df_phase_" + 1 + "_removePhase").addEventListener('click', askDelete)
+  document.getElementById("df_phase_" + 1 + "_duplicate").addEventListener('click', duplicatePhase)
+  document.getElementById("df_phase_" + 1 + "_name").addEventListener('input', changeName)
 
 
   new Sortable(document.getElementById("df_phase_1_sort"), {
@@ -292,6 +332,27 @@
     
     
   });
+
+  function saveAndSend(){
+    var objStart = { "tracks" : [] }
+    Array.from(document.getElementById("phaseList").children).forEach(phaseElmt => {
+      console.log(phaseElmt)
+      var trackObj = { "trackName" : phases.filter(el => el.id == phaseElmt.id)[0].name, "trackSongs" : [] }
+      Array.from(document.getElementById(phaseElmt.id + "_sort").children).forEach(songElmt => {
+        console.log(songElmt.dataset.song)
+        var filetypenname = songElmt.dataset.song.split("_")[1]
+        var filetype = filetypenname.split(".")[filetypenname.split(".").length-1]
+        var filename = filetypenname.substring(0, filetypenname.length - filetype.length - 1)
+        var songObject = defaultSongs.filter(sng => (sng.name == filename) && (sng.filetype == filetype))[0]
+        trackObj["trackSongs"].push({ "songName" : songObject.name, "fileType" : songObject.filetype })
+      });
+      objStart["tracks"].push(trackObj);
+    });
+    console.log(JSON.stringify(objStart))
+  }
+  
+  document.getElementById("saveAll").addEventListener('click', saveAndSend)
+
   ipcRenderer.on("systemSongFiles", (event,args) => {
     // rename to songSchema soon
     songList = args['songs']
@@ -303,7 +364,7 @@
       console.log(filename + " . " + filetype)
       // No need to specify location :D
       defaultSongs.push(new Song(filename, filetype, "Somewhere over the rainbow :)", true))
-      document.getElementById("songList").innerHTML = document.getElementById("songList").innerHTML + `<div class="elevatedframe" style="width:70%;margin-bottom: 5px;" class="song_${filename + filetype}">
+      document.getElementById("songList").innerHTML = document.getElementById("songList").innerHTML + `<div class="elevatedframe" data-song="song_${filename + "." + filetype}" style="width:70%;margin-bottom: 5px;">
           <div style="display: table;width:100%;">
             <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">${filename}</span>
             <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">lock</span>
