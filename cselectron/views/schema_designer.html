@@ -147,10 +147,14 @@
 
     if(isUniqueName){
       phases.filter(el => el.id == phaseId)[0].name = newName;
+      somethingWasChanged();
     }
-    console.log(phases.filter(el => el.id == phaseId)[0].name)
+    
   }
-
+  // trigger save popup
+  function somethingWasChanged(){
+    $(".additionalcontainer").animate({bottom:'20px'},500, 'swing');
+  }
 
   function toggleStrict(evt){
     var phaseId = evt.srcElement.id.split("_")[0] + "_" + evt.srcElement.id.split("_")[1] + "_" + evt.srcElement.id.split("_")[2]
@@ -164,6 +168,7 @@
       document.getElementById(phaseId + "_strict_on").style.display = "inline-block";
       phases.filter(el => el.id == phaseId)[0].strict = true;
     }
+    somethingWasChanged();
     
   }
   function toggleVisible(evt){
@@ -178,8 +183,10 @@
       document.getElementById(phaseId + "_visible_on").style.display = "inline-block";
       phases.filter(el => el.id == phaseId)[0].visible = true;
     }
-    
+    somethingWasChanged();
   }
+
+  
 
   function askDelete(evt){
     var phaseId = evt.srcElement.id.split("_")[0] + "_" + evt.srcElement.id.split("_")[1] + "_" + evt.srcElement.id.split("_")[2]
@@ -199,6 +206,7 @@
     delete phases[phases.indexOf(phaseObject)]
     document.getElementById(phaseId).remove();
     document.getElementById("deletePhase").style.display = "none";
+    somethingWasChanged();
   }
 
   function resetSortables(){
@@ -209,7 +217,10 @@
 
         },
         animation: 150,
-        filter: 'topDivForPhase'
+        filter: 'topDivForPhase',
+        onAdd: function (evt) {
+          somethingWasChanged();
+        }
       });
       document.getElementById(phase.id + "_name").value = phase.name
       document.getElementById(phase.id + "_strict_on").addEventListener('click', toggleStrict)
@@ -220,6 +231,7 @@
       document.getElementById(phase.id + "_duplicate").addEventListener('click', duplicatePhase)
       document.getElementById(phase.id + "_name").addEventListener('input', changeName)
     });
+    somethingWasChanged();
   }
 
 
@@ -251,6 +263,7 @@
     document.getElementById(phaseId + "_name").value = phaseObject.name
     document.getElementById(newId + "_sort").innerHTML = document.getElementById(newId + "_sort").innerHTML + document.getElementById(phaseId + "_sort").innerHTML
     resetSortables();
+    somethingWasChanged();
   }
 
   document.getElementById("cancel_removePhase").addEventListener('click', cancelDelete);
@@ -280,6 +293,7 @@
     
     phaseCreationIndex = phaseCreationIndex + 1;
     document.getElementById("createPhase").style.display = "none";
+    somethingWasChanged();
     
   }
   document.getElementById("save_addPhase").addEventListener('click', createPhase)
@@ -304,14 +318,17 @@
     group : {
       name: 'songs'
     },
-    animation: 150,
+    animation: 200,
+    onAdd: function (evt) {
+      somethingWasChanged();
+    }
   });
 
   new Sortable(document.getElementById("phaseList"), {
     group : {
       name: 'phases'
     },
-    animation: 150,
+    animation: 200
   });
   const {ipcRenderer} = require('electron');
 
@@ -337,7 +354,8 @@
     var objStart = { "tracks" : [] }
     Array.from(document.getElementById("phaseList").children).forEach(phaseElmt => {
       console.log(phaseElmt)
-      var trackObj = { "trackName" : phases.filter(el => el.id == phaseElmt.id)[0].name, "trackSongs" : [] }
+      var phaseObj = phases.filter(el => el.id == phaseElmt.id)[0]
+      var trackObj = { "trackName" : phaseObj.name, "trackSongs" : [], "strict": phaseObj.strict, "visible" : phaseObj.visible }
       Array.from(document.getElementById(phaseElmt.id + "_sort").children).forEach(songElmt => {
         console.log(songElmt.dataset.song)
         var filetypenname = songElmt.dataset.song.split("_")[1]
@@ -348,7 +366,7 @@
       });
       objStart["tracks"].push(trackObj);
     });
-    console.log(JSON.stringify(objStart))
+    ipcRenderer.send('saveSchema', { 'typeOf' : 'show', 'rawJson' : JSON.stringify(objStart)});
   }
   
   document.getElementById("saveAll").addEventListener('click', saveAndSend)

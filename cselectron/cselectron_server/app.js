@@ -22,13 +22,20 @@ const io = require('socket.io')(http);
 const fs = require('fs')
 const path = require('path')
 
-fs.readFile('./storage/schema/testSchema.json', 'utf-8', (err, jsonString) => {
-  jsonSchemaTest = jsonString;
-});
+function resetShowSchema(){
+  fs.readFile('./storage/schema/testSchema.json', 'utf-8', (err, jsonString) => {
+    jsonSchemaTest = jsonString;
+  });
+}
 
-fs.readFile('./storage/schema/testNoteSchema.json', 'utf-8', (err, jsonString) => {
-  noteSchemaTest = jsonString;
-});
+function resetNoteSchema(){
+  fs.readFile('./storage/schema/testNoteSchema.json', 'utf-8', (err, jsonString) => {
+    noteSchemaTest = jsonString;
+  });
+} 
+resetNoteSchema()
+resetShowSchema()
+
 
 app.use(express.static(path.join(__dirname, 'storage')))
 
@@ -87,8 +94,20 @@ io.on('connection', (socket) => {
     var songList = JSON.parse(jsonSchemaTest);
     fs.readdir(audioFolder, (err, files) => {
       console.log("Audio files requested by client")
+      songList["tracks"] = songList["tracks"].filter(el => el["visible"] == true || instances.filter(el => el.socketId == socket.id)[0].elevated == true)
+      console.log("Filtered Song List: " + songList["tracks"])
       socket.emit('recAudioList',songList)
     });
+    
+  });
+  socket.on('saveSchema', (typeOf, rawJson) => {
+    console.log(typeOf + " " + rawJson);
+    if(typeOf == "show") { 
+      fs.writeFile('./storage/schema/testSchema.json', rawJson, function(err){
+        console.log(err)
+        resetShowSchema()
+      }); 
+    }
     
   });
   socket.on('getSystemAudioList', (loginRequest) => {
@@ -100,7 +119,7 @@ io.on('connection', (socket) => {
   });
   
   socket.on('songUpdate', (to, outOf, paused, name, subtitle) => {
-    console.log("Current Song" + (paused ? " (PAUSED)" : "") + ": " + name + " (" + subtitle + ") >>> " + Math.round((to/outOf)*100))
+    //console.log("Current Song" + (paused ? " (PAUSED)" : "") + ": " + name + " (" + subtitle + ") >>> " + Math.round((to/outOf)*100))
     socket.broadcast.emit("songUpdate", to, outOf, paused, name, subtitle);
   });
 });

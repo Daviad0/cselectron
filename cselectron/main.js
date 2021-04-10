@@ -32,7 +32,7 @@ socket.on('roleRegisterAs', (roleIdentifier) => {
   // Logic to make sure that all of the required event handlers are here.
 });
 socket.on('songUpdate', (to, outOf, paused, name, subtitle) => {
-  console.log("SONG UPDATE")
+  
   try{
     mainWindow.webContents.send("songUpdate", { 'songTitle' : name, 'songSubtitle' : subtitle, 'songPaused' : paused, 'songDuration' : to, 'songLength' : outOf })
   }catch(err){
@@ -73,6 +73,11 @@ let currentHostState = new HostState(null, null, null, false);
 
 ipcMain.on('quitapp', (evt, arg) => {
   app.quit()
+})
+
+
+ipcMain.on('saveSchema', (evt, arg) => {
+  socket.emit('saveSchema', arg["typeOf"], arg["rawJson"]);
 })
 
 ipcMain.on('selectRole', (evt, arg) => {
