@@ -15,24 +15,7 @@
       <br/>
       <br/>
       <div id="phaseList" style="height:95%;overflow-y:auto">
-        <div id="df_phase_1" style="margin-top:20px;margin-bottom:20px">
-          <div style="display:flex; flex-direction: row; align-items: center">
-            <input class="textbox" style="display:inline-block;font-size:20px" placeholder="Name Me!" id="df_phase_1_name"/>
-            <span class="material-icons-round iconbutton" title="There are stricter rules enforced during the show. Click me to turn them off!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:10px" id="df_phase_1_strict_on">shield</span>
-            <span class="material-icons-round iconbutton" title="There are less rules enforced during the show. Click me to turn stricter ones on!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:10px;display:none" id="df_phase_1_strict_off">remove_moderator</span>
-            <span class="material-icons-round iconbutton" title="Everyone can see this phase and add notes to it! Click me to hide this phase!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px;display:none" id="df_phase_1_visible_on">visibility</span>
-            <span class="material-icons-round iconbutton" title="No one but you can see this phase. Click me to make this phase public!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="df_phase_1_visible_off">visibility_off</span>
-            <span class="material-icons-round iconbutton" title="Duplicate me!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="df_phase_1_duplicate">content_copy</span>
-            <span class="material-icons-round iconbutton" title="Delete me!" style="text-align: center;color:#ffa3b9;font-size: 25px;display:inline-block;margin-left:5px" id="df_phase_1_removePhase">delete</span>
-            
-          </div>
-          <br/>
-          <div style="border-left: 2px solid white;border-radius:4px">
-            <div style="margin-left:15px" id="df_phase_1_sort" style="min-height: 200px">
-              
-            </div>
-          </div>
-        </div>
+        
         
         
       </div>
@@ -135,7 +118,7 @@
     }
   }
 
-  phases = [new Phase("df_phase_1", "", false, true, 0)]
+  phases = []
   // SET THIS TO LEN OF PHASES WHEN IMPORTED
   phaseCreationIndex = 1;
 
@@ -211,6 +194,7 @@
 
   function resetSortables(){
     phases.forEach(phase => {
+      console.log(phase.id + "_sort")
       new Sortable(document.getElementById(phase.id + "_sort"), {
         group : {
           name: 'songs'
@@ -305,24 +289,8 @@
   document.getElementById("cancel_addPhase").addEventListener('click', function(evt){
     document.getElementById("createPhase").style.display = "none";
   });
-  document.getElementById("df_phase_" + 1 + "_strict_on").addEventListener('click', toggleStrict)
-  document.getElementById("df_phase_" + 1 + "_strict_off").addEventListener('click', toggleStrict)
-  document.getElementById("df_phase_" + 1 + "_visible_on").addEventListener('click', toggleVisible)
-  document.getElementById("df_phase_" + 1 + "_visible_off").addEventListener('click', toggleVisible)
-  document.getElementById("df_phase_" + 1 + "_removePhase").addEventListener('click', askDelete)
-  document.getElementById("df_phase_" + 1 + "_duplicate").addEventListener('click', duplicatePhase)
-  document.getElementById("df_phase_" + 1 + "_name").addEventListener('input', changeName)
 
 
-  new Sortable(document.getElementById("df_phase_1_sort"), {
-    group : {
-      name: 'songs'
-    },
-    animation: 200,
-    onAdd: function (evt) {
-      somethingWasChanged();
-    }
-  });
 
   new Sortable(document.getElementById("phaseList"), {
     group : {
@@ -352,23 +320,73 @@
 
   function saveAndSend(){
     var objStart = { "tracks" : [] }
+    var MasterListOfSongs = []
     Array.from(document.getElementById("phaseList").children).forEach(phaseElmt => {
       console.log(phaseElmt)
       var phaseObj = phases.filter(el => el.id == phaseElmt.id)[0]
       var trackObj = { "trackName" : phaseObj.name, "trackSongs" : [], "strict": phaseObj.strict, "visible" : phaseObj.visible }
       Array.from(document.getElementById(phaseElmt.id + "_sort").children).forEach(songElmt => {
         console.log(songElmt.dataset.song)
+        
         var filetypenname = songElmt.dataset.song.split("_")[1]
         var filetype = filetypenname.split(".")[filetypenname.split(".").length-1]
         var filename = filetypenname.substring(0, filetypenname.length - filetype.length - 1)
+        var instanceIndex = MasterListOfSongs.filter(el => el == (filename + "." + filetype)).length
+        MasterListOfSongs.push(filename + "." + filetype)
         var songObject = defaultSongs.filter(sng => (sng.name == filename) && (sng.filetype == filetype))[0]
-        trackObj["trackSongs"].push({ "songName" : songObject.name, "fileType" : songObject.filetype })
+        trackObj["trackSongs"].push({ "songName" : songObject.name, "fileType" : songObject.filetype, "instanceIndex" : instanceIndex })
       });
       objStart["tracks"].push(trackObj);
     });
     ipcRenderer.send('saveSchema', { 'typeOf' : 'show', 'rawJson' : JSON.stringify(objStart)});
   }
   
+  ipcRenderer.on("songsToLoad", (event,args) => {
+    // rename to songSchema soon
+    var songList = args['songs']['tracks']
+    var phaseCreationIndex = 0
+    songList.forEach(track => {
+      console.log(track)
+      document.getElementById("phaseList").innerHTML = document.getElementById("phaseList").innerHTML + `<div style="margin-top:20px;margin-bottom:20px" id="ld_phase_` + phaseCreationIndex + `">
+          <div style="display:flex; flex-direction: row; align-items: center;margin-top:5px" class="topDivForPhase">
+            <input class="textbox" style="display:inline-block;font-size:20px" value="` + track["trackName"] + `" placeholder="Name Me!" id="ld_phase_` + phaseCreationIndex + `_name"/>
+            <span class="material-icons-round iconbutton" title="There are stricter rules enforced during the show. Click me to turn them off!" style="text-align: center;color:white;font-size: 25px;${track["strict"] ? 'inline-block' : 'none'};margin-left:10px" id="ld_phase_` + phaseCreationIndex + `_strict_on">shield</span>
+            <span class="material-icons-round iconbutton" title="There are less rules enforced during the show. Click me to turn stricter ones on!" style="text-align: center;color:white;font-size: 25px;display:${!track["strict"] ? 'inline-block' : 'none'};margin-left:10px" id="ld_phase_` + phaseCreationIndex + `_strict_off">remove_moderator</span>
+            <span class="material-icons-round iconbutton" title="Everyone can see this phase and add notes to it! Click me to hide this phase!" style="text-align: center;color:white;font-size: 25px;display:${track["visible"] ? 'inline-block' : 'none'};margin-left:5px" id="ld_phase_` + phaseCreationIndex + `_visible_on">visibility</span>
+            <span class="material-icons-round iconbutton" title="No one but you can see this phase. Click me to make this phase public!" style="text-align: center;color:white;font-size: 25px;display:${!track["visible"] ? 'inline-block' : 'none'};margin-left:5px" id="ld_phase_` + phaseCreationIndex + `_visible_off">visibility_off</span>
+            <span class="material-icons-round iconbutton" title="Duplicate me!" style="text-align: center;color:white;font-size: 25px;display:inline-block;margin-left:5px" id="ld_phase_` + phaseCreationIndex + `_duplicate">content_copy</span>
+            <span class="material-icons-round iconbutton" title="Delete me!" style="text-align: center;color:#ffa3b9;font-size: 25px;display:inline-block;margin-left:5px" id="ld_phase_` + phaseCreationIndex + `_removePhase">delete</span>
+            
+          </div>
+          <br/>
+          <div style="border-left: 2px solid white;border-radius:4px;margin-bottom:5px">
+            <div style="margin-left:15px" id="ld_phase_` + phaseCreationIndex + `_sort" style="min-height: 200px">
+
+            </div>
+          </div>
+        </div>`
+      phases.push(new Phase("ld_phase_" + phaseCreationIndex, track["trackName"], track["strict"], track["visible"]));
+      track["trackSongs"].forEach(song => {
+        
+        if(defaultSongs.filter(el => el.name == song["songName"]).length > 0){
+          console.log(song)
+          document.getElementById("ld_phase_" + phaseCreationIndex + "_sort").innerHTML = document.getElementById("ld_phase_" + phaseCreationIndex + "_sort").innerHTML + `<div class="elevatedframe" data-song="song_${song["songName"] + "." + song["fileType"]}" style="width:70%;margin-bottom: 5px;">
+            <div style="display: table;width:100%;">
+              <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">${song["songName"]}</span>
+              <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">lock</span>
+            </div>
+          </div>`
+        }else{
+          console.log("We are unable to load the song " + song["songName"] + "." + song["fileType"] + " as it is not in the system.")
+        }
+        
+      });
+      
+      
+    });
+
+    resetSortables();
+  });
   document.getElementById("saveAll").addEventListener('click', saveAndSend)
 
   ipcRenderer.on("systemSongFiles", (event,args) => {
@@ -399,21 +417,16 @@
       });
       
     });
-    currentTrack = rawTrackList[0]
-    Array.from(document.getElementsByClassName("thissong")).forEach(btn => {
-      btn.addEventListener("click", setSongAndPlay)
-    })
-    Array.from(document.getElementsByClassName("download")).forEach(btn => {
-      btn.addEventListener("click", download)
-    })
+    ipcRenderer.send("getMeSpiderman")
   });
   ipcRenderer.on('notesToLoad', (event,args) => {
-    args["roleNotes"].forEach(el => {
-      console.log(el)
-    });
+    //args["roleNotes"].forEach(el => {
+    //  console.log(el)
+    //});
     
     
   });
+  
   ipcRenderer.send("requestServerSongs")
   ipcRenderer.send("getNotes")
   const closeApp = document.getElementById('closeApp');
