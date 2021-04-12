@@ -91,10 +91,10 @@ io.on('connection', (socket) => {
     socket.emit('notesSent',JSON.parse(noteSchemaTest));
   });
   socket.on('getAudioList', (loginRequest) => {
-    var songList = JSON.parse(jsonSchemaTest);
-    fs.readdir(audioFolder, (err, files) => {
+    fs.readFile('./storage/schema/testSchema.json', 'utf-8', (err, jsonString) => {
+      var songList = JSON.parse(jsonString);
       console.log("Audio files requested by client")
-      songList["tracks"] = songList["tracks"].filter(el => el["visible"] == true || instances.filter(el => el.socketId == socket.id)[0].elevated == true)
+      songList["tracks"] = songList["tracks"].filter(el => el["visible"] == true || instances.filter(el => el.socketId == socket.id)[0].role.elevated == true)
       console.log("Filtered Song List: " + songList["tracks"])
       socket.emit('recAudioList',songList)
     });
@@ -105,7 +105,6 @@ io.on('connection', (socket) => {
     if(typeOf == "show") { 
       fs.writeFile('./storage/schema/testSchema.json', rawJson, function(err){
         console.log(err)
-        resetShowSchema()
       }); 
     }
     

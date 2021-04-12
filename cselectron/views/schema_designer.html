@@ -23,7 +23,7 @@
       
     </div>
     <div class="rightcontainer" style="left:60%;width:35%">
-      <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block">Toolbox</span>
+      <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block;margin-bottom: 20px;">Toolbox</span>
       <br/>
       <div id="songList" style="min-height: 200px;">
         
@@ -91,7 +91,7 @@
 <script>
 
   $(document).ready(function(){
-    $(".additionalcontainer").animate({bottom:'20px'},500, 'swing');
+    //$(".additionalcontainer").animate({bottom:'20px'},500, 'swing');
     $("#saveAll").click(function(){
       $(".additionalcontainer").animate({bottom:'-100px'},300, 'swing');
     });
@@ -192,7 +192,7 @@
     somethingWasChanged();
   }
 
-  function resetSortables(){
+  function resetSortables(init){
     phases.forEach(phase => {
       console.log(phase.id + "_sort")
       new Sortable(document.getElementById(phase.id + "_sort"), {
@@ -215,7 +215,10 @@
       document.getElementById(phase.id + "_duplicate").addEventListener('click', duplicatePhase)
       document.getElementById(phase.id + "_name").addEventListener('input', changeName)
     });
-    somethingWasChanged();
+    if(!init){
+      somethingWasChanged();
+    } 
+    
   }
 
 
@@ -244,9 +247,10 @@
           </div>
         </div>`
     phases.filter(el => el.id == phaseId)[0].duplication = phaseObject.duplication + 1
+    phases.filter(el => el.id == phaseId)[0].name = phaseObject.name
     document.getElementById(phaseId + "_name").value = phaseObject.name
     document.getElementById(newId + "_sort").innerHTML = document.getElementById(newId + "_sort").innerHTML + document.getElementById(phaseId + "_sort").innerHTML
-    resetSortables();
+    resetSortables(false);
     somethingWasChanged();
   }
 
@@ -273,7 +277,7 @@
           </div>
         </div>`
     phases.push(new Phase("cp_phase_" + phaseCreationIndex, document.getElementById("name_createPhase").value, false, true));
-    resetSortables();
+    resetSortables(false);
     
     phaseCreationIndex = phaseCreationIndex + 1;
     document.getElementById("createPhase").style.display = "none";
@@ -365,7 +369,8 @@
             </div>
           </div>
         </div>`
-      phases.push(new Phase("ld_phase_" + phaseCreationIndex, track["trackName"], track["strict"], track["visible"]));
+        
+      phases.push(new Phase("ld_phase_" + phaseCreationIndex, track["trackName"], track["visible"], track["strict"], 0));
       track["trackSongs"].forEach(song => {
         
         if(defaultSongs.filter(el => el.name == song["songName"]).length > 0){
@@ -381,11 +386,11 @@
         }
         
       });
-      
+      phaseCreationIndex = phaseCreationIndex + 1
       
     });
 
-    resetSortables();
+    resetSortables(true);
   });
   document.getElementById("saveAll").addEventListener('click', saveAndSend)
 
