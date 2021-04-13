@@ -74,6 +74,11 @@
     left: 20px;
     text-align: left;
 }
+.fileuploadarea{
+    border: 4px dashed #262947;
+    border-radius: 20px;
+    transition: all .5s ease-in-out;
+}
 .elevatedframe {
     background-color: #1D1F3A;
     border-radius: 20px;

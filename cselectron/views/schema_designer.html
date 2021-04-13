@@ -28,7 +28,12 @@
       <div id="songList" style="min-height: 200px;">
         
       </div>
-      
+      <div class="fileuploadarea" style="width:70%;margin-bottom: 5px;margin-top:20px;pointer-events: none;" id="fileUpload">
+        <div style="display: table;width:100%;padding:10px">
+          <span style="text-align: center;color:#262947;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">Drag More Files Here!</span>
+          
+        </div>
+      </div>
       <br/>
       
       
@@ -134,6 +139,27 @@
     }
     
   }
+
+  ;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    document.getElementById("fileUpload").addEventListener(eventName, preventDefaults, false)
+  })
+
+  function preventDefaults (e) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  document.getElementById("fileUpload").addEventListener('dragover', function(evt){
+    console.log(evt.type)
+    document.getElementById("fileUpload").style.borderColor = "#343755"
+    document.getElementById("fileUpload").style.color = "#343755"
+  }, false);
+  document.getElementById("fileUpload").addEventListener('drop', function(evt){
+    document.getElementById("fileUpload").style.borderColor = "#262947"
+    console.log(evt.type)
+    document.getElementById("fileUpload").style.color = "#262947"
+  });
+
   // trigger save popup
   function somethingWasChanged(){
     $(".additionalcontainer").animate({bottom:'20px'},500, 'swing');
@@ -345,6 +371,10 @@
     ipcRenderer.send('saveSchema', { 'typeOf' : 'show', 'rawJson' : JSON.stringify(objStart)});
   }
   
+  function deleteThisSong(el){
+    el.srcElement.parentElement.parentElement.remove();
+  }
+
   ipcRenderer.on("songsToLoad", (event,args) => {
     // rename to songSchema soon
     var songList = args['songs']['tracks']
@@ -378,7 +408,7 @@
           document.getElementById("ld_phase_" + phaseCreationIndex + "_sort").innerHTML = document.getElementById("ld_phase_" + phaseCreationIndex + "_sort").innerHTML + `<div class="elevatedframe" data-song="song_${song["songName"] + "." + song["fileType"]}" style="width:70%;margin-bottom: 5px;">
             <div style="display: table;width:100%;">
               <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">${song["songName"]}</span>
-              <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">lock</span>
+              <span class="material-icons-round iconbutton download deleteThisSong" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%">close</span>
             </div>
           </div>`
         }else{
@@ -391,6 +421,9 @@
     });
 
     resetSortables(true);
+    Array.from(document.getElementsByClassName("deleteThisSong")).forEach(el => {
+      el.addEventListener('click', deleteThisSong);
+    });
   });
   document.getElementById("saveAll").addEventListener('click', saveAndSend)
 
@@ -408,7 +441,7 @@
       document.getElementById("songList").innerHTML = document.getElementById("songList").innerHTML + `<div class="elevatedframe" data-song="song_${filename + "." + filetype}" style="width:70%;margin-bottom: 5px;">
           <div style="display: table;width:100%;">
             <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">${filename}</span>
-            <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">lock</span>
+            <span class="material-icons-round iconbutton download deleteThisSong" style="font-size:24px;display: none;vertical-align:middle;margin-right:5px;text-align:right;width:7%" id="test-a1">close</span>
           </div>
         </div>`
       new Sortable(document.getElementById("songList"), {
@@ -418,7 +451,10 @@
           put: false
         },
         animation: 150,
-        sort: false
+        sort: false,
+        onClone: function (evt) {
+          evt.item.children[0].children[1].style.display = "table-cell"
+        }
       });
       
     });
