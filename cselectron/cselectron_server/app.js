@@ -74,6 +74,10 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
+app.put('/songupload', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
 io.on('connection', (socket) => {
   // I need to sort by role so that I can use socket.off() in the client side in order to improve security/performance
   if(instances.filter(el => el.socketId == socket.id).length <= 0){

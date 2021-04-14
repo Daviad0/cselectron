@@ -28,9 +28,9 @@
       <div id="songList" style="min-height: 200px;">
         
       </div>
-      <div class="fileuploadarea" style="width:70%;margin-bottom: 5px;margin-top:20px;pointer-events: none;" id="fileUpload">
-        <div style="display: table;width:100%;padding:10px">
-          <span style="text-align: center;color:#262947;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">Drag More Files Here!</span>
+      <div class="fileuploadarea" style="width:70%;margin-bottom: 5px;margin-top:20px;" id="fileUpload">
+        <div style="display: table;width:100%;padding:10px;pointer-events: none;">
+          <span id="fileUploadText" style="text-align: center;color:#262947;font-size: 18px;font-weight: 600;display:table-cell;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;pointer-events: none;transition: all .5s ease-in-out;">Drag More Files Here!</span>
           
         </div>
       </div>
@@ -140,6 +140,60 @@
     
   }
 
+  ;['dragover'].forEach(eventName => {
+    document.getElementById("fileUpload").addEventListener(eventName, function(evt){
+      if(evt.dataTransfer.types.filter(el => el != "Files").length == 0){
+        document.getElementById("fileUpload").style.borderColor = "#409464"
+        document.getElementById("fileUploadText").style.color = "#409464"
+        document.getElementById("fileUploadText").innerHTML = "Drop Here to Upload!"
+      }else{
+        document.getElementById("fileUpload").style.borderColor = "#944040"
+        document.getElementById("fileUploadText").style.color = "#944040"
+        document.getElementById("fileUploadText").innerHTML = "Invalid Item!"
+      }
+      
+    }, false)
+  })
+
+  ;['dragleave'].forEach(eventName => {
+    document.getElementById("fileUpload").addEventListener(eventName, function(evt){
+      document.getElementById("fileUpload").style.borderColor = "#262947"
+      document.getElementById("fileUploadText").style.color = "#262947"
+      document.getElementById("fileUploadText").innerHTML = "Drag More Songs Here!"
+    }, false)
+  })
+  ;['drop'].forEach(eventName => {
+    document.getElementById("fileUpload").addEventListener(eventName, function(evt){
+      if(evt.dataTransfer.types.filter(el => el != "Files").length == 0){
+        Array.from(evt.dataTransfer.files).forEach(file => {
+          console.log(file)
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            console.log(e)
+            $.ajax({
+              url: '127.0.0.1:3000/songupload',
+              type: 'PUT',
+              data: {'name': file.name, 'data': e.target.result}, 
+              success: function(data){
+                console.log(file.name + " was uploaded!")
+              }
+            });
+	      	}
+          reader.readAsBinaryString(file)
+        });
+        document.getElementById("fileUpload").style.borderColor = "#262947"
+        document.getElementById("fileUploadText").style.color = "#262947"
+        document.getElementById("fileUploadText").innerHTML = "Drag More Songs Here!"
+      }else{
+        document.getElementById("fileUpload").style.borderColor = "#944040"
+        document.getElementById("fileUploadText").style.color = "#944040"
+        document.getElementById("fileUploadText").innerHTML = "Invalid Item, Try Again!"
+      }
+    }, false)
+  })
+
+  
+
   ;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     document.getElementById("fileUpload").addEventListener(eventName, preventDefaults, false)
   })
@@ -148,17 +202,6 @@
     e.preventDefault()
     e.stopPropagation()
   }
-
-  document.getElementById("fileUpload").addEventListener('dragover', function(evt){
-    console.log(evt.type)
-    document.getElementById("fileUpload").style.borderColor = "#343755"
-    document.getElementById("fileUpload").style.color = "#343755"
-  }, false);
-  document.getElementById("fileUpload").addEventListener('drop', function(evt){
-    document.getElementById("fileUpload").style.borderColor = "#262947"
-    console.log(evt.type)
-    document.getElementById("fileUpload").style.color = "#262947"
-  });
 
   // trigger save popup
   function somethingWasChanged(){
@@ -452,8 +495,11 @@
         },
         animation: 150,
         sort: false,
-        onClone: function (evt) {
-          evt.item.children[0].children[1].style.display = "table-cell"
+        onEnd: function (evt) {
+          if(evt.clone.style.display != "none"){
+            evt.item.children[0].children[1].style.display = "table-cell"
+          }
+          
         }
       });
       
