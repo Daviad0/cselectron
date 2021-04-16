@@ -48,6 +48,12 @@
     left: 5%;
     width: 43%;
 }
+.fullcontainer {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+}
 .centercontainer {
     position: absolute;
     top: 5%;

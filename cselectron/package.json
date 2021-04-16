@@ -25,6 +25,7 @@
     "howler": "^2.2.1",
     "jquery": "3.3.1",
     "node-id3": "^0.2.2",
+    "node-machine-id": "^1.1.12",
     "nodemon": "^2.0.2",
     "pizzip": "^3.0.6",
     "request": "^2.88.2",

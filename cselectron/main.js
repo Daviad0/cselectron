@@ -6,18 +6,40 @@ const fs = require('fs')
 const io = require("socket.io-client")
 const request = require('request')
 const filesize = require('filesize')
+const machineId = require('node-machine-id')
 
 let currentRole = "";
+let myMachineId = "";
 
 
-
-
+machineId.machineId({original: true}).then((id) => {
+  myMachineId = id
+  console.log("Your Machine ID is " + id)
+});
 
 const socket = io.connect("http://localhost:3000", {reconnect: true});
 
 socket.on("connect", function(instance){
   
 })
+
+socket.on("PING", () => {
+  socket.emit("PONG");
+});
+
+socket.on("requestDeviceInfo", (thingsToAttach) => {
+  var informationes = {}
+  
+  if(thingsToAttach.filter(el => el == 'deviceId').length > 0){
+    informationes['deviceId'] = myMachineId
+  }
+  console.log(thingsToAttach)
+  socket.emit('receiveDeviceInfo', informationes)
+});
+
+socket.on('instancesSent', (rawJson, mySocketId) => {
+  mainWindow.webContents.send('instancesSent', { 'rawJson' : rawJson, 'mySocketId' : mySocketId })
+});
 
 socket.on('notesSent', (notes) => {
   console.log(notes["noteRoleGroups"][0]["notes"])
@@ -76,6 +98,9 @@ ipcMain.on('quitapp', (evt, arg) => {
   app.quit()
 })
 
+ipcMain.on('getInstanceList', (evt, arg) => {
+  socket.emit('getInstanceList');
+});
 
 ipcMain.on('saveSchema', (evt, arg) => {
   socket.emit('saveSchema', arg["typeOf"], arg["rawJson"]);
@@ -167,11 +192,14 @@ function createWindow (role) {
   //mainWindow.setMenu(null)
   var fileToLoad = ""
   console.log(role)
+
+  // Checks whatever role was given back by the server and loads the corresponding file
   if(role == "controller_music"){
     fileToLoad = "views/music_controller.html"
   }else if(role == "controller_schema"){
     fileToLoad = "views/schema_designer.html"
-    console.log("AAAA")
+  }else if(role == "director"){
+    fileToLoad = "views/director.html"
   }else{
     fileToLoad = "views/viewer.html"
   }

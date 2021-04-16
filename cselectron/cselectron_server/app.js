@@ -59,16 +59,54 @@ class Role {
 }
 
 class Instance {
-  constructor(socketId, lastRequest, role){
+  constructor(socketId, lastRequest, role, deviceId){
     this.socketId = socketId
     this.lastRequest = lastRequest
     this.role = role
+    this.deviceId = deviceId
   }
 }
 
 let instances = [];
 
 let roles = [new Role("controller_music", "Music Controller", 1, false), new Role("crew_backstage", "Backstage Progress Viewer", -1, false), new Role("controller_schema", "Schema Designer", 1, true), new Role("director", "Director", 1, true)]
+
+var unresponsiveSockets = []
+var respondedSockets = []
+// this will run every 5-10 seconds to check to make sure that everything is still connected!
+function pingInstances(){
+  // ping with TARGETED = FALSE & reinit respondedSockets
+  respondedSockets = []
+  io.emit('PING', false)
+  setTimeout(function(){
+    instances.forEach(inso => {
+      var ins = inso.socketId
+      // 3 warning system for unresponsiveness
+      if(respondedSockets.filter(soc => soc == ins).length == 0){
+        console.log("Failed to connect to " + ins)
+        if(unresponsiveSockets.filter(unsoc => unsoc['id'] == ins).length > 0){
+          unresponsiveSockets.filter(unsoc => unsoc['id'] == ins)[0]['times'] = unresponsiveSockets.filter(unsoc => unsoc['id'] == ins)[0]['times'] + 1
+          if(unresponsiveSockets.filter(unsoc => unsoc['id'] == ins)[0]['times'] + 1 > 3){
+            // disconnect event
+            unresponsiveSockets.filter(unsoc => unsoc['id'] == ins)[0]['times'] = 0
+            instances.pop(instances.indexOf(instances.filter(el => el == ins)[0]))
+            console.log("Removed " + ins + " from the system")
+          }
+        }else{
+          unresponsiveSockets.push({ 'id' : ins, 'times' : 1})
+        }
+      }else{
+        try{
+          unresponsiveSockets.filter(unsoc => unsoc['id'] == ins)[0].times = 0
+        }catch(err){
+
+        }
+      }
+    });
+  }, 3000);
+}
+
+setInterval(pingInstances, 10000)
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -83,6 +121,18 @@ io.on('connection', (socket) => {
   if(instances.filter(el => el.socketId == socket.id).length <= 0){
     instances.push(new Instance(socket.id, new Date(), null))
   }
+
+  socket.on("PONG", () => {
+    respondedSockets.push(socket.id)
+  });
+
+  socket.emit('requestDeviceInfo', ["deviceId"])
+  socket.on('receiveDeviceInfo', (informationes) => {
+    if(informationes['deviceId'] != undefined){
+      instances.filter(el => el.socketId == socket.id)[0].deviceId = informationes['deviceId']
+      console.log(socket.id + " identified with " + informationes['deviceId'])
+    }
+  });
   console.log('a user connected');
   socket.on('requestRoles', (loginRequest) => {
     socket.emit('rolesSent',roles)
@@ -93,6 +143,10 @@ io.on('connection', (socket) => {
   });
   socket.on('getNoteList', (loginRequest) => {
     socket.emit('notesSent',JSON.parse(noteSchemaTest));
+  });
+  socket.on('getInstanceList', (loginRequest) => {
+    var allUsers = instances
+    socket.emit('instancesSent',JSON.stringify(allUsers), socket.id);
   });
   socket.on('getAudioList', (loginRequest) => {
     fs.readFile('./storage/schema/testSchema.json', 'utf-8', (err, jsonString) => {
