@@ -41,13 +41,10 @@
                 <div style="border: none;height: 6px;width: 50%;border-radius: 18px;background-color: white" id="volumeVisual"></div>
               </div>
             </div>
-            <div class="dropdowncontrol" style="width: 30%;float: right;vertical-align:middle">
-              <span class="material-icons-round elevatedbutton" style="font-size:20px;display:inline-block;text-align: center;border-radius: 12px;padding: 8px;margin-right: 10px;vertical-align:middle">lock</span>
-              <span class="material-icons-round elevatedbutton" style="font-size:20px;display:inline-block;text-align: center;border-radius: 12px;padding: 8px;margin-right: 10px;vertical-align:middle">autorenew</span>
-            </div>
-            <div class="regcontrolbuttons" style="width: 30%;float: right;margin-top: 10px;vertical-align:middle">
-              <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-right: 10px;vertical-align:middle" class="elevatedbutton" type="button" value="Lock"/>
-              <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;vertical-align:middle" class="elevatedbutton" type="button" id="changeAutoplay" value="Autoplay"/>
+            <div style="width: 30%;float: right;vertical-align:middle;margin-top:8px">
+              <span class="material-icons-round elevatedbutton" style="font-size:20px;display:inline-block;text-align: center;border-radius: 12px;padding: 8px 15px 8px 15px;margin-right: 10px;vertical-align:middle">lock</span>
+              <span class="material-icons-round elevatedbutton" id="changeAutoplay" style="font-size:20px;display:inline-block;text-align: center;border-radius: 12px;padding: 8px 15px 8px 15px;margin-right: 10px;vertical-align:middle">autorenew</span>
+              <span class="material-icons-round elevatedbutton" id="changeShuffle" style="font-size:20px;display:inline-block;text-align: center;border-radius: 12px;padding: 8px 15px 8px 15px;margin-right: 10px;vertical-align:middle">shuffle</span>
             </div>
             
             <span class="material-icons-round iconbutton" style="font-size:56px;display: inline-block;vertical-align:middle" id="prevSong">skip_previous</span>
@@ -94,6 +91,9 @@
 
 <script src="../vendor/howler/dist/howler.js"></script>
 <script>
+
+  
+
   let notes = ["Act 1_Note 1_container","Act 1_Note 2_container","Act 1_Note 3_container","Act 1_Note 4_container","Act 1_Note 5_container","Act 1_Note 6_container","Act 1_Note 7_container","Act 1_Note 8_container","Act 1_Note 9_container"]
   let currentlyUpNext = []
   let previouslyPinned = undefined;
@@ -194,6 +194,58 @@
   var sound = undefined
   var songFilesTracked = []
 
+  let shuffleState = { current: false, index: 0, shuffleIndexes: []};
+
+  function resetShuffle(){
+    // calc track index here
+    var track = currentTrack;
+    var trackIndex = rawTrackList.indexOf(track);
+    ranNums = []
+    var amountOfNums = songList[trackIndex]["trackSongs"].length;
+    var nums = [],
+        ranNums = [],
+        j = 0;
+    
+    while(amountOfNums--){
+      nums.push(amountOfNums)
+    }
+    var i = nums.length
+    while (i--) {
+        j = Math.floor(Math.random() * (i+1));
+        ranNums.push(nums[j]);
+        nums.splice(j,1);
+    }
+    
+    shuffleState.current = true;
+    shuffleState.index = 0;
+    shuffleState.shuffleIndexes = ranNums;
+    if(sound == undefined || !sound.playing()){
+      // PLAY FIRST SONG HERE
+    }else{
+      // Get the currently playing song and remove it from shuffle list!
+      var IRemoveThis = shuffleState.shuffleIndexes.indexOf(songList[trackIndex]["trackSongs"].indexOf(currentSong));
+      shuffleState.shuffleIndexes.splice(IRemoveThis, 1)
+      shuffleState.shuffleIndexes.unshift(songList[trackIndex]["trackSongs"].indexOf(currentSong))
+    }
+    document.getElementById("changeShuffle").style.backgroundColor = "white"
+    document.getElementById("changeShuffle").style.color = "#262947"
+  }
+
+  function disableShuffle(evt){
+    shuffleState.current = false
+    document.getElementById("changeShuffle").style.backgroundColor = "#262947"
+    document.getElementById("changeShuffle").style.color = "white"
+  }
+
+  document.getElementById("changeShuffle").addEventListener('click', function(evt){
+    if(shuffleState.current){
+      disableShuffle(evt);
+    }else{
+      resetShuffle(evt);
+    }
+  });
+
+  
   document.getElementById("songNamePlaying").innerHTML = "No Song Playing!"
   document.getElementById("songPositionPlaying").innerHTML = "Please Select a Song...";
 
@@ -275,6 +327,7 @@
     }catch(ex){
 
     }
+    console.log(shuffleState.shuffleIndexes)
     document.getElementById("songNamePlaying").innerHTML = songList[trackIndex]["trackSongs"][useIndex]["songName"];
     document.getElementById("songPositionPlaying").innerHTML = track + " - Song " + (useIndex + 1);
     var location = downloadedSongs.includes(songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"]) ? "../public/audio/" : "http://localhost:3000/audio/"
@@ -283,20 +336,41 @@
           volume: setVolume,
           onend: function(){
             document.getElementById("songProgress").style.width = "0%"
-            if(autoplay && indexOfSong < (songList[trackIndex]["trackSongs"].length-1)){
-              playNextSong(indexOfSong+1)
+            if(!shuffleState.current){
+              if(autoplay && indexOfSong < (songList[trackIndex]["trackSongs"].length-1)){
+                playNextSong(indexOfSong+1)
+              }else{
+                document.getElementById("playSong").innerHTML = "play_arrow";
+                document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "play_arrow"
+              }
             }else{
-              document.getElementById("playSong").innerHTML = "play_arrow";
-              document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "play_arrow"
+              if(!(shuffleState.index == (shuffleState.shuffleIndexes.length - 1))){
+                shuffleState.index = shuffleState.index + 1;
+                console.log(shuffleState.shuffleIndexes[shuffleState.index])
+                playNextSong(shuffleState.shuffleIndexes[shuffleState.index])
+                
+              }else{
+                document.getElementById("playSong").innerHTML = "play_arrow";
+                document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][shuffleState.shuffleIndexes[shuffleState.index]]["songName"] + "." + songList[trackIndex]["trackSongs"][shuffleState.shuffleIndexes[shuffleState.index]]["fileType"] + "|" + songList[trackIndex]["trackSongs"][shuffleState.shuffleIndexes[shuffleState.index]]["instanceIndex"]).innerHTML = "play_arrow"
+              }
             }
+            
           }
         });
         currentSong = songList[trackIndex]["trackSongs"][indexOfSong]
         changeSongListView(prevSong)
         sound.play();
-        document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][useIndex-1]["songName"] + "." + songList[trackIndex]["trackSongs"][useIndex-1]["fileType"] + "|" + songList[trackIndex]["trackSongs"][useIndex-1]["instanceIndex"]).innerHTML = "play_arrow";
-        document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "pause";
-        document.getElementById("playSong").innerHTML = "pause";
+        if(shuffleState.current){
+          var prevSongIndex = shuffleState.shuffleIndexes[shuffleState.shuffleIndexes.indexOf(useIndex)-1]
+          document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][prevSongIndex]["songName"] + "." + songList[trackIndex]["trackSongs"][prevSongIndex]["fileType"] + "|" + songList[trackIndex]["trackSongs"][prevSongIndex]["instanceIndex"]).innerHTML = "play_arrow";
+          document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "pause";
+          document.getElementById("playSong").innerHTML = "pause";
+        }else{
+          document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][useIndex-1]["songName"] + "." + songList[trackIndex]["trackSongs"][useIndex-1]["fileType"] + "|" + songList[trackIndex]["trackSongs"][useIndex-1]["instanceIndex"]).innerHTML = "play_arrow";
+          document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "pause";
+          document.getElementById("playSong").innerHTML = "pause";
+        }
+        
   }
 
   function setSongAndPlay(element){
@@ -304,6 +378,7 @@
     var name = element.srcElement.id.split("|")[1].substring(0, element.srcElement.id.split("|")[1].length - filetype.length - 1)
     var instanceNum = parseInt(element.srcElement.id.split("|")[2])
     var track = element.srcElement.id.split("|")[0]
+    
     if(element.srcElement.innerHTML == "play_arrow"){
       var prevSong = "";
       try{
@@ -318,6 +393,10 @@
           }
           var trackIndex = rawTrackList.indexOf(track);
           var indexOfSong = songList[trackIndex]["trackSongs"].indexOf(songList[trackIndex]["trackSongs"].filter(song => song["songName"] == name && song["instanceIndex"] == instanceNum)[0]);
+          if(shuffleState.current){
+            resetShuffle();
+            shuffleState.shuffleIndexes.splice(songList[trackIndex]["trackSongs"][indexOfSong], 1)
+          }
           document.getElementById("songNamePlaying").innerHTML = name;
           document.getElementById("songPositionPlaying").innerHTML = track + " - Song " + (indexOfSong + 1);
           var location = downloadedSongs.includes(name + "." + filetype) ? "../public/audio/" : "http://localhost:3000/audio/"
@@ -327,15 +406,27 @@
             onend: function(){
               
               document.getElementById("songProgress").style.width = "0%"
-              if(autoplay && indexOfSong < (songList[trackIndex]["trackSongs"].length-1)){
-                playNextSong(indexOfSong+1)
+              if(!shuffleState.current){
+                if(autoplay && indexOfSong < (songList[trackIndex]["trackSongs"].length-1)){
+                  playNextSong(indexOfSong+1)
+                }else{
+                  document.getElementById("playSong").innerHTML = "play_arrow";
+                  document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "play_arrow"
+                }
               }else{
-                document.getElementById("playSong").innerHTML = "play_arrow";
-                document.getElementById(element.srcElement.id).innerHTML = "play_arrow"
+                if(!(shuffleState.index == (shuffleState.shuffleIndexes.length - 1))){
+                  shuffleState.index = shuffleState.index + 1;
+                  console.log(shuffleState.shuffleIndexes[shuffleState.index])
+                  playNextSong(shuffleState.shuffleIndexes[shuffleState.index])
+                }else{
+                  document.getElementById("playSong").innerHTML = "play_arrow";
+                  document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][shuffleState.shuffleIndexes[shuffleState.index]]["songName"] + "." + songList[trackIndex]["trackSongs"][shuffleState.shuffleIndexes[shuffleState.index]]["fileType"] + "|" + songList[trackIndex]["trackSongs"][shuffleState.shuffleIndexes[shuffleState.index]]["instanceIndex"]).innerHTML = "play_arrow"
+                }
               }
             }
           });
           currentSong = songList[trackIndex]["trackSongs"][indexOfSong]
+          shuffleState.shuffleIndexes.unshift(songList[trackIndex]["trackSongs"].indexOf(currentSong))
           changeSongListView(prevSong)
 
           sound.play();
@@ -350,6 +441,10 @@
       }else{
         var trackIndex = rawTrackList.indexOf(track);
           var indexOfSong = songList[trackIndex]["trackSongs"].indexOf(songList[trackIndex]["trackSongs"].filter(song => song["songName"] == name && song["instanceIndex"] == instanceNum)[0]);
+          if(shuffleState.current){
+            resetShuffle();
+            shuffleState.shuffleIndexes.splice(songList[trackIndex]["trackSongs"][indexOfSong], 1)
+          }
           document.getElementById("songNamePlaying").innerHTML = name;
           document.getElementById("songPositionPlaying").innerHTML = track + " - Song " + (indexOfSong + 1);
           var location = downloadedSongs.includes(name + "." + filetype) ? "../public/audio/" : "http://localhost:3000/audio/"
@@ -359,15 +454,27 @@
             onend: function(){
               
               document.getElementById("songProgress").style.width = "0%"
-              if(autoplay && indexOfSong < (songList[trackIndex]["trackSongs"].length-1)){
-                playNextSong(indexOfSong+1)
+              if(!shuffleState.current){
+                if(autoplay && indexOfSong < (songList[trackIndex]["trackSongs"].length-1)){
+                  playNextSong(indexOfSong+1)
+                }else{
+                  document.getElementById("playSong").innerHTML = "play_arrow";
+                  document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "play_arrow"
+                }
               }else{
-                document.getElementById("playSong").innerHTML = "play_arrow";
-                document.getElementById(element.srcElement.id).innerHTML = "play_arrow"
+                if(!(shuffleState.index == (shuffleState.shuffleIndexes.length - 1))){
+                  shuffleState.index = shuffleState.index + 1;
+                  console.log(shuffleState.shuffleIndexes[shuffleState.index])
+                  playNextSong(shuffleState.shuffleIndexes[shuffleState.index])
+                }else{
+                  document.getElementById("playSong").innerHTML = "play_arrow";
+                  document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][shuffleState.shuffleIndexes[shuffleState.index]]["songName"] + "." + songList[trackIndex]["trackSongs"][shuffleState.shuffleIndexes[shuffleState.index]]["fileType"] + "|" + songList[trackIndex]["trackSongs"][shuffleState.shuffleIndexes[shuffleState.index]]["instanceIndex"]).innerHTML = "play_arrow"
+                }
               }
             }
           });
           currentSong = songList[trackIndex]["trackSongs"][indexOfSong]
+          shuffleState.shuffleIndexes.unshift(songList[trackIndex]["trackSongs"].indexOf(currentSong))
           changeSongListView(prevSong)
           currentTrack = track
           sound.play();
@@ -407,13 +514,24 @@
     }
     try{
       var indexOfPrevSong = songList[trackIndex]["trackSongs"].indexOf(songList[trackIndex]["trackSongs"].filter(song => song["songName"] == currentSong["songName"] && song["instanceIndex"] == currentSong["instanceIndex"])[0])
-      if(indexOfPrevSong < (songList[trackIndex]["trackSongs"].length-1)){
+      var valToCompareTo = (songList[trackIndex]["trackSongs"].length-1)
+      if(shuffleState.current){
+        indexOfPrevSong = shuffleState.index
+        valToCompareTo = shuffleState.shuffleIndexes.length-1
+      }
+      if(indexOfPrevSong < valToCompareTo){
         try{
           sound.stop();
         }catch(snd){
 
         }
         var indexOfSong = indexOfPrevSong + 1;
+        if(shuffleState.current){
+          shuffleState.index = shuffleState.index + 1;
+          indexOfSong = shuffleState.shuffleIndexes[shuffleState.index]
+          console.log(shuffleState.index)
+          console.log(shuffleState.shuffleIndexes)
+        }
         document.getElementById("songNamePlaying").innerHTML = songList[trackIndex]["trackSongs"][indexOfSong]["songName"];
         document.getElementById("songPositionPlaying").innerHTML = track + " - Song " + (indexOfSong + 1);
         var location = downloadedSongs.includes(songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"]) ? "../public/audio/" : "http://localhost:3000/audio/"
@@ -422,20 +540,38 @@
           volume: setVolume,
           onend: function(){
             document.getElementById("songProgress").style.width = "0%"
-            if(autoplay && indexOfSong < (songList[trackIndex]["trackSongs"].length-1)){
-              playNextSong(indexOfSong+1)
+            if(!shuffleState.current){
+              if(autoplay && indexOfSong < (songList[trackIndex]["trackSongs"].length-1)){
+                playNextSong(indexOfSong+1)
+              }else{
+                document.getElementById("playSong").innerHTML = "play_arrow";
+                document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "play_arrow"
+              }
             }else{
-              document.getElementById("playSong").innerHTML = "play_arrow";
-              document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "play_arrow"
+              if(!(shuffleState.index == (shuffleState.shuffleIndexes.length - 1))){
+                shuffleState.index = shuffleState.index + 1;
+                playNextSong(shuffleState.shuffleIndexes[shuffleState.index])
+              }else{
+                document.getElementById("playSong").innerHTML = "play_arrow";
+                document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][shuffleState.shuffleIndexes[shuffleState.index]]["songName"] + "." + songList[trackIndex]["trackSongs"][shuffleState.shuffleIndexes[shuffleState.index]]["fileType"] + "|" + songList[trackIndex]["trackSongs"][shuffleState.shuffleIndexes[shuffleState.index]]["instanceIndex"]).innerHTML = "play_arrow"
+              }
             }
           }
         });
         currentSong = songList[trackIndex]["trackSongs"][indexOfSong]
         changeSongListView(prevSong)
         sound.play();
-        document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfPrevSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfPrevSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfPrevSong]["instanceIndex"]).innerHTML = "play_arrow";
-        document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "pause";
-        document.getElementById("playSong").innerHTML = "pause";
+        
+        if(shuffleState.current){
+          var prevSongIndex = shuffleState.shuffleIndexes[indexOfPrevSong]
+          document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][prevSongIndex]["songName"] + "." + songList[trackIndex]["trackSongs"][prevSongIndex]["fileType"] + "|" + songList[trackIndex]["trackSongs"][prevSongIndex]["instanceIndex"]).innerHTML = "play_arrow";
+          document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "pause";
+          document.getElementById("playSong").innerHTML = "pause";
+        }else{
+          document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfPrevSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfPrevSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfPrevSong]["instanceIndex"]).innerHTML = "play_arrow";
+          document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "pause";
+          document.getElementById("playSong").innerHTML = "pause";
+        }
       }
       // Error message handling
         
@@ -454,6 +590,11 @@
     }
     try{
       var indexOfPrevSong = songList[trackIndex]["trackSongs"].indexOf(songList[trackIndex]["trackSongs"].filter(song => song["songName"] == currentSong["songName"] && song["instanceIndex"] == currentSong["instanceIndex"])[0])
+      var valToCompareTo = (songList[trackIndex]["trackSongs"].length-1)
+      if(shuffleState.current){
+        indexOfPrevSong = shuffleState.index
+        valToCompareTo = shuffleState.shuffleIndexes.length
+      }
       if(indexOfPrevSong > 0){
         try{
           sound.stop();
@@ -461,6 +602,10 @@
 
         }
         var indexOfSong = indexOfPrevSong - 1;
+        if(shuffleState.current){
+          shuffleState.index = shuffleState.index - 1;
+          indexOfSong = shuffleState.shuffleIndexes[shuffleState.index]
+        }
         document.getElementById("songNamePlaying").innerHTML = songList[trackIndex]["trackSongs"][indexOfSong]["songName"];
         document.getElementById("songPositionPlaying").innerHTML = track + " - Song " + (indexOfSong + 1);
         var location = downloadedSongs.includes(songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"]) ? "../public/audio/" : "http://localhost:3000/audio/"
@@ -469,20 +614,37 @@
           volume: setVolume,
           onend: function(){
             document.getElementById("songProgress").style.width = "0%"
-            if(autoplay && indexOfSong < (songList[trackIndex]["trackSongs"].length-1)){
-              playNextSong(indexOfSong+1)
+            if(!shuffleState.current){
+              if(autoplay && indexOfSong < (songList[trackIndex]["trackSongs"].length-1)){
+                playNextSong(indexOfSong+1)
+              }else{
+                document.getElementById("playSong").innerHTML = "play_arrow";
+                document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "play_arrow"
+              }
             }else{
-              document.getElementById("playSong").innerHTML = "play_arrow";
-              document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "play_arrow"
+              if(!(shuffleState.index == (shuffleState.shuffleIndexes.length - 1))){
+                shuffleState.index = shuffleState.index + 1;
+                playNextSong(shuffleState.shuffleIndexes[shuffleState.index])
+              }else{
+                document.getElementById("playSong").innerHTML = "play_arrow";
+                document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][shuffleState.shuffleIndexes[shuffleState.index]]["songName"] + "." + songList[trackIndex]["trackSongs"][shuffleState.shuffleIndexes[shuffleState.index]]["fileType"] + "|" + songList[trackIndex]["trackSongs"][shuffleState.shuffleIndexes[shuffleState.index]]["instanceIndex"]).innerHTML = "play_arrow"
+              }
             }
           }
         });
         currentSong = songList[trackIndex]["trackSongs"][indexOfSong]
         changeSongListView(prevSong)
         sound.play();
-        document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfPrevSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfPrevSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfPrevSong]["instanceIndex"]).innerHTML = "play_arrow";
-        document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "pause";
-        document.getElementById("playSong").innerHTML = "pause";
+        if(shuffleState.current){
+          var prevSongIndex = shuffleState.shuffleIndexes[indexOfPrevSong]
+          document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][prevSongIndex]["songName"] + "." + songList[trackIndex]["trackSongs"][prevSongIndex]["fileType"] + "|" + songList[trackIndex]["trackSongs"][prevSongIndex]["instanceIndex"]).innerHTML = "play_arrow";
+          document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "pause";
+          document.getElementById("playSong").innerHTML = "pause";
+        }else{
+          document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfPrevSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfPrevSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfPrevSong]["instanceIndex"]).innerHTML = "play_arrow";
+          document.getElementById(track + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["songName"] + "." + songList[trackIndex]["trackSongs"][indexOfSong]["fileType"] + "|" + songList[trackIndex]["trackSongs"][indexOfSong]["instanceIndex"]).innerHTML = "pause";
+          document.getElementById("playSong").innerHTML = "pause";
+        }
       }
       // Error message handling
         
@@ -609,6 +771,7 @@
     Array.from(document.getElementsByClassName("download")).forEach(btn => {
       btn.addEventListener("click", download)
     })
+    
   });
   ipcRenderer.on('notesToLoad', (event,args) => {
     args["roleNotes"].forEach(el => {

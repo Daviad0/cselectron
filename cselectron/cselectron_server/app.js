@@ -59,13 +59,16 @@ class Role {
 }
 
 class Instance {
-  constructor(socketId, lastRequest, role, deviceId){
+  constructor(socketId, lastRequest, role, deviceId, name){
     this.socketId = socketId
     this.lastRequest = lastRequest
     this.role = role
     this.deviceId = deviceId
+    this.name = name
   }
 }
+
+let savedDevices = {};
 
 let instances = [];
 
@@ -112,7 +115,7 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
-app.put('/songupload', (req, res) => {
+app.post('/songupload', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
@@ -135,6 +138,11 @@ io.on('connection', (socket) => {
   });
   console.log('a user connected');
   socket.on('requestRoles', (loginRequest) => {
+    if(savedDevices[instances.filter(el => el.socketId == socket.id)[0].deviceId] !== undefined){
+      // There is already an instance of this device in the saved database, so it will pass down the preivous login information
+      instances.filter(el => el.socketId == socket.id)[0].name = savedDevices[instances.filter(el => el.socketId == socket.id)[0].deviceId].name
+      socket.emit('rolesSent',roles, {'name' : savedDevices[instances.filter(el => el.socketId == socket.id)[0].deviceId].name, 'role' : savedDevices[instances.filter(el => el.socketId == socket.id)[0].deviceId].role})
+    }
     socket.emit('rolesSent',roles)
   });
   socket.on('loginWithRole', (roleIdentifier) => {
