@@ -71,16 +71,25 @@
     </div>
     <div class="statuscontainer">
       <div style="display: flex;">
-        
-        <div class="elevatedframe" style="display: inline-block;margin-right: 12px;padding-top: 8px;padding-bottom: 8px;">
-          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block">Act 1</span>
+        <div class="elevatedframe" style="display: inline-block;margin-right: 12px;padding-top: 8px;padding-bottom: 8px;vertical-align: middle">
+          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;vertical-align: middle">Act 1</span>
         </div>
-        <div class="elevatedframe" style="display: inline-block;padding-top: 8px;padding-bottom: 8px;margin-right: 12px;">
-          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;margin-right: 5px;">Music Controller</span>
-          <span style="height: 10px;width: 10px;background-color: green;display: inline-block;border-radius: 50%;" title="You Are Online!"></span>
+        <div class="elevatedframe" style="display: inline-block;padding-top: 8px;padding-bottom: 8px;margin-right: 12px;vertical-align: middle">
+          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;margin-right: 5px;vertical-align: middle">Music Controller</span>
+          <span style="height: 10px;width: 10px;background-color: green;display: inline-block;border-radius: 50%;vertical-align: middle" title="You Are Online!"></span>
           
         </div>
         <input style="display:inline-block;text-align: center;border-radius: 20px;font-size: 15px;padding: 8px 15px 8px 15px;" class="elevatedbutton" id="closeApp" type="button" value="Exit App"/>
+      </div>
+      
+    </div>
+    <div class="additionalcontainer" style="bottom: 20px;">
+      <div style="display: flex;">
+        <div class="elevatedframe elevatedframebutton" style="display: inline-block;margin-right: 12px;padding-top: 8px;padding-bottom: 8px;vertical-align: middle" id="readyToggle">
+          <span class="material-icons-round iconbutton" style="text-align: center;color:white;font-size: 18px;display:inline-block;vertical-align: middle;margin-right:4px" id="readyIcon">thumb_down</span>
+          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;vertical-align: middle" id="readyLabel">Not Ready</span>
+          
+        </div>
       </div>
       
     </div>
@@ -786,6 +795,24 @@
   closeApp.addEventListener('click', () => {
     ipcRenderer.send('quitapp');
   });
+
+  let isReady = false;
+
+  function toggleReady(evt){
+    if(isReady){
+      isReady = false;
+      document.getElementById("readyIcon").innerHTML = "thumb_down"
+      document.getElementById("readyLabel").innerHTML = "Not Ready"
+      
+    }else{
+      isReady = true;
+      document.getElementById("readyIcon").innerHTML = "thumb_up"
+      document.getElementById("readyLabel").innerHTML = "Ready"
+    }
+    ipcRenderer.send("readyStatus", {isReady: isReady});
+  }
+  document.getElementById("readyToggle").addEventListener('click', toggleReady)
+
 </script>
 
 </html>

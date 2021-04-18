@@ -92,6 +92,15 @@
     border: 1px solid #1D1F3A;
     box-shadow:  1px 3px 6px 0px rgba(0,0,0,.16);
 }
+.elevatedframebutton {
+    transition: all .25s ease-in-out
+}
+.elevatedframebutton:hover {
+    background-color: #202342;
+    border-color: #202342;
+    color: rgba(255, 255, 255, .8);
+    cursor: pointer;
+}
 .elevatedbutton {
     background-color: #262947;
     border-radius: 10px;
@@ -147,6 +156,19 @@
 }
 .iconbutton:hover{
     color:rgba(255, 255, 255, .7)
+}
+
+.iconbuttonalt{
+    color: #1D1F3A;
+    background-color: white;
+    border-radius: 8px;
+    padding: 4px;
+    text-shadow:  1px 3px 6px 0px rgba(0,0,0,.16);
+    transition: background-color .25s ease-in-out;
+    cursor: pointer;
+}
+.iconbuttonalt:hover{
+    background-color:rgba(255, 255, 255, .7)
 }
 
 .regcontrolbuttons{

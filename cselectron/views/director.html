@@ -28,7 +28,7 @@
           <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block">Act 1</span>
         </div>
         <div class="elevatedframe" style="display: inline-block;padding-top: 8px;padding-bottom: 8px;margin-right: 12px;">
-          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;margin-right: 5px;">Schema Designer</span>
+          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;margin-right: 5px;">Director</span>
           <span style="height: 10px;width: 10px;background-color: green;display: inline-block;border-radius: 50%;" title="You Are Online!"></span>
           
         </div>
@@ -147,17 +147,27 @@
     var passedDownInstances = JSON.parse(args['rawJson'])
     var mySocketId = args['mySocketId']
     passedDownInstances.forEach(el => {
+        el.role = el.role == undefined ? {} : el.role
+        el.role.prettyName = el.role.prettyName == undefined ? "Logging in..." : el.role.prettyName
         document.getElementById("instanceList").innerHTML = document.getElementById("instanceList").innerHTML + `
-        <div class="elevatedframe" style="display: table;width:95%" id="${el.socketId}_frame">
-          <span class="material-icons-round iconbutton thissong" style="font-size:24px;display: table-cell;vertical-align:middle;width:7%">play_arrow</span>
-          <div style="display:table-cell">
-            <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;margin-right: 20px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis;display:block" id="${el.socketId}_roleName">${el.role.prettyName + (el.deviceId == mySocketId ? " (You)" : "")}</span>
-            <span style="text-align: left;color:white;font-size: 12px;font-weight: 600;margin-right: 20px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis;display:block" id="${el.socketId}_name">${el.deviceId}</span>
-          </div>
-          
-          <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%">cloud_download</span>
-        </div><br/>
-        `
+              <div class="elevatedframe" style="display: table;width:95%" id="${el.socketId}_frame">
+                <div style="vertical-align:middle;width:7%;display:${el.unresponsive ? "none" : "table-cell"}" id="${el.socketId}_responsive">
+                  <span class="material-icons-round iconbuttonalt thissong" style="font-size:18px;" title="Connected!">done</span> 
+                </div>
+                <div style="vertical-align:middle;width:7%;display:${!el.unresponsive ? "none" : "table-cell"}" id="${el.socketId}_unresponsive">
+                  <span class="material-icons-round iconbuttonalt thissong" style="font-size:18px;" title="We are having trouble connecting to this device right now...">bolt</span> 
+                </div>
+                
+                <div style="display:table-cell;width:50%">
+                  <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;margin-right: 20px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis;display:block" id="${el.socketId}_roleName">${el.role.prettyName + (el.deviceId == mySocketId ? " (You)" : "")}</span>
+                  <span style="text-align: left;color:white;font-size: 12px;font-weight: 600;margin-right: 20px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis;display:block" id="${el.socketId}_name">${el.deviceId}</span>
+                </div>
+                <span style="text-align: left;display: table-cell;color:white;font-size: 18px;font-weight: 600;margin-right: 20px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis" id="${el.socketId}_ready">${el.ready == true ? "Ready" : "Not Ready"}</span>
+                <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%">lock</span>
+                <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%">logout</span>
+                <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%">block</span>
+              </div><br/>
+              `
     });
   });
 
@@ -165,12 +175,39 @@
         var instanceChanges = JSON.parse(args['rawJson'])
         var mySocketId = args['mySocketId']
         instanceChanges.forEach(ci => {
+          console.log(ci.change)
             if(ci.change == "update"){
-
+              ci.data.role = ci.data.role == undefined ? {} : ci.data.role
+              ci.data.role.prettyName = ci.data.role.prettyName == undefined ? "Logging in..." : ci.data.role.prettyName
+              document.getElementById(ci.data.socketId + "_responsive").style.display = ci.data.unresponsive ? "none" : "table-cell"
+              document.getElementById(ci.data.socketId + "_unresponsive").style.display = !ci.data.unresponsive ? "none" : "table-cell"
+              document.getElementById(ci.data.socketId + "_roleName").innerHTML = ci.data.role.prettyName + (ci.data.socketId == mySocketId ? " (You)" : "")
+              document.getElementById(ci.data.socketId + "_ready").innerHTML = ci.data.ready == true ? "Ready" : "Not Ready"
             }else if(ci.change == "delete"){
-
+              document.getElementById(ci.data.socketId + "_frame").remove()
             }else if(ci.change == "create"){
+              var el = ci.data
+              el.role = el.role == undefined ? {} : el.role
+              el.role.prettyName = el.role.prettyName == undefined ? "Logging in..." : el.role.prettyName
+              document.getElementById("instanceList").innerHTML = document.getElementById("instanceList").innerHTML + `
+              <div class="elevatedframe" style="display: table;width:95%" id="${el.socketId}_frame">
+                <div style="vertical-align:middle;width:7%;display:${el.unresponsive ? "none" : "table-cell"}" id="${el.socketId}_responsive">
+                  <span class="material-icons-round iconbuttonalt thissong" style="font-size:18px;" title="Connected!">done</span> 
+                </div>
+                <div style="vertical-align:middle;width:7%;display:${!el.unresponsive ? "none" : "table-cell"}" id="${el.socketId}_unresponsive">
+                  <span class="material-icons-round iconbuttonalt thissong" style="font-size:18px;" title="We are having trouble connecting to this device right now...">bolt</span> 
+                </div>
                 
+                <div style="display:table-cell;width:50%">
+                  <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;margin-right: 20px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis;display:block" id="${el.socketId}_roleName">${el.role.prettyName + (el.deviceId == mySocketId ? " (You)" : "")}</span>
+                  <span style="text-align: left;color:white;font-size: 12px;font-weight: 600;margin-right: 20px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis;display:block" id="${el.socketId}_name">${el.deviceId}</span>
+                </div>
+                <span style="text-align: left;display: table-cell;color:white;font-size: 18px;font-weight: 600;margin-right: 20px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis" id="${el.socketId}_ready">${el.ready == true ? "Ready" : "Not Ready"}</span>
+                <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%">lock</span>
+                <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%">logout</span>
+                <span class="material-icons-round iconbutton download" style="font-size:24px;display: table-cell;vertical-align:middle;margin-right:5px;text-align:right;width:7%">block</span>
+              </div><br/>
+              `
             }
         });
     });

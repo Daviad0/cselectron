@@ -59,12 +59,14 @@ class Role {
 }
 
 class Instance {
-  constructor(socketId, lastRequest, role, deviceId, name){
+  constructor(socketId, lastRequest, role, deviceId, name, unresponsive, ready){
     this.socketId = socketId
     this.lastRequest = lastRequest
     this.role = role
     this.deviceId = deviceId
     this.name = name
+    this.unresponsive = unresponsive;
+    this.ready = ready;
   }
 }
 
@@ -82,6 +84,8 @@ function pingInstances(){
   respondedSockets = []
   io.emit('PING', false)
   setTimeout(function(){
+    var updatedInstances = []
+    var deletedInstances = []
     instances.forEach(inso => {
       var ins = inso.socketId
       // 3 warning system for unresponsiveness
@@ -92,24 +96,43 @@ function pingInstances(){
           if(unresponsiveSockets.filter(unsoc => unsoc['id'] == ins)[0]['times'] + 1 > 3){
             // disconnect event
             unresponsiveSockets.filter(unsoc => unsoc['id'] == ins)[0]['times'] = 0
-            instances.pop(instances.indexOf(instances.filter(el => el == ins)[0]))
+            var del = instances.splice(instances.indexOf(instances.filter(el => el.socketId == ins)[0]), 1)
+            deletedInstances.push(del[0])
             console.log("Removed " + ins + " from the system")
+            
           }
         }else{
           unresponsiveSockets.push({ 'id' : ins, 'times' : 1})
+          instances.filter(el => el.socketId == ins)[0].unresponsive = true
+          updatedInstances.push(instances.filter(el => el.socketId == ins)[0])
         }
       }else{
         try{
           unresponsiveSockets.filter(unsoc => unsoc['id'] == ins)[0].times = 0
+          instances.filter(el => el.socketId == ins)[0].unresponsive = false
+          updatedInstances.push(instances.filter(el => el.socketId == ins)[0])
         }catch(err){
 
         }
       }
     });
+
+    changesArray = []
+    updatedInstances.forEach(updIns => {
+      changesArray.push({ change: "update", data: updIns })
+    });
+    deletedInstances.forEach(delIns => {
+      changesArray.push({ change: "delete", data: delIns })
+    });
+    // UPDATE DIRECTOR PAGE
+    instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
+      io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify(changesArray), dirIns.socketId);
+    });
+
   }, 3000);
 }
 
-setInterval(pingInstances, 10000)
+setInterval(pingInstances, 7000)
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -123,17 +146,33 @@ io.on('connection', (socket) => {
   // I need to sort by role so that I can use socket.off() in the client side in order to improve security/performance
   if(instances.filter(el => el.socketId == socket.id).length <= 0){
     instances.push(new Instance(socket.id, new Date(), null))
+    
   }
 
   socket.on("PONG", () => {
     respondedSockets.push(socket.id)
+    if(instances.filter(el => el.socketId == socket.id)[0].unresponsive){
+      // LET THE DIRECTOR KNOW THAT IT ISN'T UNRESPONSIVE
+      instances.filter(el => el.socketId == socket.id)[0].unresponsive = false
+      
+      
+    }
+    
   });
-
+  socket.on("readyStatus", (isReady) => {
+    instances.filter(el => el.socketId == socket.id)[0].ready = isReady
+    instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
+      io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'update', data: instances.filter(el => el.socketId == socket.id)[0]}]), dirIns.socketId);
+    });
+  });
   socket.emit('requestDeviceInfo', ["deviceId"])
   socket.on('receiveDeviceInfo', (informationes) => {
     if(informationes['deviceId'] != undefined){
       instances.filter(el => el.socketId == socket.id)[0].deviceId = informationes['deviceId']
       console.log(socket.id + " identified with " + informationes['deviceId'])
+      instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
+        io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'create', data: instances.filter(el => el.socketId == socket.id)[0]}]), dirIns.socketId);
+      });
     }
   });
   console.log('a user connected');
@@ -148,6 +187,9 @@ io.on('connection', (socket) => {
   socket.on('loginWithRole', (roleIdentifier) => {
     console.log(socket.id + " logged in with role " + roleIdentifier)
     instances.filter(el => el.socketId == socket.id)[0].role = roles.filter(el => el.identifier == roleIdentifier)[0]
+    instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
+      io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'update', data: instances.filter(el => el.socketId == socket.id)[0]}]), dirIns.socketId);
+    });
   });
   socket.on('getNoteList', (loginRequest) => {
     socket.emit('notesSent',JSON.parse(noteSchemaTest));

@@ -43,9 +43,20 @@
             </div>
             
             </div>
+            <div class="additionalcontainer" style="bottom: 20px;">
+              <div style="display: flex;">
+                <div class="elevatedframe elevatedframebutton" style="display: inline-block;margin-right: 12px;padding-top: 8px;padding-bottom: 8px;vertical-align: middle" id="readyToggle">
+                  <span class="material-icons-round iconbutton" style="text-align: center;color:white;font-size: 18px;display:inline-block;vertical-align: middle;margin-right:4px" id="readyIcon">thumb_down</span>
+                  <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;vertical-align: middle" id="readyLabel">Not Ready</span>
+                  
+                </div>
+              </div>
+              
+            </div>
         </div>
+        
     </div>
-  
+    
 
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 </body>
@@ -81,6 +92,24 @@
   closeApp.addEventListener('click', () => {
     ipcRenderer.send('quitapp');
   });
+
+  let isReady = false;
+
+  function toggleReady(evt){
+    if(isReady){
+      isReady = false;
+      document.getElementById("readyIcon").innerHTML = "thumb_down"
+      document.getElementById("readyLabel").innerHTML = "Not Ready"
+      
+    }else{
+      isReady = true;
+      document.getElementById("readyIcon").innerHTML = "thumb_up"
+      document.getElementById("readyLabel").innerHTML = "Ready"
+    }
+    ipcRenderer.send("readyStatus", {isReady: isReady});
+  }
+  document.getElementById("readyToggle").addEventListener('click', toggleReady)
+
 </script>
 
 </html>

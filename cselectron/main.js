@@ -41,6 +41,10 @@ socket.on('instancesSent', (rawJson, mySocketId) => {
   mainWindow.webContents.send('instancesSent', { 'rawJson' : rawJson, 'mySocketId' : mySocketId })
 });
 
+socket.on('instancesUpdate', (rawJson, mySocketId) => {
+  mainWindow.webContents.send('instancesUpdate', { 'rawJson' : rawJson, 'mySocketId' : mySocketId })
+});
+
 socket.on('notesSent', (notes) => {
   console.log(notes["noteRoleGroups"][0]["notes"])
   let roleNoteGroup = notes["noteRoleGroups"].filter(el => el.roleId == currentRole)[0]
@@ -115,6 +119,10 @@ ipcMain.on('selectRole', (evt, arg) => {
 
 ipcMain.on('sendMainMessage', (evt, arg) => {
   console.log(arg["greeting"])
+})
+
+ipcMain.on('readyStatus', (evt, arg) => {
+  socket.emit("readyStatus", arg["isReady"]);
 })
 
 ipcMain.on('downloadFile', (evt, arg) => {
