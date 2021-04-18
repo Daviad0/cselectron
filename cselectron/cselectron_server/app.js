@@ -1,11 +1,12 @@
 const express = require('express')
 const app = express();
 
+// stores current schema for both the notes & songs
 let jsonSchemaTest = ""
 let noteSchemaTest = ""
 
+// defines the current state of the theater (the server) and is able to be changed throughout
 let serverState = undefined;
-
 class TheaterState {
   constructor(initDate, active, logging, musicStage){
     this.initDate = initDate
@@ -14,33 +15,38 @@ class TheaterState {
     this.musicStage = musicStage
   }
 }
-
 serverState = new TheaterState(new Date(), true, true, "Pre-Show")
+
 
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const fs = require('fs')
 const path = require('path')
 
+// function to actively reset the song schema whenever it is requested to be changed
 function resetShowSchema(){
   fs.readFile('./storage/schema/testSchema.json', 'utf-8', (err, jsonString) => {
     jsonSchemaTest = jsonString;
   });
 }
 
+// function to actively reset the note schema whenever it is requested to be changed
 function resetNoteSchema(){
   fs.readFile('./storage/schema/testNoteSchema.json', 'utf-8', (err, jsonString) => {
     noteSchemaTest = jsonString;
   });
 } 
+// initialize the schemas at the start of the program so clients are able to receive the value
 resetNoteSchema()
 resetShowSchema()
 
-
+// for webserver, allow connections to reach the storage area for audio & schema
 app.use(express.static(path.join(__dirname, 'storage')))
 
+// define where songs are stored server side
 const audioFolder = "./storage/audio/"
 
+// UNUSED: note obj to take notes during a show
 class Note {
   constructor(position, content, isDirector){
     this.position = position;
@@ -49,6 +55,7 @@ class Note {
   }
 }
 
+// role obj to define all of the roles and their permissions. is passed down to clients at beginning of runtime
 class Role {
   constructor(identifier, prettyName, max, elevated){
     this.identifier = identifier
@@ -58,6 +65,7 @@ class Role {
   }
 }
 
+// instance obj to store all of the client instances. references to role obj. is frequently changed & tracked, and can have CRUD actions
 class Instance {
   constructor(socketId, lastRequest, role, deviceId, name, unresponsive, ready){
     this.socketId = socketId
@@ -70,12 +78,16 @@ class Instance {
   }
 }
 
+// UNUSED: saved instances using the UUID of the device that is passed up (like a token system)
 let savedDevices = {};
 
+// array to store all of the instances (a dynamic amount which cannot be done using individual vars)
 let instances = [];
 
+// array to initialize an unchanging list of roles that are available throughout the runtime of the theater
 let roles = [new Role("controller_music", "Music Controller", 1, false), new Role("crew_backstage", "Backstage Progress Viewer", -1, false), new Role("controller_schema", "Schema Designer", 1, true), new Role("director", "Director", 1, true)]
 
+// variables to track un/responsive instances while doing a PING/PONG request every 7 seconds
 var unresponsiveSockets = []
 var respondedSockets = []
 // this will run every 5-10 seconds to check to make sure that everything is still connected!
@@ -84,6 +96,7 @@ function pingInstances(){
   respondedSockets = []
   io.emit('PING', false)
   setTimeout(function(){
+    // lists initialized to track each and every change made in the ping function for the DIRECTOR
     var updatedInstances = []
     var deletedInstances = []
     instances.forEach(inso => {
@@ -92,27 +105,34 @@ function pingInstances(){
       if(respondedSockets.filter(soc => soc == ins).length == 0){
         console.log("Failed to connect to " + ins)
         if(unresponsiveSockets.filter(unsoc => unsoc['id'] == ins).length > 0){
+          // start (or continue) tracking # of times instance fails to connect
           unresponsiveSockets.filter(unsoc => unsoc['id'] == ins)[0]['times'] = unresponsiveSockets.filter(unsoc => unsoc['id'] == ins)[0]['times'] + 1
+          // after 3 consec. warnings, disconnect the instance entirely
           if(unresponsiveSockets.filter(unsoc => unsoc['id'] == ins)[0]['times'] + 1 > 3){
             // disconnect event
             unresponsiveSockets.filter(unsoc => unsoc['id'] == ins)[0]['times'] = 0
+            // pushes note of deletion to push to DIRECTOR role view (as in, remove it from the view)
             var del = instances.splice(instances.indexOf(instances.filter(el => el.socketId == ins)[0]), 1)
             deletedInstances.push(del[0])
             console.log("Removed " + ins + " from the system")
             
           }
         }else{
+          // this block means this was the first time that it had disconnected
           unresponsiveSockets.push({ 'id' : ins, 'times' : 1})
-          instances.filter(el => el.socketId == ins)[0].unresponsive = true
+          instances.filter(el => el.socketId == ins)[0].unresponsive = true 
+          // takes note of disconnect for DIRECTOR
           updatedInstances.push(instances.filter(el => el.socketId == ins)[0])
         }
       }else{
         try{
+          // this block means that it responded to the PING and should be at 0 warnings
           unresponsiveSockets.filter(unsoc => unsoc['id'] == ins)[0].times = 0
           instances.filter(el => el.socketId == ins)[0].unresponsive = false
+          // takes note of lack of disconnect (if it is changed from x to 0 times disconnected) for DIRECTOR
           updatedInstances.push(instances.filter(el => el.socketId == ins)[0])
         }catch(err){
-
+          // nothing bad happened here, it just meant that the socket was never in unresponsiveSockets in the first place, so times cannot be set.
         }
       }
     });
