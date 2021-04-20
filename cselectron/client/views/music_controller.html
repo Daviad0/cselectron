@@ -42,9 +42,9 @@
               </div>
             </div>
             <div style="width: 30%;float: right;vertical-align:middle;margin-top:8px">
-              <span class="material-icons-round elevatedbutton" style="font-size:20px;display:inline-block;text-align: center;border-radius: 12px;padding: 8px 15px 8px 15px;margin-right: 10px;vertical-align:middle">lock</span>
-              <span class="material-icons-round elevatedbutton" id="changeAutoplay" style="font-size:20px;display:inline-block;text-align: center;border-radius: 12px;padding: 8px 15px 8px 15px;margin-right: 10px;vertical-align:middle">autorenew</span>
-              <span class="material-icons-round elevatedbutton" id="changeShuffle" style="font-size:20px;display:inline-block;text-align: center;border-radius: 12px;padding: 8px 15px 8px 15px;margin-right: 10px;vertical-align:middle">shuffle</span>
+              <span class="material-icons-round elevatedbutton" style="font-size:20px;display:inline-block;text-align: center;border-radius: 12px;padding: 8px 10px 8px 10px;margin-right: 10px;vertical-align:middle">lock</span>
+              <span class="material-icons-round elevatedbutton" id="changeAutoplay" style="font-size:20px;display:inline-block;text-align: center;border-radius: 12px;padding: 8px 10px 8px 10px;margin-right: 10px;vertical-align:middle">autorenew</span>
+              <span class="material-icons-round elevatedbutton" id="changeShuffle" style="font-size:20px;display:inline-block;text-align: center;border-radius: 12px;padding: 8px 10px 8px 10px;margin-right: 10px;vertical-align:middle">shuffle</span>
             </div>
             
             <span class="material-icons-round iconbutton" style="font-size:56px;display: inline-block;vertical-align:middle" id="prevSong">skip_previous</span>
@@ -57,7 +57,8 @@
         
       </div>
       <br/>
-      <span style="text-align: left;color:white;font-size: 40px;font-weight: 600;display:inline-block">Notes</span>
+      <span style="text-align: left;color:white;font-size: 40px;font-weight: 600;display:inline-block;vertical-align: middle;">Notes</span>
+      <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="addNote" type="button" value="Add Note"/>
         <br/>
         <div style="text-align: center;display: flex;flex-wrap: wrap;height:38vh;overflow-y: auto;" id="noteList">
           
@@ -93,6 +94,63 @@
       </div>
       
     </div>
+    <div id="createNote" class="overlayBox" style="display:none;text-align:center;">
+      <div style="width:100%;height:100%;display: flex;align-items:center;justify-content:center">
+        <div class="elevatedframe" style="display:inline-block;max-width:500px;padding:30px">
+          <span style="color: white;font-size:20px;font-weight:600;margin-bottom: 5px;display:block">Create a Note</span>
+          
+          <span style="color: white;font-size:12px;margin-bottom: 20px;display:block">Phases are certain segments of your program that hold music and notes. The director may choose to hide a phase or enforce the use of a phase during a show.</span>
+          <table style="width:100%;margin-bottom:10px">
+            <tr>
+              <td style="text-align:right;padding:5px;width:40%;vertical-align: top;">
+                <span style="color: white;font-size:12px;margin-bottom: 20px;font-weight:600;margin-right:5px;margin-bottom:10px">Phase Name   </span>
+              </td>
+              <td style="text-align:left;padding:5px;width:60%;vertical-align: top;">
+                <select name="phaseName" id="phases_addNote" style="display:inline-block;padding:10px;margin-bottom:10px;width:90%" class="textbox"></select>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:right;padding:5px;width:40%;vertical-align: top;">
+                <span style="color: white;font-size:12px;margin-bottom: 20px;font-weight:600;margin-right:5px;margin-bottom:10px">Song Name (+ Number)   </span>
+              </td>
+              <td style="text-align:left;padding:5px;width:60%;vertical-align: top;">
+                <select name="songName" id="songs_addNote" style="display:inline-block;padding:10px;margin-bottom:10px;width:90%" class="textbox">
+            
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:right;padding:5px;width:40%;vertical-align: top;">
+                <span style="color: white;font-size:12px;margin-bottom: 20px;font-weight:600;margin-right:5px;margin-bottom:10px">After Song?   </span>
+              </td>
+              <td style="text-align:left;padding:5px;width:60%;vertical-align: top;">
+                <input type="checkbox" class="textbox" id="after_addNote" style="margin-bottom:10px;margin-left:10px"/>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:right;padding:5px;width:40%;vertical-align: top;padding-top:12px">
+                <span style="color: white;font-size:12px;font-weight:600;margin-top:10px;margin-right:5px">Note Title   </span>
+              </td>
+              <td style="text-align:left;padding:5px;width:60%;vertical-align: top;">
+                <input class="textbox" style="display:inline-block;font-size:14px;width:90%" id="title_addNote" placeholder="Cool Title..."/>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:right;padding:5px;width:40%;vertical-align: top;padding-top:12px">
+                <span style="color: white;font-size:12px;font-weight:600;margin-top:10px;margin-right:5px">Note Content   </span>
+              </td>
+              <td style="text-align:left;padding:5px;width:60%;vertical-align: top;">
+                <input class="textbox" style="display:inline-block;font-size:14px;width:90%" id="content_addNote" placeholder="Descriptive Description..."/><br/>
+              </td>
+            </tr>
+            
+          </table>
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="cancel_addNote" type="button" value="Cancel"/>
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="save_addPhase" type="button" value="Save"/>
+        </div>
+      </div>
+      
+    </div>
   </div>
   
 
@@ -102,7 +160,7 @@
 <script>
 
   
-
+  
   let notes = ["Act 1_Note 1_container","Act 1_Note 2_container","Act 1_Note 3_container","Act 1_Note 4_container","Act 1_Note 5_container","Act 1_Note 6_container","Act 1_Note 7_container","Act 1_Note 8_container","Act 1_Note 9_container"]
   let currentlyUpNext = []
   let previouslyPinned = undefined;
@@ -202,6 +260,25 @@
   let songList = []
   var sound = undefined
   var songFilesTracked = []
+
+  document.getElementById("addNote").addEventListener('click', function(evt){
+    document.getElementById("createNote").style.display = "";
+  });
+  document.getElementById("cancel_addNote").addEventListener('click', function(evt){
+    document.getElementById("createNote").style.display = "none";
+  });
+  function refreshSongDropDown(trackName){
+    var listOfAccordingSongs = songList[rawTrackList.indexOf(trackName)]["trackSongs"];
+    document.getElementById("songs_addNote").innerHTML = "";
+    var i = 0;
+    listOfAccordingSongs.forEach(song => {
+      document.getElementById("songs_addNote").innerHTML = document.getElementById("songs_addNote").innerHTML + "<option value=" + i + ">" + (song["songName"] + " (" + (i+1) + ")") + "</option>"
+      i = i + 1;
+    });
+  }
+  document.getElementById("phases_addNote").addEventListener('change', function(){
+    refreshSongDropDown(document.getElementById("phases_addNote").value);
+  });
 
   let shuffleState = { current: false, index: 0, shuffleIndexes: []};
 
@@ -402,10 +479,7 @@
           }
           var trackIndex = rawTrackList.indexOf(track);
           var indexOfSong = songList[trackIndex]["trackSongs"].indexOf(songList[trackIndex]["trackSongs"].filter(song => song["songName"] == name && song["instanceIndex"] == instanceNum)[0]);
-          if(shuffleState.current){
-            resetShuffle();
-            shuffleState.shuffleIndexes.splice(songList[trackIndex]["trackSongs"][indexOfSong], 1)
-          }
+          
           document.getElementById("songNamePlaying").innerHTML = name;
           document.getElementById("songPositionPlaying").innerHTML = track + " - Song " + (indexOfSong + 1);
           var location = downloadedSongs.includes(name + "." + filetype) ? "../public/audio/" : "http://localhost:3000/audio/"
@@ -442,6 +516,10 @@
           document.getElementById("playSong").innerHTML = "pause";
           document.getElementById(element.srcElement.id).innerHTML = "pause"
           currentTrack = track
+          if(shuffleState.current){
+            resetShuffle();
+            shuffleState.shuffleIndexes.splice(songList[trackIndex]["trackSongs"][indexOfSong], 1)
+          }
         }else{
           document.getElementById("playSong").innerHTML = "pause";
           document.getElementById(element.srcElement.id).innerHTML = "pause"
@@ -761,6 +839,7 @@
       document.getElementById("songList").innerHTML = document.getElementById("songList").innerHTML + `<div id="${track["trackName"]}">
           <span style="text-align: center;color:white;font-size: 30px;font-weight: 600;display:inline-block;margin-bottom:20px">${track["trackName"]}</span><br/>
         </div><br/>`
+        document.getElementById('phases_addNote').innerHTML = document.getElementById('phases_addNote').innerHTML + "<option value=" + track["trackName"] + ">" + track["trackName"] + "</option>"
       track["trackSongs"].forEach(song => {
         var inList = true;
         var currentCountOfInstances = songFilesTracked.filter(el => el == song["songName"] + "." + song["fileType"]).length;
@@ -773,6 +852,7 @@
       });
       
     });
+    refreshSongDropDown(rawTrackList[0])
     currentTrack = rawTrackList[0]
     Array.from(document.getElementsByClassName("thissong")).forEach(btn => {
       btn.addEventListener("click", setSongAndPlay)

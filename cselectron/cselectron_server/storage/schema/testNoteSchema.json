@@ -5,6 +5,7 @@
             "available" : true,
             "notes" : [
                 {
+                    "id" : "controller_music_1",
                     "noteTitle" : "Turn Volume Up",
                     "noteSong" : "Overture",
                     "noteTrack" : "Act 1",
@@ -14,6 +15,7 @@
                     "isAdminIssued" : false
                 },
                 {
+                    "id" : "controller_music_2",
                     "noteTitle" : "Turn Volume Up",
                     "noteSong" : "Overture",
                     "noteTrack" : "Act 1",
@@ -23,6 +25,7 @@
                     "isAdminIssued" : false
                 },
                 {
+                    "id" : "controller_music_3",
                     "noteTitle" : "Turn Volume Up",
                     "noteSong" : "Overture",
                     "noteTrack" : "Act 1",
@@ -32,6 +35,7 @@
                     "isAdminIssued" : false
                 },
                 {
+                    "id" : "controller_music_4",
                     "noteTitle" : "Turn Volume Up",
                     "noteSong" : "Overture",
                     "noteTrack" : "Act 1",
@@ -41,6 +45,7 @@
                     "isAdminIssued" : false
                 },
                 {
+                    "id" : "controller_music_5",
                     "noteTitle" : "Turn Volume Up",
                     "noteSong" : "Overture",
                     "noteTrack" : "Act 1",
@@ -50,6 +55,7 @@
                     "isAdminIssued" : false
                 },
                 {
+                    "id" : "controller_music_6",
                     "noteTitle" : "Turn Volume Up",
                     "noteSong" : "Overture",
                     "noteTrack" : "Act 1",
@@ -59,6 +65,7 @@
                     "isAdminIssued" : false
                 },
                 {
+                    "id" : "controller_music_7",
                     "noteTitle" : "Turn Volume Up",
                     "noteSong" : "Overture",
                     "noteTrack" : "Act 1",
@@ -68,6 +75,7 @@
                     "isAdminIssued" : false
                 },
                 {
+                    "id" : "controller_music_8",
                     "noteTitle" : "Turn Volume Up",
                     "noteSong" : "Overture",
                     "noteTrack" : "Act 1",

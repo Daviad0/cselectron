@@ -246,6 +246,11 @@ ipcMain.on("getNotes", (event, args) => {
   // trying to get a list of current ids from the server
 });
 
+ipcMain.on("noteChange", (event, args) => {
+  socket.emit('noteChange', arg["change"], arg["data"], (currentrole == "director" ? arg["role"] : currentRole))
+  // tell the server that the client changed a note
+});
+
 app.on('ready', letUserSelectRole)
 
 app.on('resize', function(e,x,y){

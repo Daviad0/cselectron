@@ -33,7 +33,7 @@ function resetShowSchema(){
 // function to actively reset the note schema whenever it is requested to be changed
 function resetNoteSchema(){
   fs.readFile('./storage/schema/testNoteSchema.json', 'utf-8', (err, jsonString) => {
-    noteSchemaTest = jsonString;
+    noteSchemaTest = JSON.parse(jsonString);
   });
 } 
 // initialize the schemas at the start of the program so clients are able to receive the value
@@ -185,6 +185,16 @@ io.on('connection', (socket) => {
       io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'update', data: instances.filter(el => el.socketId == socket.id)[0]}]), dirIns.socketId);
     });
   });
+
+
+  socket.on("noteChange", (change, data, role) => {
+    // uh oh multi threading??
+    if(change == 'delete'){
+      noteSchemaTest.filter(el => el["roleId"] == role)[0].splice(noteSchemaTest.filter(el => el["roleId"] == role)[0].indexOf(noteSchemaTest.filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]))
+    }else if(change == 'update'){
+      noteSchemaTest.filter(el => el["roleId"] == role)[0].indexOf(noteSchemaTest.filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]) = JSON.parse(data)
+    }
+  });
   socket.emit('requestDeviceInfo', ["deviceId"])
   socket.on('receiveDeviceInfo', (informationes) => {
     if(informationes['deviceId'] != undefined){
@@ -212,7 +222,7 @@ io.on('connection', (socket) => {
     });
   });
   socket.on('getNoteList', (loginRequest) => {
-    socket.emit('notesSent',JSON.parse(noteSchemaTest));
+    socket.emit('notesSent',noteSchemaTest);
   });
   socket.on('getInstanceList', (loginRequest) => {
     var allUsers = instances
@@ -233,6 +243,7 @@ io.on('connection', (socket) => {
     if(typeOf == "show") { 
       fs.writeFile('./storage/schema/testSchema.json', rawJson, function(err){
         console.log(err)
+        resetShowSchema();
       }); 
     }
     
