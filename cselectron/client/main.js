@@ -247,7 +247,7 @@ ipcMain.on("getNotes", (event, args) => {
 });
 
 ipcMain.on("noteChange", (event, args) => {
-  socket.emit('noteChange', arg["change"], arg["data"], (currentrole == "director" ? arg["role"] : currentRole))
+  socket.emit('noteChange', args["change"], args["data"], (currentRole == "director" ? args["role"] : currentRole))
   // tell the server that the client changed a note
 });
 

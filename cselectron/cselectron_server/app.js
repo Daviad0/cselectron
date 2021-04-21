@@ -36,6 +36,11 @@ function resetNoteSchema(){
     noteSchemaTest = JSON.parse(jsonString);
   });
 } 
+function pushNoteSchema(){
+  fs.writeFile('./storage/schema/testNoteSchema.json', JSON.stringify(noteSchemaTest), function(err){
+
+  }); 
+}
 // initialize the schemas at the start of the program so clients are able to receive the value
 resetNoteSchema()
 resetShowSchema()
@@ -189,11 +194,17 @@ io.on('connection', (socket) => {
 
   socket.on("noteChange", (change, data, role) => {
     // uh oh multi threading??
+    data = JSON.parse(data)
     if(change == 'delete'){
-      noteSchemaTest.filter(el => el["roleId"] == role)[0].splice(noteSchemaTest.filter(el => el["roleId"] == role)[0].indexOf(noteSchemaTest.filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]))
+      noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0].splice(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].indexOf(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]))
     }else if(change == 'update'){
-      noteSchemaTest.filter(el => el["roleId"] == role)[0].indexOf(noteSchemaTest.filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]) = JSON.parse(data)
+      noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0].indexOf(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]) = data
+    }else if(change == 'create'){
+      console.log(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0])
+      noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].push(data)
     }
+    console.log(noteSchemaTest)
+    pushNoteSchema();
   });
   socket.emit('requestDeviceInfo', ["deviceId"])
   socket.on('receiveDeviceInfo', (informationes) => {
