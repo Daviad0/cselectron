@@ -151,6 +151,18 @@
       </div>
       
     </div>
+    <div id="deleteNote" class="overlayBox" style="display:none;text-align:center;">
+      <div style="width:100%;height:100%;display: flex;align-items:center;justify-content:center">
+        <div class="elevatedframe" style="display:inline-block;padding:30px;max-width:500px">
+          <input style="display: none;" id="selected_removeNote" value=""/>
+          <span style="color: white;font-size:20px;font-weight:600;margin-bottom: 5px;display:block">Are you sure?</span>
+          <span style="color: white;font-size:12px;margin-bottom: 10px;display:block">You are about to permanately delete a note for everyone who has access to it. This action cannot be reversed!</span>
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;margin-top: 5px;" class="elevatedbutton" id="cancel_removeNote" type="button" value="Cancel"/>
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="delete_removeNote" type="button" value="Delete"/>
+        </div>
+      </div>
+      
+    </div>
   </div>
   
 
@@ -253,6 +265,17 @@
   });
   document.getElementById("cancel_addNote").addEventListener('click', function(evt){
     document.getElementById("createNote").style.display = "none";
+  });
+
+  Array.from(document.getElementsByClassName("removeNote")).forEach(el => {
+    el.addEventListener('click', function(evt){
+      var noteId = evt.srcElement.id.split("|")[0]
+      document.getElementById("selected_removeNote").value = noteId;
+      document.getElementById("deleteNote").style.display = "";
+    });
+  })
+  document.getElementById("cancel_removeNote").addEventListener('click', function(evt){
+    document.getElementById("deleteNote").style.display = "none";
   });
   function refreshSongDropDown(trackName){
     var listOfAccordingSongs = songList[rawTrackList.indexOf(trackName)]["trackSongs"];
@@ -863,11 +886,11 @@
         <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${el["noteTitle"]}</span><br/>
         <span style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isDuring"] ? "" : "After "}${el["noteSong"]} (${el["noteSongIndex"]+1})</i></span><br/>
         <span style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isAdminIssued"] ? "Director's Note - Only For You" : "Your Personal Note by You!"}</i></span><br/>
-        <span style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;">${el["noteContent"]}</span><br/>
+        <span style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${el["noteContent"]}</span><br/>
         <div style="display: inline-block;" class="noteOption">
           <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton pinThisNote" type="button" id="" value="Pin"/>
           <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton" type="button" id="" value="Edit" ${el["isAdminIssued"] ? "disabled" : ""} title="${el["isAdminIssued"] ? "You cannot edit a note that isn't yours!" : ""}"/>
-          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;color:pink;margin-top:8px" class="elevatedbutton" type="button" id="" value="Delete" ${el["isAdminIssued"] ? "disabled" : ""} title="${el["isAdminIssued"] ? "You cannot delete a note that isn't yours!" : ""}"/>
+          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;color:pink;margin-top:8px" class="elevatedbutton removeNote" type="button" id="${el["id"]}|delete" value="Delete" ${el["isAdminIssued"] ? "disabled" : ""} title="${el["isAdminIssued"] ? "You cannot delete a note that isn't yours!" : ""}"/>
           
         </div>
         
@@ -894,6 +917,17 @@
     var newObject = { 'id' : id, "noteTitle" : document.getElementById("title_addNote").value, "noteSong" : songList[trackIndex]["trackSongs"][document.getElementById("songs_addNote").value]["songName"], "noteSongIndex" : document.getElementById("songs_addNote").value, "noteTrack" : document.getElementById("phases_addNote").value, "isDuring" : (!document.getElementById("after_addNote").checked), "isDialogue" : false, "noteContent" : document.getElementById("content_addNote").value, "isAdminIssued" : false}
     console.log(newObject)
     ipcRenderer.send("noteChange", {change: 'create', data: JSON.stringify(newObject), role: 'controller_music'});
+  }
+
+  function deleteNoteAndSubmit(){
+    document.getElementById("createNote").style.display = "none";
+    // assume that since it is the client, it is automatically going to be this role
+    // maybe change calc id
+    var id = document.getElementById("selected_removeNote").value
+    var noteToDelete = notes.filter(el => el["id"] == id)[0]
+    
+    console.log(noteToDelete)
+    ipcRenderer.send("noteChange", {change: 'delete', data: JSON.stringify(noteToDelete), role: 'controller_music'});
   }
 
   document.getElementById("save_addNote").addEventListener('click', createNoteAndSubmit);
