@@ -59,14 +59,21 @@
       <br/>
       <span style="text-align: left;color:white;font-size: 40px;font-weight: 600;display:inline-block;vertical-align: middle;">Notes</span>
       <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="addNote" type="button" value="Add Note"/>
+      <select name="noteCategory" id="noteCategory" style="display:inline-block;padding:10px" class="textbox">
+          <option value="All">All Notes</option>
+      </select>
         <br/>
-        <div style="text-align: center;display: flex;flex-wrap: wrap;height:38vh;overflow-y: auto;" id="noteList">
-          
-        
-          
-          
-          
+        <div style="overflow-y: auto;height:38vh">
+          <span style="text-align: left;color:white;font-size: 24px;font-weight: 600;display:inline-block;vertical-align: middle;">Pinned Notes</span>
+          <div style="text-align: center;display: flex;flex-wrap: wrap;" id="noteList_pinned">
+            
+          </div>
+          <span style="text-align: left;color:white;font-size: 24px;font-weight: 600;display:inline-block;vertical-align: middle;">All Notes</span>
+          <div style="text-align: center;display: flex;flex-wrap: wrap;" id="noteList_allnotes">
+            
+          </div>
         </div>
+        
       
       
     </div>
@@ -157,7 +164,7 @@
           <input style="display: none;" id="selected_removeNote" value=""/>
           <span style="color: white;font-size:20px;font-weight:600;margin-bottom: 5px;display:block">Are you sure?</span>
           <span style="color: white;font-size:12px;margin-bottom: 10px;display:block">You are about to permanately delete a note for everyone who has access to it. This action cannot be reversed!</span>
-          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;margin-top: 5px;" class="elevatedbutton" id="cancel_removeNote" type="button" value="Cancel"/>
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="cancel_removeNote" type="button" value="Cancel"/>
           <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="delete_removeNote" type="button" value="Delete"/>
         </div>
       </div>
@@ -175,6 +182,8 @@
   
   let notes = []
   let currentlyUpNext = []
+  let pinnedNotes = []
+
   let previouslyPinned = undefined;
 
   notes.forEach(note => {
@@ -883,51 +892,89 @@
     }
     else if(args["change"] == 'create'){
       notes.push(el)
-      document.getElementById("noteList").innerHTML = document.getElementById("noteList").innerHTML + `
-      <div id="${el["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;">
-        <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${el["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${el["noteTitle"]}</span><br/>
-        <span id="${el["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isDuring"] ? "" : "After "}${el["noteSong"]} (${el["noteSongIndex"]+1})</i></span><br/>
-        <span id="${el["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isAdminIssued"] ? "Director's Note - Only For You" : "Your Personal Note by You!"}</i></span><br/>
-        <span id="${el["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${el["noteContent"]}</span><br/>
-        <div style="display: inline-block;" class="noteOption">
-          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton pinThisNote" type="button"  id="${el["id"]}|pin" value="Pin"/>
-          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton" type="button"  id="${el["id"]}|edit" value="Edit" ${el["isAdminIssued"] ? "disabled" : ""} title="${el["isAdminIssued"] ? "You cannot edit a note that isn't yours!" : ""}"/>
-          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;color:pink;margin-top:8px" class="elevatedbutton removeNote" type="button" id="${el["id"]}|delete" value="Delete" ${el["isAdminIssued"] ? "disabled" : ""} title="${el["isAdminIssued"] ? "You cannot delete a note that isn't yours!" : ""}"/>
+      var keepTrackOf = el["id"]
+      document.getElementById('noteList_allnotes').innerHTML = ""
+      notes.sort((a,b) => (parseInt(a["noteSongIndex"]) > parseInt(b["noteSongIndex"]) ? 1 : -1)).forEach(remake => {
+        document.getElementById("noteList_allnotes").innerHTML = document.getElementById("noteList_allnotes").innerHTML + `
+        <div id="${remake["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;">
+          <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${remake["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${remake["noteTitle"]}</span><br/>
+          <span id="${remake["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${remake["isDuring"] ? "" : "After "}${remake["noteSong"]} (${parseInt(remake["noteSongIndex"])+1})</i></span><br/>
+          <span id="${remake["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${remake["isAdminIssued"] ? "Director's Note - Only For You" : "Your Personal Note by You!"}</i></span><br/>
+          <span id="${remake["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${remake["noteContent"]}</span><br/>
+          <div style="display: inline-block;">
+            <span class="material-icons-round iconbutton" id="${remake["id"]}_triggerOptions" style="font-size:20px;display: inline-block;text-align:left">shuffle</span>
+            <div class="option-dropdown" id="${remake["id"]}_options" style="outline:none" tabindex="-1">
+              <a href="#" style="border-radius: 8px 8px 0px 0px" id="${remake["id"]}|pin">Pin</a>
+              <a href="#" style="border-radius: 0px 0px 0px 0px" id="${remake["id"]}|edit">Edit</a>
+              <a href="#" class="removeNote" style="border-radius: 0px 0px 8px 8px;color:pink" id="${remake["id"]}|delete">Delete</a>
+            </div>
+          </div>
           
         </div>
-        
-      </div>
-      `
+        `
+      });
+      
+
     }
+    notes.forEach(el => {
+      document.getElementById(el["id"] + "_triggerOptions").addEventListener('click', function(){
+        document.getElementById(el["id"] + "_options").style.display = "block"
+        document.getElementById(el["id"] + "_options").focus()
+      });
+      document.getElementById(el["id"] + "_options").addEventListener('focusout', function(evt){
+        if(evt.relatedTarget == null || evt.relatedTarget.localName != "a"){
+          document.getElementById(el["id"] + "_options").style.display = "none"
+        }
+        
+      });
+    });
+    var topPos = document.getElementById(el["id"]).offsetTop;
+    document.getElementById('noteList_allnotes').scrollTop = topPos;
   });
 
   ipcRenderer.on('notesToLoad', (event,args) => {
-    args["roleNotes"].forEach(el => {
+    args["roleNotes"].sort((a,b) => (parseInt(a["noteSongIndex"]) > parseInt(b["noteSongIndex"]) ? 1 : -1)).forEach(el => {
       var trackIndex = rawTrackList.indexOf(el["noteTrack"])
       var isValidlyPlaced = false
       if(songList[trackIndex]["trackSongs"][el["noteSongIndex"]]["songName"] == el["noteSong"]){
         isValidlyPlaced = true;
       }
       notes.push(el)
-      document.getElementById("noteList").innerHTML = document.getElementById("noteList").innerHTML + `
+      document.getElementById("noteList_allnotes").innerHTML = document.getElementById("noteList_allnotes").innerHTML + `
       <div id="${el["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;">
         <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${el["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${el["noteTitle"]}</span><br/>
-        <span id="${el["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isDuring"] ? "" : "After "}${el["noteSong"]} (${el["noteSongIndex"]+1})</i></span><br/>
+        <span id="${el["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isDuring"] ? "" : "After "}${el["noteSong"]} (${parseInt(el["noteSongIndex"])+1})</i></span><br/>
         <span id="${el["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isAdminIssued"] ? "Director's Note - Only For You" : "Your Personal Note by You!"}</i></span><br/>
         <span id="${el["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${el["noteContent"]}</span><br/>
-        <div style="display: inline-block;" class="noteOption">
-          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton pinThisNote" type="button"  id="${el["id"]}|pin" value="Pin"/>
-          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton" type="button"  id="${el["id"]}|edit" value="Edit" ${el["isAdminIssued"] ? "disabled" : ""} title="${el["isAdminIssued"] ? "You cannot edit a note that isn't yours!" : ""}"/>
-          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;color:pink;margin-top:8px" class="elevatedbutton removeNote" type="button" id="${el["id"]}|delete" value="Delete" ${el["isAdminIssued"] ? "disabled" : ""} title="${el["isAdminIssued"] ? "You cannot delete a note that isn't yours!" : ""}"/>
-          
+        <div style="display: inline-block;">
+          <span class="material-icons-round iconbutton" id="${el["id"]}_triggerOptions" style="font-size:20px;display: inline-block;text-align:left">shuffle</span>
+          <div class="option-dropdown" id="${el["id"]}_options" style="outline:none" tabindex="-1">
+            <a href="#" style="border-radius: 8px 8px 0px 0px" id="${el["id"]}|pin">Pin</a>
+            <a href="#" style="border-radius: 0px 0px 0px 0px" id="${el["id"]}|edit">Edit</a>
+            <a href="#" class="removeNote" style="border-radius: 0px 0px 8px 8px;color:pink" id="${el["id"]}|delete">Delete</a>
+          </div>
         </div>
         
       </div>
       `
+      
+    });
+    notes.forEach(el => {
+      document.getElementById(el["id"] + "_triggerOptions").addEventListener('click', function(){
+        document.getElementById(el["id"] + "_options").style.display = "block"
+        document.getElementById(el["id"] + "_options").focus()
+      });
+      document.getElementById(el["id"] + "_options").addEventListener('focusout', function(evt){
+        if(evt.relatedTarget == null || evt.relatedTarget.localName != "a"){
+          document.getElementById(el["id"] + "_options").style.display = "none"
+        }
+        
+      });
     });
     Array.from(document.getElementsByClassName("removeNote")).forEach(el => {
       el.addEventListener('click', function(evt){
       var noteId = evt.srcElement.id.split("|")[0]
+      document.getElementById(noteId + "_options").style.display = "none"
       document.getElementById("selected_removeNote").value = noteId;
       document.getElementById("deleteNote").style.display = "";
       

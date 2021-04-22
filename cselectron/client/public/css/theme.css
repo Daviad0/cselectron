@@ -189,16 +189,39 @@
 
 .note{
     width: 300px;
-    height: 150px;
     transition: height 0.25s ease-in-out
 }
 .noteOption{
     opacity: 0;
     transition: opacity 0.25s ease-in-out
 }
-.note:hover{
-    height: 184px;
-}
 .note:hover .noteOption{
     opacity: 1;
 }
+
+.option-dropdown {
+    display: none;
+    position: relative;
+    background-color: #262947;
+    color: white;
+    min-width: 100px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .option-dropdown a {
+    float: none;
+    color: white;
+    padding: 8px 12px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+    border-radius: inherit;
+    transition: all .25s ease-in-out;
+  }
+  .option-dropdown a:hover {
+    font-weight: 600;
+    background-color: #202342;
+  }
