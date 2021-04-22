@@ -54,6 +54,9 @@ socket.on('notesSent', (notes) => {
 socket.on('songUpdateFromServer', (songName, subtitle, progress) => {
   // Handle sending to client
 });
+socket.on('notifyNoteChange', (change, data, role) => {
+  mainWindow.webContents.send("notifyNoteChange", { 'change' : change, 'data' : data, 'role' : role })
+});
 socket.on('roleRegisterAs', (roleIdentifier) => {
   // Logic to make sure that all of the required event handlers are here.
 });

@@ -196,14 +196,19 @@ io.on('connection', (socket) => {
     // uh oh multi threading??
     data = JSON.parse(data)
     if(change == 'delete'){
-      noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0].splice(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].indexOf(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]))
+      console.log(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"])
+      console.log(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0])
+      console.log(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].indexOf(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]))
+      noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].splice(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].indexOf(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]),1)
+      io.emit("notifyNoteChange", 'delete', JSON.stringify(data), role)
     }else if(change == 'update'){
-      noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0].indexOf(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]) = data
+      noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].indexOf(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]) = data
+      io.emit("notifyNoteChange", 'update', JSON.stringify(data), role)
     }else if(change == 'create'){
       console.log(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0])
       noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].push(data)
+      io.emit("notifyNoteChange", 'create', JSON.stringify(data), role)
     }
-    console.log(noteSchemaTest)
     pushNoteSchema();
   });
   socket.emit('requestDeviceInfo', ["deviceId"])

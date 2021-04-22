@@ -238,6 +238,8 @@
     });
   });
 
+  
+
   class Song{
     constructor(name, filetype, location, downloaded){
       this.name = name;
@@ -267,13 +269,7 @@
     document.getElementById("createNote").style.display = "none";
   });
 
-  Array.from(document.getElementsByClassName("removeNote")).forEach(el => {
-    el.addEventListener('click', function(evt){
-      var noteId = evt.srcElement.id.split("|")[0]
-      document.getElementById("selected_removeNote").value = noteId;
-      document.getElementById("deleteNote").style.display = "";
-    });
-  })
+  
   document.getElementById("cancel_removeNote").addEventListener('click', function(evt){
     document.getElementById("deleteNote").style.display = "none";
   });
@@ -873,6 +869,38 @@
     })
     ipcRenderer.send("getNotes")
   });
+
+  ipcRenderer.on("notifyNoteChange", (event, args) => {
+    var el = JSON.parse(args["data"])
+    if(args["change"] == 'delete'){
+      document.getElementById(el["id"]).remove()
+    }
+    else if(args["change"] == 'update'){
+      document.getElementById(el["id"] + "_title").innerHTML = el["noteTitle"]
+      document.getElementById(el["id"] + "_content").innerHTML = el["noteContent"]
+      document.getElementById(el["id"] + "_creator").innerHTML = "<i>" + (el["isAdminIssued"] ? "Director's Note - Only For You" : "Your Personal Note by You!") + "</i>"
+      document.getElementById(el["id"] + "_location").innerHTML = "<i>" +  (el["isDuring"] ? "" : "After ") + el["noteSong"] + " (" + (el["noteSongIndex"]+1) + ")</i>"
+    }
+    else if(args["change"] == 'create'){
+      notes.push(el)
+      document.getElementById("noteList").innerHTML = document.getElementById("noteList").innerHTML + `
+      <div id="${el["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;">
+        <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${el["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${el["noteTitle"]}</span><br/>
+        <span id="${el["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isDuring"] ? "" : "After "}${el["noteSong"]} (${el["noteSongIndex"]+1})</i></span><br/>
+        <span id="${el["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isAdminIssued"] ? "Director's Note - Only For You" : "Your Personal Note by You!"}</i></span><br/>
+        <span id="${el["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${el["noteContent"]}</span><br/>
+        <div style="display: inline-block;" class="noteOption">
+          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton pinThisNote" type="button"  id="${el["id"]}|pin" value="Pin"/>
+          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton" type="button"  id="${el["id"]}|edit" value="Edit" ${el["isAdminIssued"] ? "disabled" : ""} title="${el["isAdminIssued"] ? "You cannot edit a note that isn't yours!" : ""}"/>
+          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;color:pink;margin-top:8px" class="elevatedbutton removeNote" type="button" id="${el["id"]}|delete" value="Delete" ${el["isAdminIssued"] ? "disabled" : ""} title="${el["isAdminIssued"] ? "You cannot delete a note that isn't yours!" : ""}"/>
+          
+        </div>
+        
+      </div>
+      `
+    }
+  });
+
   ipcRenderer.on('notesToLoad', (event,args) => {
     args["roleNotes"].forEach(el => {
       var trackIndex = rawTrackList.indexOf(el["noteTrack"])
@@ -883,13 +911,13 @@
       notes.push(el)
       document.getElementById("noteList").innerHTML = document.getElementById("noteList").innerHTML + `
       <div id="${el["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;">
-        <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${el["noteTitle"]}</span><br/>
-        <span style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isDuring"] ? "" : "After "}${el["noteSong"]} (${el["noteSongIndex"]+1})</i></span><br/>
-        <span style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isAdminIssued"] ? "Director's Note - Only For You" : "Your Personal Note by You!"}</i></span><br/>
-        <span style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${el["noteContent"]}</span><br/>
+        <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${el["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${el["noteTitle"]}</span><br/>
+        <span id="${el["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isDuring"] ? "" : "After "}${el["noteSong"]} (${el["noteSongIndex"]+1})</i></span><br/>
+        <span id="${el["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isAdminIssued"] ? "Director's Note - Only For You" : "Your Personal Note by You!"}</i></span><br/>
+        <span id="${el["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${el["noteContent"]}</span><br/>
         <div style="display: inline-block;" class="noteOption">
-          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton pinThisNote" type="button" id="" value="Pin"/>
-          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton" type="button" id="" value="Edit" ${el["isAdminIssued"] ? "disabled" : ""} title="${el["isAdminIssued"] ? "You cannot edit a note that isn't yours!" : ""}"/>
+          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton pinThisNote" type="button"  id="${el["id"]}|pin" value="Pin"/>
+          <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;margin-top:8px" class="elevatedbutton" type="button"  id="${el["id"]}|edit" value="Edit" ${el["isAdminIssued"] ? "disabled" : ""} title="${el["isAdminIssued"] ? "You cannot edit a note that isn't yours!" : ""}"/>
           <input style="display:inline-block;text-align: center;border-radius: 12px;font-size: 12px;padding: 8px 15px 8px 15px;color:pink;margin-top:8px" class="elevatedbutton removeNote" type="button" id="${el["id"]}|delete" value="Delete" ${el["isAdminIssued"] ? "disabled" : ""} title="${el["isAdminIssued"] ? "You cannot delete a note that isn't yours!" : ""}"/>
           
         </div>
@@ -897,7 +925,14 @@
       </div>
       `
     });
-    
+    Array.from(document.getElementsByClassName("removeNote")).forEach(el => {
+      el.addEventListener('click', function(evt){
+      var noteId = evt.srcElement.id.split("|")[0]
+      document.getElementById("selected_removeNote").value = noteId;
+      document.getElementById("deleteNote").style.display = "";
+      
+    });
+  })
     
   });
   ipcRenderer.send("getMeSpiderman")
@@ -920,7 +955,7 @@
   }
 
   function deleteNoteAndSubmit(){
-    document.getElementById("createNote").style.display = "none";
+    document.getElementById("deleteNote").style.display = "none";
     // assume that since it is the client, it is automatically going to be this role
     // maybe change calc id
     var id = document.getElementById("selected_removeNote").value
@@ -929,6 +964,8 @@
     console.log(noteToDelete)
     ipcRenderer.send("noteChange", {change: 'delete', data: JSON.stringify(noteToDelete), role: 'controller_music'});
   }
+
+  document.getElementById("delete_removeNote").addEventListener('click',deleteNoteAndSubmit);
 
   document.getElementById("save_addNote").addEventListener('click', createNoteAndSubmit);
 
