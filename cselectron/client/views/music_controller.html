@@ -330,6 +330,12 @@
   var songFilesTracked = []
 
   document.getElementById("addNote").addEventListener('click', function(evt){
+    document.getElementById("title_addNote").value = ""
+    document.getElementById("content_addNote").value = ""
+    document.getElementById("after_addNote").checked = false
+    document.getElementById("phases_addNote").value = rawTrackList[0]
+    refreshSongDropDown(rawTrackList[0]);
+    document.getElementById("songs_addNote").value = 0
     document.getElementById("createNote").style.display = "";
   });
   document.getElementById("cancel_addNote").addEventListener('click', function(evt){

@@ -236,6 +236,7 @@ io.on('connection', (socket) => {
     });
   });
   socket.on('getNoteList', (loginRequest) => {
+    // might want to handle note auth here instead of client side
     socket.emit('notesSent',noteSchemaTest);
   });
   socket.on('getInstanceList', (loginRequest) => {
