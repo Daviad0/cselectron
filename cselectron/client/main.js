@@ -47,9 +47,15 @@ socket.on('instancesUpdate', (rawJson, mySocketId) => {
 
 socket.on('notesSent', (notes) => {
   console.log(notes["noteRoleGroups"][0]["notes"])
-  let roleNoteGroup = notes["noteRoleGroups"].filter(el => (el.roleId == currentRole) || (currentRole == "director"))[0]
-  let publicNoteGroup = notes["noteRoleGroups"].filter(el => el.roleId == "public")[0]
-  mainWindow.webContents.send("notesToLoad", { 'roleNotes' : (roleNoteGroup != undefined && roleNoteGroup["available"]) ? roleNoteGroup["notes"] : null, 'publicNotes' : (publicNoteGroup != undefined && publicNoteGroup["available"]) ? publicNoteGroup["notes"] : null })
+  if(currentRole != "director"){
+    let roleNoteGroup = notes["noteRoleGroups"].filter(el => (el.roleId == currentRole) || (currentRole == "director"))[0]
+    let publicNoteGroup = notes["noteRoleGroups"].filter(el => el.roleId == "public")[0]
+    mainWindow.webContents.send("notesToLoad", { 'roleNotes' : (roleNoteGroup != undefined && roleNoteGroup["available"]) ? roleNoteGroup["notes"] : null, 'publicNotes' : (publicNoteGroup != undefined && publicNoteGroup["available"]) ? publicNoteGroup["notes"] : null })
+  }else{
+    // has to be different to track ALL roles
+    mainWindow.webContents.send("notesToLoad", { 'roleNotes' : notes["noteRoleGroups"]})
+  }
+  
 });
 socket.on('songUpdateFromServer', (songName, subtitle, progress) => {
   // Handle sending to client
