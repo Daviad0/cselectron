@@ -201,7 +201,7 @@
 
 .option-dropdown {
     display: none;
-    position: relative;
+    position: absolute;
     background-color: #262947;
     color: white;
     min-width: 100px;
@@ -221,6 +221,7 @@
     border-radius: inherit;
     transition: all .25s ease-in-out;
   }
+  
   .option-dropdown a:hover {
     font-weight: 600;
     background-color: #202342;
