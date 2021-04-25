@@ -284,7 +284,7 @@
     var i = 0;
     notes.forEach(role => {
       // request roleId to role mapping?
-      var roleName = role["roleId"];
+      var roleName = roles.filter(rm => rm["identifier"] == role["roleId"])[0].prettyName;
       var roleId = role["roleId"]
       role["notes"].filter(note => !rawStringsPinned.includes(note["id"])).sort((a,b) => (rawTrackList.indexOf(a["noteTrack"]) > rawTrackList.indexOf(b["noteTrack"])) ? 1 : ((rawTrackList.indexOf(a["noteTrack"]) == rawTrackList.indexOf(b["noteTrack"])) ? ((parseInt(a["noteSongIndex"]) > parseInt(b["noteSongIndex"]) ? 1 : -1)) : -1)).forEach(el => {
         var trackIndex = rawTrackList.indexOf(el["noteTrack"])
@@ -438,6 +438,60 @@
   });
 
   
+  ipcRenderer.on("notifyNoteChange", (event, args) => {
+    var el = JSON.parse(args["data"])
+    var roleId = args["role"]
+    if(args["change"] == 'delete'){
+      notes[notes.indexOf(notes.filter(role => role["roleId"] == roleId)[0])]["notes"].splice(notes.filter(role => role["roleId"] == roleId)[0]["notes"].indexOf(notes.filter(role => role["roleId"] == roleId)[0]["notes"].filter(note => note["id"] == el["id"])[0]),1)
+      document.getElementById(el["id"]).remove()
+    }
+    else if(args["change"] == 'update'){
+      var inOriginalRole = roleId
+      if(notes.filter(role => role["roleId"] == roleId).length == 0){
+        // need to update role instance list here too
+        notes.push({ "roleId" : roleId, "available" : true, "notes" : []})
+      }
+
+      notes.forEach(r => {
+        if(r["notes"].filter(note => note["id"] == el["id"]).length > 0){
+          inOriginalRole = r["roleId"];
+        }
+      });
+      if(pinnedNotes.filter(role => role["roleId"] == roleId).length == 0){
+        // need to update role instance list here too
+        pinnedNotes.push({ "roleId" : roleId, "available" : true, "notes" : []})
+      }
+      if(inOriginalRole != roleId){
+        // different role assignment
+        notes[notes.indexOf(notes.filter(role => role["roleId"] == inOriginalRole)[0])]["notes"].splice(notes.filter(role => role["roleId"] == inOriginalRole)[0]["notes"].indexOf(notes.filter(role => role["roleId"] == inOriginalRole)[0]["notes"].filter(note => note["id"] == el["id"])[0]),1)
+        notes[notes.indexOf(notes.filter(role => role["roleId"] == roleId)[0])]["notes"].push(el)
+        if(pinnedNotes.filter(role => role["roleId"] == inOriginalRole)[0]["notes"].filter(note => note["id"] == el["id"]).length > 0){
+          pinnedNotes[pinnedNotes.indexOf(pinnedNotes.filter(role => role["roleId"] == inOriginalRole)[0])]["notes"].splice(pinnedNotes.filter(role => role["roleId"] == inOriginalRole)[0]["notes"].indexOf(notes.filter(role => role["roleId"] == inOriginalRole)[0]["notes"].filter(note => note["id"] == el["id"])[0]),1)
+          pinnedNotes[pinnedNotes.indexOf(pinnedNotes.filter(role => role["roleId"] == roleId)[0])]["notes"].push(el)
+        }
+        
+      }else{
+        notes[notes.indexOf(notes.filter(role => role["roleId"] == roleId)[0])]["notes"][notes[notes.indexOf(notes.filter(role => role["roleId"] == roleId)[0])]["notes"].indexOf([notes.indexOf(notes.filter(role => role["roleId"] == roleId)[0])]["notes"].filter(note => note["id"] == el["id"])[0])] = el
+        if(pinnedNotes.filter(role => role["roleId"] == roleId)[0]["notes"].filter(note => note["id"] == el["id"]).length > 0){
+          pinnedNotes[pinnedNotes.indexOf(pinnedNotes.filter(role => role["roleId"] == roleId)[0])]["notes"][pinnedNotes[pinnedNotes.indexOf(pinnedNotes.filter(role => role["roleId"] == roleId)[0])]["notes"].indexOf([pinnedNotes.indexOf(pinnedNotes.filter(role => role["roleId"] == roleId)[0])]["notes"].filter(note => note["id"] == el["id"])[0])] = el
+        }
+      }
+      var keepTrackOf = el["id"]
+      resetNoteList()
+    }
+    else if(args["change"] == 'create'){
+      if(notes.filter(role => role["roleId"] == roleId).length == 0){
+        // need to update role instance list here too
+        notes.push({ "roleId" : roleId, "available" : true, "notes" : []})
+      }
+      notes[notes.indexOf(notes.filter(role => role["roleId"] == roleId)[0])]["notes"].push(el)
+      var keepTrackOf = el["id"]
+      resetNoteList()
+      
+    }
+    
+  });
+  
   ipcRenderer.on('notesToLoad', (event,args) => {
     args["roleNotes"].forEach(role => {
       // request roleId to role mapping?
@@ -489,9 +543,10 @@
     })
     Array.from(document.getElementsByClassName("removeNote")).forEach(el => {
       el.addEventListener('click', function(evt){
-      var noteId = evt.srcElement.id.split("|")[0]
+        var noteId = evt.srcElement.id.split("|")[1]
+        var roleId = evt.srcElement.id.split("|")[0]
       document.getElementById(noteId + "_options").style.display = "none"
-      document.getElementById("selected_removeNote").value = noteId;
+      document.getElementById("selected_removeNote").value = roleId + "|" + noteId;
       document.getElementById("deleteNote").style.display = "";
       
     });
@@ -556,7 +611,7 @@
     var trackIndex = rawTrackList.indexOf(document.getElementById("phases_addNote").value)
     var newObject = { 'id' : id, "noteTitle" : document.getElementById("title_addNote").value, "noteSong" : songList[trackIndex]["trackSongs"][document.getElementById("songs_addNote").value]["songName"], "noteSongIndex" : document.getElementById("songs_addNote").value, "noteTrack" : document.getElementById("phases_addNote").value, "isDuring" : (!document.getElementById("after_addNote").checked), "isDialogue" : false, "noteContent" : document.getElementById("content_addNote").value, "isAdminIssued" : false}
     console.log(newObject)
-    ipcRenderer.send("noteChange", {change: 'create', data: JSON.stringify(newObject), role: 'controller_music'});
+    ipcRenderer.send("noteChange", {change: 'create', data: JSON.stringify(newObject), role: document.getElementById("roles_addNote").value});
   }
 
   function deleteNoteAndSubmit(){

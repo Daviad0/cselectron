@@ -200,10 +200,32 @@ io.on('connection', (socket) => {
       noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].splice(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].indexOf(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]),1)
       io.emit("notifyNoteChange", 'delete', JSON.stringify(data), role)
     }else if(change == 'update'){
-      noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"][noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].indexOf(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0])] = data
+      var inOriginalRole = role
+      if(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role).length == 0){
+        // need to add the role
+        noteSchemaTest["noteRoleGroups"].push({ "roleId" : role, "available" : true, "notes" : []})
+        // remove and recreate instance
+      }
+      
+      noteSchemaTest["noteRoleGroups"].forEach(r => {
+        if(r["notes"].filter(el => el["id"] == data["id"]).length > 0){
+          inOriginalRole = r["roleId"];
+        }
+      });
+
+      if(inOriginalRole != role){
+        noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == inOriginalRole)[0]["notes"].splice(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == inOriginalRole)[0]["notes"].indexOf(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == inOriginalRole)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]),1)
+        noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].push(data)
+      }else{
+        noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"][noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].indexOf(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0])] = data
+      }
+      
       io.emit("notifyNoteChange", 'update', JSON.stringify(data), role)
     }else if(change == 'create'){
-      console.log(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0])
+      if(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role).length == 0){
+        // need to add the role
+        noteSchemaTest["noteRoleGroups"].push({ "roleId" : role, "available" : true, "notes" : []})
+      }
       noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].push(data)
       io.emit("notifyNoteChange", 'create', JSON.stringify(data), role)
     }
