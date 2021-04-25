@@ -243,6 +243,9 @@ io.on('connection', (socket) => {
     var allUsers = instances
     socket.emit('instancesSent',JSON.stringify(allUsers), socket.id);
   });
+  socket.on('getRoleMap', (loginRequest) => {
+    socket.emit('roleMap', JSON.stringify(roles));
+  });
   socket.on('getAudioList', (loginRequest) => {
     fs.readFile('./storage/schema/testSchema.json', 'utf-8', (err, jsonString) => {
       var songList = JSON.parse(jsonString);

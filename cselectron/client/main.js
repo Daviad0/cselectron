@@ -53,6 +53,7 @@ socket.on('notesSent', (notes) => {
     mainWindow.webContents.send("notesToLoad", { 'roleNotes' : (roleNoteGroup != undefined && roleNoteGroup["available"]) ? roleNoteGroup["notes"] : null, 'publicNotes' : (publicNoteGroup != undefined && publicNoteGroup["available"]) ? publicNoteGroup["notes"] : null })
   }else{
     // has to be different to track ALL roles
+    console.log(notes["noteRoleGroups"])
     mainWindow.webContents.send("notesToLoad", { 'roleNotes' : notes["noteRoleGroups"]})
   }
   
@@ -62,6 +63,9 @@ socket.on('songUpdateFromServer', (songName, subtitle, progress) => {
 });
 socket.on('notifyNoteChange', (change, data, role) => {
   mainWindow.webContents.send("notifyNoteChange", { 'change' : change, 'data' : data, 'role' : role })
+});
+socket.on('roleMap', (roles) => {
+  mainWindow.webContents.send("roleMap", { 'roles' : roles })
 });
 socket.on('roleRegisterAs', (roleIdentifier) => {
   // Logic to make sure that all of the required event handlers are here.
@@ -132,6 +136,10 @@ ipcMain.on('sendMainMessage', (evt, arg) => {
 
 ipcMain.on('readyStatus', (evt, arg) => {
   socket.emit("readyStatus", arg["isReady"]);
+})
+
+ipcMain.on('getRoleMap', (evt, arg) => {
+  socket.emit("getRoleMap");
 })
 
 ipcMain.on('downloadFile', (evt, arg) => {
