@@ -498,8 +498,11 @@
         onEnd: function (evt) {
           if(evt.clone.style.display != "none"){
             evt.item.children[0].children[1].style.display = "table-cell"
+            
           }
-          
+          Array.from(document.getElementsByClassName("deleteThisSong")).forEach(el => {
+            el.addEventListener('click', deleteThisSong);
+          });
         }
       });
       

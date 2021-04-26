@@ -217,7 +217,9 @@ io.on('connection', (socket) => {
         noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == inOriginalRole)[0]["notes"].splice(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == inOriginalRole)[0]["notes"].indexOf(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == inOriginalRole)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]),1)
         noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].push(data)
       }else{
-        noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"][noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].indexOf(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0])] = data
+        noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].splice(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].indexOf(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]),1)
+        noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].push(data)
+        
       }
       
       io.emit("notifyNoteChange", 'update', JSON.stringify(data), role)

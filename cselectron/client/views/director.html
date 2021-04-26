@@ -282,59 +282,79 @@
     document.getElementById('noteList_allnotes').innerHTML = "";
     document.getElementById('noteList_pinned').innerHTML = "";
     var i = 0;
+    // We need a noteObj list to actually sort by show order instead of ROLE. Obj containing roleId & data obj
+    var noteObjList = [];
     notes.forEach(role => {
       // request roleId to role mapping?
-      var roleName = roles.filter(rm => rm["identifier"] == role["roleId"])[0].prettyName;
       var roleId = role["roleId"]
-      role["notes"].filter(note => !rawStringsPinned.includes(note["id"])).sort((a,b) => (rawTrackList.indexOf(a["noteTrack"]) > rawTrackList.indexOf(b["noteTrack"])) ? 1 : ((rawTrackList.indexOf(a["noteTrack"]) == rawTrackList.indexOf(b["noteTrack"])) ? ((parseInt(a["noteSongIndex"]) > parseInt(b["noteSongIndex"]) ? 1 : -1)) : -1)).forEach(el => {
-        var trackIndex = rawTrackList.indexOf(el["noteTrack"])
-        var isValidlyPlaced = false
-        if(songList[trackIndex]["trackSongs"][el["noteSongIndex"]]["songName"] == el["noteSong"]){
-          isValidlyPlaced = true;
-        }
-        document.getElementById("noteList_allnotes").innerHTML = document.getElementById("noteList_allnotes").innerHTML + `
-        <div id="${el["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;">
-          <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${el["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${el["noteTitle"]}</span><div style="display: inline-block;">
-            <span class="material-icons-round iconbutton" id="${el["id"]}_triggerOptions" style="font-size:20px;display: inline-block;text-align:left">more_horiz</span>
-            <div class="option-dropdown" id="${el["id"]}_options" style="outline:none" tabindex="-1">
-              <a href="#" class="pinNote option-dropdown-enabled" style="border-radius: 8px 8px 0px 0px" id="${roleId}|${el["id"]}|pin">Pin</a>
-              <a href="#" class="editNote" style="text-decoration: none;border-radius: 0px 0px 0px 0px;" id="${roleId}|${el["id"]}|edit">Edit</a>
-              <a href="#" class="removeNote" style="text-decoration: none;border-radius: 0px 0px 8px 8px;color:pink;" id="${roleId}|${el["id"]}|delete">Delete</a>
-            </div>
-          </div><br/>
-          <span id="${el["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isDuring"] ? "" : "After "}${el["noteSong"]} (${parseInt(el["noteSongIndex"])+1})</i></span><br/>
-          <span id="${el["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${roleName}${el["isAdminIssued"] ? " (Director Issued)" : ""}</i></span><br/>
-          <span id="${el["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${el["noteContent"]}</span><br/>
-          
-          
-        </div>
-        `
+      role["notes"].filter(note => !rawStringsPinned.includes(note["id"])).forEach(el => {
         
+        noteObjList.push({"roleId" : roleId, "data" : el});
       });
     });
+    noteObjList.sort((a,b) => (rawTrackList.indexOf(a["data"]["noteTrack"]) > rawTrackList.indexOf(b["data"]["noteTrack"])) ? 1 : ((rawTrackList.indexOf(a["data"]["noteTrack"]) == rawTrackList.indexOf(b["data"]["noteTrack"])) ? ((parseInt(a["data"]["noteSongIndex"]) > parseInt(b["data"]["noteSongIndex"]) ? 1 : -1)) : -1)).forEach(note => {
+      // request roleId to role mapping?
+      var roleName = roles.filter(rm => rm["identifier"] == note["roleId"])[0].prettyName;
+      var el = note["data"]
+      var roleId = note["roleId"]
+      var trackIndex = rawTrackList.indexOf(el["noteTrack"])
+      var isValidlyPlaced = false
+      if(songList[trackIndex]["trackSongs"][el["noteSongIndex"]]["songName"] == el["noteSong"]){
+        isValidlyPlaced = true;
+      }
+      document.getElementById("noteList_allnotes").innerHTML = document.getElementById("noteList_allnotes").innerHTML + `
+      <div id="${el["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;">
+        <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${el["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${el["noteTitle"]}</span><div style="display: inline-block;">
+          <span class="material-icons-round iconbutton" id="${el["id"]}_triggerOptions" style="font-size:20px;display: inline-block;text-align:left">more_horiz</span>
+          <div class="option-dropdown" id="${el["id"]}_options" style="outline:none" tabindex="-1">
+            <a href="#" class="pinNote option-dropdown-enabled" style="border-radius: 8px 8px 0px 0px" id="${roleId}|${el["id"]}|pin">Pin</a>
+            <a href="#" class="editNote" style="text-decoration: none;border-radius: 0px 0px 0px 0px;" id="${roleId}|${el["id"]}|edit">Edit</a>
+            <a href="#" class="removeNote" style="text-decoration: none;border-radius: 0px 0px 8px 8px;color:pink;" id="${roleId}|${el["id"]}|delete">Delete</a>
+          </div>
+        </div><br/>
+        <span id="${el["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isDuring"] ? "" : "After "}${el["noteSong"]} (${trackIndex+1}.${parseInt(el["noteSongIndex"])+1})</i></span><br/>
+        <span id="${el["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${roleName}${el["isAdminIssued"] ? " (Director Issued)" : ""}</i></span><br/>
+        <span id="${el["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${el["noteContent"]}</span><br/>
+        
+        
+      </div>
+      `
+    });
+    noteObjList = []
     pinnedNotes.forEach(role => {
       var roleId = role["roleId"]
-      var roleName = roles.filter(rm => rm["identifier"] == role["roleId"])[0].prettyName;
       role["notes"].sort((a,b) => (rawTrackList.indexOf(a["noteTrack"]) > rawTrackList.indexOf(b["noteTrack"])) ? 1 : ((rawTrackList.indexOf(a["noteTrack"]) == rawTrackList.indexOf(b["noteTrack"])) ? ((parseInt(a["noteSongIndex"]) > parseInt(b["noteSongIndex"]) ? 1 : -1)) : -1)).forEach(remake => {
-        i = i+1;
-        document.getElementById("noteList_pinned").innerHTML = document.getElementById("noteList_pinned").innerHTML + `
-        <div id="${remake["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;">
-          <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${remake["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${remake["noteTitle"]}</span><div style="display: inline-block;">
-            <span class="material-icons-round iconbutton" id="${remake["id"]}_triggerOptions" style="font-size:20px;display: inline-block;text-align:left">more_horiz</span>
-            <div class="option-dropdown" id="${remake["id"]}_options" style="outline:none" tabindex="-1">
-              <a href="#" class="pinNote option-dropdown-enabled" style="border-radius: 8px 8px 0px 0px" id="${roleId}|${remake["id"]}|pin">Unpin</a>
-              <a href="#" class="editNote" style="text-decoration: none;border-radius: 0px 0px 0px 0px;" id="${roleId}|${remake["id"]}|edit">Edit</a>
-              <a href="#" class="removeNote" style="text-decoration: none;border-radius: 0px 0px 8px 8px;color:pink;" id="${roleId}|${remake["id"]}|delete">Delete</a>
-            </div>
-          </div><br/>
-          <span id="${remake["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${remake["isDuring"] ? "" : "After "}${remake["noteSong"]} (${parseInt(remake["noteSongIndex"])+1})</i></span><br/>
-          <span id="${remake["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${roleName}${remake["isAdminIssued"] ? " (Director Issued)" : ""}</i></span><br/>
-          <span id="${remake["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${remake["noteContent"]}</span><br/>
-          
-          
-        </div>
-        `
+        noteObjList.push({"roleId" : roleId, "data" : remake});
       });
+    });
+    noteObjList.sort((a,b) => (rawTrackList.indexOf(a["data"]["noteTrack"]) > rawTrackList.indexOf(b["data"]["noteTrack"])) ? 1 : ((rawTrackList.indexOf(a["data"]["noteTrack"]) == rawTrackList.indexOf(b["data"]["noteTrack"])) ? ((parseInt(a["data"]["noteSongIndex"]) > parseInt(b["data"]["noteSongIndex"]) ? 1 : -1)) : -1)).forEach(note => {
+      // request roleId to role mapping?
+      var roleName = roles.filter(rm => rm["identifier"] == note["roleId"])[0].prettyName;
+      var remake = note["data"]
+      var roleId = note["roleId"]
+      var trackIndex = rawTrackList.indexOf(remake["noteTrack"])
+      var isValidlyPlaced = false
+      if(songList[trackIndex]["trackSongs"][remake["noteSongIndex"]]["songName"] == remake["noteSong"]){
+        isValidlyPlaced = true;
+      }
+      i = i+1;
+      document.getElementById("noteList_pinned").innerHTML = document.getElementById("noteList_pinned").innerHTML + `
+      <div id="${remake["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;">
+        <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${remake["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${remake["noteTitle"]}</span><div style="display: inline-block;">
+          <span class="material-icons-round iconbutton" id="${remake["id"]}_triggerOptions" style="font-size:20px;display: inline-block;text-align:left">more_horiz</span>
+          <div class="option-dropdown" id="${remake["id"]}_options" style="outline:none" tabindex="-1">
+            <a href="#" class="pinNote option-dropdown-enabled" style="border-radius: 8px 8px 0px 0px" id="${roleId}|${remake["id"]}|pin">Unpin</a>
+            <a href="#" class="editNote" style="text-decoration: none;border-radius: 0px 0px 0px 0px;" id="${roleId}|${remake["id"]}|edit">Edit</a>
+            <a href="#" class="removeNote" style="text-decoration: none;border-radius: 0px 0px 8px 8px;color:pink;" id="${roleId}|${remake["id"]}|delete">Delete</a>
+          </div>
+        </div><br/>
+        <span id="${remake["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${remake["isDuring"] ? "" : "After "}${remake["noteSong"]} (${trackIndex+1}.${parseInt(remake["noteSongIndex"])+1})</i></span><br/>
+        <span id="${remake["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${roleName}${remake["isAdminIssued"] ? " (Director Issued)" : ""}</i></span><br/>
+        <span id="${remake["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${remake["noteContent"]}</span><br/>
+        
+        
+      </div>
+      `
     });
     if(i > 0){
       document.getElementById("noteList_pinnedLabel").style.display = "inline-block"
@@ -375,7 +395,7 @@
         var roleId = evt.srcElement.id.split("|")[0]
       var noteObject = notes.filter(role => role["roleId"] == roleId)[0]["notes"].filter(note => note["id"] == noteId)[0]
       document.getElementById(noteId + "_options").style.display = "none"
-      document.getElementById("selected_editNote").value = noteId;
+      document.getElementById("selected_editNote").value = roleId + "|" + noteId;
       document.getElementById("title_editNote").value = noteObject["noteTitle"]
       document.getElementById("content_editNote").value = noteObject["noteContent"]
       document.getElementById("after_editNote").checked = !noteObject["isDuring"]
@@ -398,7 +418,7 @@
           var element = $('#' + noteId).detach();
           var emptyRoleContainer = {...notes.filter(role => role["roleId"] == roleId)[0]}
           emptyRoleContainer["notes"] = []
-          emptyRoleContainer["notes"].push(notes.filter(role => role["roleId"] == roleId)[0].filter(note => note["id"] == noteId)[0])
+          emptyRoleContainer["notes"].push(notes.filter(role => role["roleId"] == roleId)[0]["notes"].filter(note => note["id"] == noteId)[0])
           pinnedNotes.push(emptyRoleContainer)
           resetNoteList();
         }else{
@@ -444,6 +464,10 @@
     if(args["change"] == 'delete'){
       notes[notes.indexOf(notes.filter(role => role["roleId"] == roleId)[0])]["notes"].splice(notes.filter(role => role["roleId"] == roleId)[0]["notes"].indexOf(notes.filter(role => role["roleId"] == roleId)[0]["notes"].filter(note => note["id"] == el["id"])[0]),1)
       document.getElementById(el["id"]).remove()
+      if(pinnedNotes.filter(role => role["roleId"] == roleId)[0]["notes"].filter(note => note["id"] == el["id"]).length > 0){
+        pinnedNotes[pinnedNotes.indexOf(pinnedNotes.filter(role => role["roleId"] == roleId)[0])]["notes"].splice(pinnedNotes.filter(role => role["roleId"] == roleId)[0]["notes"].indexOf(pinnedNotes.filter(role => role["roleId"] == roleId)[0]["notes"].filter(note => note["id"] == el["id"])[0]),1)
+      }
+      resetNoteList()
     }
     else if(args["change"] == 'update'){
       var inOriginalRole = roleId
@@ -463,6 +487,10 @@
       }
       if(inOriginalRole != roleId){
         // different role assignment
+        if(pinnedNotes.filter(role => role["roleId"] == inOriginalRole).length == 0){
+          // need to update role instance list here too
+          pinnedNotes.push({ "roleId" : inOriginalRole, "available" : true, "notes" : []})
+        }
         notes[notes.indexOf(notes.filter(role => role["roleId"] == inOriginalRole)[0])]["notes"].splice(notes.filter(role => role["roleId"] == inOriginalRole)[0]["notes"].indexOf(notes.filter(role => role["roleId"] == inOriginalRole)[0]["notes"].filter(note => note["id"] == el["id"])[0]),1)
         notes[notes.indexOf(notes.filter(role => role["roleId"] == roleId)[0])]["notes"].push(el)
         if(pinnedNotes.filter(role => role["roleId"] == inOriginalRole)[0]["notes"].filter(note => note["id"] == el["id"]).length > 0){
@@ -471,9 +499,11 @@
         }
         
       }else{
-        notes[notes.indexOf(notes.filter(role => role["roleId"] == roleId)[0])]["notes"][notes[notes.indexOf(notes.filter(role => role["roleId"] == roleId)[0])]["notes"].indexOf([notes.indexOf(notes.filter(role => role["roleId"] == roleId)[0])]["notes"].filter(note => note["id"] == el["id"])[0])] = el
+        notes[notes.indexOf(notes.filter(role => role["roleId"] == inOriginalRole)[0])]["notes"].splice(notes.filter(role => role["roleId"] == inOriginalRole)[0]["notes"].indexOf(notes.filter(role => role["roleId"] == inOriginalRole)[0]["notes"].filter(note => note["id"] == el["id"])[0]),1)
+        notes[notes.indexOf(notes.filter(role => role["roleId"] == roleId)[0])]["notes"].push(el)
         if(pinnedNotes.filter(role => role["roleId"] == roleId)[0]["notes"].filter(note => note["id"] == el["id"]).length > 0){
-          pinnedNotes[pinnedNotes.indexOf(pinnedNotes.filter(role => role["roleId"] == roleId)[0])]["notes"][pinnedNotes[pinnedNotes.indexOf(pinnedNotes.filter(role => role["roleId"] == roleId)[0])]["notes"].indexOf([pinnedNotes.indexOf(pinnedNotes.filter(role => role["roleId"] == roleId)[0])]["notes"].filter(note => note["id"] == el["id"])[0])] = el
+          pinnedNotes[pinnedNotes.indexOf(pinnedNotes.filter(role => role["roleId"] == inOriginalRole)[0])]["notes"].splice(pinnedNotes.filter(role => role["roleId"] == inOriginalRole)[0]["notes"].indexOf(notes.filter(role => role["roleId"] == inOriginalRole)[0]["notes"].filter(note => note["id"] == el["id"])[0]),1)
+          pinnedNotes[pinnedNotes.indexOf(pinnedNotes.filter(role => role["roleId"] == roleId)[0])]["notes"].push(el)
         }
       }
       var keepTrackOf = el["id"]
@@ -493,39 +523,44 @@
   });
   
   ipcRenderer.on('notesToLoad', (event,args) => {
+    var noteObjList = [];
     args["roleNotes"].forEach(role => {
       // request roleId to role mapping?
       var roleId = role["roleId"]
-      var roleName = roles.filter(rm => rm["identifier"] == role["roleId"])[0].prettyName;
       notes.push(role)
-      role["notes"].sort((a,b) => (rawTrackList.indexOf(a["noteTrack"]) > rawTrackList.indexOf(b["noteTrack"])) ? 1 : ((rawTrackList.indexOf(a["noteTrack"]) == rawTrackList.indexOf(b["noteTrack"])) ? ((parseInt(a["noteSongIndex"]) > parseInt(b["noteSongIndex"]) ? 1 : -1)) : -1)).forEach(el => {
-        var trackIndex = rawTrackList.indexOf(el["noteTrack"])
-        var isValidlyPlaced = false
-        if(songList[trackIndex]["trackSongs"][el["noteSongIndex"]]["songName"] == el["noteSong"]){
-          isValidlyPlaced = true;
-        }
+      role["notes"].forEach(el => {
         
-        document.getElementById("noteList_allnotes").innerHTML = document.getElementById("noteList_allnotes").innerHTML + `
-        <div id="${el["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;">
-          <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${el["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${el["noteTitle"]}</span><div style="display: inline-block;">
-            <span class="material-icons-round iconbutton" id="${el["id"]}_triggerOptions" style="font-size:20px;display: inline-block;text-align:left">more_horiz</span>
-            <div class="option-dropdown" id="${el["id"]}_options" style="outline:none" tabindex="-1">
-              <a href="#" class="pinNote option-dropdown-enabled" style="border-radius: 8px 8px 0px 0px" id="${roleId}|${el["id"]}|pin">Pin</a>
-              <a href="#" class="editNote" style="text-decoration: none;border-radius: 0px 0px 0px 0px;" id="${roleId}|${el["id"]}|edit">Edit</a>
-              <a href="#" class="removeNote" style="text-decoration: none;border-radius: 0px 0px 8px 8px;color:pink;" id="${roleId}|${el["id"]}|delete">Delete</a>
-            </div>
-          </div><br/>
-          <span id="${el["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isDuring"] ? "" : "After "}${el["noteSong"]} (${parseInt(el["noteSongIndex"])+1})</i></span><br/>
-          <span id="${el["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${roleName}${el["isAdminIssued"] ? " (Director Issued)" : ""}</i></span><br/>
-          <span id="${el["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${el["noteContent"]}</span><br/>
-          
-          
-        </div>
-        `
-        
+        noteObjList.push({"roleId" : roleId, "data" : el});
       });
     });
-    
+    noteObjList.sort((a,b) => (rawTrackList.indexOf(a["data"]["noteTrack"]) > rawTrackList.indexOf(b["data"]["noteTrack"])) ? 1 : ((rawTrackList.indexOf(a["data"]["noteTrack"]) == rawTrackList.indexOf(b["data"]["noteTrack"])) ? ((parseInt(a["data"]["noteSongIndex"]) > parseInt(b["data"]["noteSongIndex"]) ? 1 : -1)) : -1)).forEach(note => {
+      // request roleId to role mapping?
+      var roleName = roles.filter(rm => rm["identifier"] == note["roleId"])[0].prettyName;
+      var el = note["data"]
+      var roleId = note["roleId"]
+      var trackIndex = rawTrackList.indexOf(el["noteTrack"])
+      var isValidlyPlaced = false
+      if(songList[trackIndex]["trackSongs"][el["noteSongIndex"]]["songName"] == el["noteSong"]){
+        isValidlyPlaced = true;
+      }
+      document.getElementById("noteList_allnotes").innerHTML = document.getElementById("noteList_allnotes").innerHTML + `
+      <div id="${el["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;">
+        <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${el["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${el["noteTitle"]}</span><div style="display: inline-block;">
+          <span class="material-icons-round iconbutton" id="${el["id"]}_triggerOptions" style="font-size:20px;display: inline-block;text-align:left">more_horiz</span>
+          <div class="option-dropdown" id="${el["id"]}_options" style="outline:none" tabindex="-1">
+            <a href="#" class="pinNote option-dropdown-enabled" style="border-radius: 8px 8px 0px 0px" id="${roleId}|${el["id"]}|pin">Pin</a>
+            <a href="#" class="editNote" style="text-decoration: none;border-radius: 0px 0px 0px 0px;" id="${roleId}|${el["id"]}|edit">Edit</a>
+            <a href="#" class="removeNote" style="text-decoration: none;border-radius: 0px 0px 8px 8px;color:pink;" id="${roleId}|${el["id"]}|delete">Delete</a>
+          </div>
+        </div><br/>
+        <span id="${el["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isDuring"] ? "" : "After "}${el["noteSong"]} (${trackIndex+1}.${parseInt(el["noteSongIndex"])+1})</i></span><br/>
+        <span id="${el["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${roleName}${el["isAdminIssued"] ? " (Director Issued)" : ""}</i></span><br/>
+        <span id="${el["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${el["noteContent"]}</span><br/>
+        
+        
+      </div>
+      `
+    });
     notes.forEach(role => {
       role["notes"].forEach(el => {
         document.getElementById(el["id"] + "_triggerOptions").addEventListener('click', function(){
@@ -558,7 +593,7 @@
         var roleId = evt.srcElement.id.split("|")[0]
       var noteObject = notes.filter(role => role["roleId"] == roleId)[0]["notes"].filter(note => note["id"] == noteId)[0]
       document.getElementById(noteId + "_options").style.display = "none"
-      document.getElementById("selected_editNote").value = noteId;
+      document.getElementById("selected_editNote").value = roleId + "|" + noteId;
       document.getElementById("title_editNote").value = noteObject["noteTitle"]
       document.getElementById("content_editNote").value = noteObject["noteContent"]
       document.getElementById("after_editNote").checked = !noteObject["isDuring"]
@@ -609,7 +644,7 @@
     // maybe change calc id
     var id = "controller_music_" + (new Date().getTime())
     var trackIndex = rawTrackList.indexOf(document.getElementById("phases_addNote").value)
-    var newObject = { 'id' : id, "noteTitle" : document.getElementById("title_addNote").value, "noteSong" : songList[trackIndex]["trackSongs"][document.getElementById("songs_addNote").value]["songName"], "noteSongIndex" : document.getElementById("songs_addNote").value, "noteTrack" : document.getElementById("phases_addNote").value, "isDuring" : (!document.getElementById("after_addNote").checked), "isDialogue" : false, "noteContent" : document.getElementById("content_addNote").value, "isAdminIssued" : false}
+    var newObject = { 'id' : id, "noteTitle" : document.getElementById("title_addNote").value, "noteSong" : songList[trackIndex]["trackSongs"][document.getElementById("songs_addNote").value]["songName"], "noteSongIndex" : document.getElementById("songs_addNote").value, "noteTrack" : document.getElementById("phases_addNote").value, "isDuring" : (!document.getElementById("after_addNote").checked), "isDialogue" : false, "noteContent" : document.getElementById("content_addNote").value, "isAdminIssued" : true}
     console.log(newObject)
     ipcRenderer.send("noteChange", {change: 'create', data: JSON.stringify(newObject), role: document.getElementById("roles_addNote").value});
   }
@@ -630,14 +665,14 @@
     document.getElementById("changeNote").style.display = "none";
     // assume that since it is the client, it is automatically going to be this role
     // maybe change calc id
-    var noteId = document.getElementById("selected_removeNote").value.split("|")[1]
-    var roleId = document.getElementById("selected_removeNote").value.split("|")[0]
+    var noteId = document.getElementById("selected_editNote").value.split("|")[1]
+    var roleId = document.getElementById("selected_editNote").value.split("|")[0]
     var trackIndex = rawTrackList.indexOf(document.getElementById("phases_editNote").value)
-
+    var isAdminIssued = notes.filter(role => role["roleId"] == roleId)[0]["notes"].filter(note => note["id"] == noteId)[0]["isAdminIssued"]
     console.log(document.getElementById("songs_editNote").value)
-    var newObject = { 'id' : noteId, "noteTitle" : document.getElementById("title_editNote").value, "noteSong" : songList[trackIndex]["trackSongs"][document.getElementById("songs_editNote").value]["songName"], "noteSongIndex" : document.getElementById("songs_editNote").value, "noteTrack" : document.getElementById("phases_editNote").value, "isDuring" : (!document.getElementById("after_editNote").checked), "isDialogue" : false, "noteContent" : document.getElementById("content_editNote").value, "isAdminIssued" : false}
+    var newObject = { 'id' : noteId, "noteTitle" : document.getElementById("title_editNote").value, "noteSong" : songList[trackIndex]["trackSongs"][document.getElementById("songs_editNote").value]["songName"], "noteSongIndex" : document.getElementById("songs_editNote").value, "noteTrack" : document.getElementById("phases_editNote").value, "isDuring" : (!document.getElementById("after_editNote").checked), "isDialogue" : false, "noteContent" : document.getElementById("content_editNote").value, "isAdminIssued" : isAdminIssued}
     console.log(newObject)
-    ipcRenderer.send("noteChange", {change: 'update', data: JSON.stringify(newObject), role: roleId});
+    ipcRenderer.send("noteChange", {change: 'update', data: JSON.stringify(newObject), role: document.getElementById("roles_editNote").value});
   }
 
   document.getElementById("delete_removeNote").addEventListener('click',deleteNoteAndSubmit);

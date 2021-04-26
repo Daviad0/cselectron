@@ -963,6 +963,7 @@
     document.getElementById('noteList_allnotes').innerHTML = "";
     document.getElementById('noteList_pinned').innerHTML = "";
     notes.filter(note => !rawStringsPinned.includes(note["id"])).sort((a,b) => (rawTrackList.indexOf(a["noteTrack"]) > rawTrackList.indexOf(b["noteTrack"])) ? 1 : ((rawTrackList.indexOf(a["noteTrack"]) == rawTrackList.indexOf(b["noteTrack"])) ? ((parseInt(a["noteSongIndex"]) > parseInt(b["noteSongIndex"]) ? 1 : -1)) : -1)).forEach(remake => {
+      var trackIndex = rawTrackList.indexOf(remake["noteTrack"])
       document.getElementById("noteList_allnotes").innerHTML = document.getElementById("noteList_allnotes").innerHTML + `
       <div id="${remake["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;">
         <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${remake["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${remake["noteTitle"]}</span><div style="display: inline-block;">
@@ -973,7 +974,7 @@
             <a href="#" class="removeNote" style="text-decoration: none;border-radius: 0px 0px 8px 8px;color:pink;display:${remake["isAdminIssued"] ? "none" : "block"}" id="${remake["id"]}|delete">Delete</a>
           </div>
         </div><br/>
-        <span id="${remake["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${remake["isDuring"] ? "" : "After "}${remake["noteSong"]} (${parseInt(remake["noteSongIndex"])+1})</i></span><br/>
+        <span id="${remake["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${remake["isDuring"] ? "" : "After "}${remake["noteSong"]} (${trackIndex+1}.${parseInt(remake["noteSongIndex"])+1})</i></span><br/>
         <span id="${remake["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${remake["isAdminIssued"] ? "Director's Note - Only For You" : "Your Personal Note by You!"}</i></span><br/>
         <span id="${remake["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${remake["noteContent"]}</span><br/>
         
@@ -989,6 +990,7 @@
       document.getElementById("noteList_allnotesLabel").style.display = "none"
     }
     pinnedNotes.sort((a,b) => (rawTrackList.indexOf(a["noteTrack"]) > rawTrackList.indexOf(b["noteTrack"])) ? 1 : ((rawTrackList.indexOf(a["noteTrack"]) == rawTrackList.indexOf(b["noteTrack"])) ? ((parseInt(a["noteSongIndex"]) > parseInt(b["noteSongIndex"]) ? 1 : -1)) : -1)).forEach(remake => {
+      var trackIndex = rawTrackList.indexOf(remake["noteTrack"])
       document.getElementById("noteList_pinned").innerHTML = document.getElementById("noteList_pinned").innerHTML + `
       <div id="${remake["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;">
         <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${remake["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${remake["noteTitle"]}</span><div style="display: inline-block;">
@@ -999,7 +1001,7 @@
             <a href="#" class="removeNote" style="text-decoration: none;border-radius: 0px 0px 8px 8px;color:pink;display:${remake["isAdminIssued"] ? "none" : "block"}" id="${remake["id"]}|delete">Delete</a>
           </div>
         </div><br/>
-        <span id="${remake["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${remake["isDuring"] ? "" : "After "}${remake["noteSong"]} (${parseInt(remake["noteSongIndex"])+1})</i></span><br/>
+        <span id="${remake["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${remake["isDuring"] ? "" : "After "}${remake["noteSong"]} (${trackIndex+1}.${parseInt(remake["noteSongIndex"])+1})</i></span><br/>
         <span id="${remake["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${remake["isAdminIssued"] ? "Director's Note - Only For You" : "Your Personal Note by You!"}</i></span><br/>
         <span id="${remake["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${remake["noteContent"]}</span><br/>
         
@@ -1119,7 +1121,7 @@
             <a href="#" class="removeNote" style="text-decoration: none;border-radius: 0px 0px 8px 8px;color:pink;display:${el["isAdminIssued"] ? "none" : "block"}" id="${el["id"]}|delete">Delete</a>
           </div>
         </div><br/>
-        <span id="${el["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isDuring"] ? "" : "After "}${el["noteSong"]} (${parseInt(el["noteSongIndex"])+1})</i></span><br/>
+        <span id="${el["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isDuring"] ? "" : "After "}${el["noteSong"]} (${trackIndex+1}.${parseInt(el["noteSongIndex"])+1})</i></span><br/>
         <span id="${el["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isAdminIssued"] ? "Director's Note - Only For You" : "Your Personal Note by You!"}</i></span><br/>
         <span id="${el["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${el["noteContent"]}</span><br/>
         
