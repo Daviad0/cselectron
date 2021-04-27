@@ -89,7 +89,6 @@ socket.on('recAudioList', (listOfFiles) => {
   // sending down the schema and then the songs that the client has downloaded to make it more easier
   // downloaded items should work in an array and calculated on the fly (because then we can just get rid of a lot of the beginning logic)
   fs.readdir(audioFolder, (err, files) => {
-    console.log(listOfFiles)
     if(listOfFiles != null){
       mainWindow.webContents.send("songsToLoad", {'songsInSystem' : files, 'songs' : listOfFiles })
     }
@@ -118,6 +117,14 @@ let currentHostState = new HostState(null, null, null, false);
 
 ipcMain.on('quitapp', (evt, arg) => {
   app.quit()
+})
+
+ipcMain.on('logOut', (evt, arg) => {
+  mainWindow.close();
+  mainWindow = null;
+  currentRole = "";
+  letUserSelectRole()
+  socket.emit("logOut");
 })
 
 ipcMain.on('getInstanceList', (evt, arg) => {

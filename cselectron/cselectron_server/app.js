@@ -184,6 +184,14 @@ io.on('connection', (socket) => {
     }
     
   });
+
+  socket.on("logOut", () => {
+    instances.filter(el => el.socketId == socket.id)[0].role = undefined
+    instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
+      io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'update', data: instances.filter(el => el.socketId == socket.id)[0]}]), dirIns.socketId);
+    });
+  });
+
   socket.on("readyStatus", (isReady) => {
     instances.filter(el => el.socketId == socket.id)[0].ready = isReady
     instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
