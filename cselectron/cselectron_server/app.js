@@ -90,7 +90,7 @@ let savedDevices = {};
 let instances = [];
 
 // array to initialize an unchanging list of roles that are available throughout the runtime of the theater
-let roles = [new Role("controller_music", "Music Controller", 1, false), new Role("crew_backstage", "Backstage Progress Viewer", -1, false), new Role("controller_schema", "Schema Designer", 1, true), new Role("director", "Director", 1, true)]
+let roles = [new Role("controller_music", "Music Controller", 1, false), new Role("crew_backstage", "Backstage Progress Viewer", -1, false), new Role("controller_schema", "Schema Designer", 1, true), new Role("director", "Director", 1, true), new Role("crew_spotlight", "Spotlight", -1, false)]
 
 // variables to track un/responsive instances while doing a PING/PONG request every 7 seconds
 var unresponsiveSockets = []

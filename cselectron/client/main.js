@@ -237,6 +237,9 @@ function createWindow (role) {
     fileToLoad = "views/schema_designer.html"
   }else if(role == "director"){
     fileToLoad = "views/director.html"
+  }
+  else if(role == "crew_spotlight"){
+    fileToLoad = "views/spotlight.html"
   }else{
     fileToLoad = "views/viewer.html"
   }
