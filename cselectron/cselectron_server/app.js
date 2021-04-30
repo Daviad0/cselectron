@@ -1,4 +1,12 @@
+/*
+  Title: Express
+  Author: dougwilson
+  Date: 2/12/2021
+  Code Version: 4.17.1
+  Code Availaibility: https://www.npmjs.com/package/express
+*/
 const express = require('express')
+// app instance foer the webserver
 const app = express();
 
 // stores current schema for both the notes & songs
@@ -17,14 +25,43 @@ class TheaterState {
 }
 serverState = new TheaterState(new Date(), true, true, "Pre-Show")
 
-
+/*
+  Title: HTTP
+  Author: NodeJS
+  Date: 2/12/2021
+  Code Version: Built in w/ NodeJS
+  Code Availaibility: https://github.com/socketio/socket.io
+*/
 const http = require('http').Server(app);
+/*
+  Title: Socket.IO (Server)
+  Author: rauchg
+  Date: 2/12/2021
+  Code Version: 3.1.1
+  Code Availaibility: https://github.com/socketio/socket.io
+  Notes: Paired with the Socket.IO-client package on main.js through port 3000
+*/
 const io = require('socket.io')(http);
+/*
+  Title: FS (File System)
+  Author: NodeJS
+  Date: 2/12/2021
+  Code Version: Built in w/ NodeJS
+  Code Availaibility: https://nodejs.org/en/
+*/
 const fs = require('fs')
+/*
+  Title: Path
+  Author: coolaj86
+  Date: 2/12/2021
+  Code Version: 0.12.7
+  Code Availaibility: https://www.npmjs.com/package/path
+*/
 const path = require('path')
 
 // function to actively reset the song schema whenever it is requested to be changed
 function resetShowSchema(){
+  // this is a GET function; the file path should stay like this unless a different name is used
   fs.readFile('./storage/schema/testSchema.json', 'utf-8', (err, jsonString) => {
     jsonSchemaTest = jsonString;
   });
@@ -32,13 +69,14 @@ function resetShowSchema(){
 
 // function to actively reset the note schema whenever it is requested to be changed
 function resetNoteSchema(){
+  // this is a GET function; the file path should stay like this unless a different name is used
   fs.readFile('./storage/schema/testNoteSchema.json', 'utf-8', (err, jsonString) => {
     noteSchemaTest = JSON.parse(jsonString);
   });
 } 
 function pushNoteSchema(){
   fs.writeFile('./storage/schema/testNoteSchema.json', JSON.stringify(noteSchemaTest), function(err){
-
+    // we don't need a response as it is pushing the note schema up :D
   }); 
 }
 // initialize the schemas at the start of the program so clients are able to receive the value
@@ -52,6 +90,7 @@ app.use(express.static(path.join(__dirname, 'storage')))
 const audioFolder = "./storage/audio/"
 
 // UNUSED: note obj to take notes during a show
+// CONSIDER REMOVING
 class Note {
   constructor(position, content, isDirector){
     this.position = position;
@@ -141,7 +180,7 @@ function pingInstances(){
         }
       }
     });
-
+    // puts changes into an interable array that is easier to work with when sending down to the client (adding the "update" or "delete" event parameters)
     changesArray = []
     updatedInstances.forEach(updIns => {
       changesArray.push({ change: "update", data: updIns })
@@ -156,13 +195,15 @@ function pingInstances(){
 
   }, 3000);
 }
-
+// every 7 seconds, the server will send a request to ping each client
 setInterval(pingInstances, 7000)
 
+// as a landing
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
+// as a landing
 app.post('/songupload', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
@@ -173,7 +214,7 @@ io.on('connection', (socket) => {
     instances.push(new Instance(socket.id, new Date(), null))
     
   }
-
+  // request back from the client that it has recieved the PING request and the connection is alive
   socket.on("PONG", () => {
     respondedSockets.push(socket.id)
     if(instances.filter(el => el.socketId == socket.id)[0].unresponsive){
@@ -184,14 +225,14 @@ io.on('connection', (socket) => {
     }
     
   });
-
+  // logout request that just changes the status of the client in the instances list along with sending to the director
   socket.on("logOut", () => {
     instances.filter(el => el.socketId == socket.id)[0].role = undefined
     instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
       io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'update', data: instances.filter(el => el.socketId == socket.id)[0]}]), dirIns.socketId);
     });
   });
-
+  // changes the ready status, sending it to the director
   socket.on("readyStatus", (isReady) => {
     instances.filter(el => el.socketId == socket.id)[0].ready = isReady
     instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
@@ -199,15 +240,15 @@ io.on('connection', (socket) => {
     });
   });
 
-
+  // changes notes on request in a humane way that doesn't absolutely destroy the other progress that was made with other chnages.
   socket.on("noteChange", (change, data, role) => {
-    // uh oh multi threading??
     data = JSON.parse(data)
     if(change == 'delete'){
-      
+      // deletes the role from list, sends a notification
       noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].splice(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].indexOf(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role)[0]["notes"].filter(elp => elp["id"] == data["id"])[0]),1)
       io.emit("notifyNoteChange", 'delete', JSON.stringify(data), role)
     }else if(change == 'update'){
+      // updates the role from where it is in the current list (may need to do some tracking if the role identifier is switching around)
       var inOriginalRole = role
       if(noteSchemaTest["noteRoleGroups"].filter(el => el["roleId"] == role).length == 0){
         // need to add the role

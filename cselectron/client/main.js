@@ -1,4 +1,3 @@
-
 /*
   Title: ElectronJS
   Author: OpenJS Foundation
@@ -16,7 +15,7 @@ const audioFolder = "./public/audio/"
   Author: NPM Js
   Date: 2/12/2021
   Code Version: Built in w/ NodeJS
-  Code Availaibility: https://www.npmjs.com/package/fs
+  Code Availaibility: https://nodejs.org/en/
 */
 const fs = require('fs')
 /*
@@ -346,30 +345,37 @@ ipcMain.on("requestServerSongs", (event, args) => {
   // trying to get a list of current ids from the server
 });
 
+// client req for notes (does not return all in all cases)
 ipcMain.on("getNotes", (event, args) => {
   socket.emit('getNoteList')
   // trying to get a list of current ids from the server
 });
 
+// sends a change in the client's notes to the server. Responded to by an event to update the page
 ipcMain.on("noteChange", (event, args) => {
   socket.emit('noteChange', args["change"], args["data"], (currentRole == "director" ? args["role"] : currentRole))
   // tell the server that the client changed a note
 });
 
+
+// when ElectronJS is ready, start up the role selection window
 app.on('ready', letUserSelectRole)
 
+// event for user resize (if allowed by the window definition)
 app.on('resize', function(e,x,y){
   mainWindow.setSize(x, y);
 });
 
+// quit when every window is closed, except if on macintosh (due to library issues)
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
 
+// if there is no mainWindow on activation (other than the first runtime), start up the role window
 app.on('activate', function () {
   if (mainWindow === null) {
-    createWindow()
+    letUserSelectRole()
   }
 })
