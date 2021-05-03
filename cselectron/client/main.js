@@ -179,10 +179,12 @@ ipcMain.on('quitapp', (evt, arg) => {
 
 // send user back to login screen and send event to server stating so (stays on same instance)
 ipcMain.on('logOut', (evt, arg) => {
+  console.log("Logging Out...")
+  letUserSelectRole()
   mainWindow.close();
   mainWindow = null;
   currentRole = "";
-  letUserSelectRole()
+  
   socket.emit("logOut");
 })
 
@@ -198,11 +200,20 @@ ipcMain.on('saveSchema', (evt, arg) => {
 
 // login with certain role
 ipcMain.on('selectRole', (evt, arg) => {
-  currentRole = arg["role"]
-  socket.emit('loginWithRole', arg["role"])
-  console.log("Role Selected: " + arg["role"])
-  createWindow(arg["role"]);
+  socket.emit('tryRoleLogin', arg['role'], arg['password'])
 })
+
+socket.on("roleLoginStatus", (roleId, success) => {
+  if(success){
+    currentRole = roleId
+    socket.emit('loginWithRole', roleId)
+    console.log("Role Selected: " + roleId)
+    createWindow(roleId);
+  }else{
+    roleSelectionWindow.webContents.send("passwordFail", {'role' : roleId});
+  }
+  
+});
 
 // communication framework
 ipcMain.on('sendMainMessage', (evt, arg) => {
@@ -255,8 +266,8 @@ let roleSelectionWindow;
 // defining params for the role selection window. The ipcMain sends down the roles as it recieves them
 function letUserSelectRole() {
   roleSelectionWindow = new BrowserWindow({
-    width: 600,
-    height:500,
+    width: 800,
+    height:600,
     webPreferences: {
       nodeIntegration: true
     }, 
@@ -265,7 +276,7 @@ function letUserSelectRole() {
     transparent: true,
     resizable: false
   });
-
+  //roleSelectionWindow.setIcon("'/src/assets/logo-small.png'")
   roleSelectionWindow.loadFile("views/roles.html")
   roleSelectionWindow.isMenuBarVisible(false)
   roleSelectionWindow.on('closed', function () {
@@ -280,7 +291,6 @@ function letUserSelectRole() {
 
 // send role list to client (to select)
 socket.on('rolesSent', (roles) => {
-  console.log(roles)
   roleSelectionWindow.webContents.send("rolesToSelect", {'roles' : roles});
 });
 

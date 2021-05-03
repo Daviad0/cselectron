@@ -4,7 +4,7 @@
   <title>Management System</title>
   <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css' />
   <link rel='stylesheet' href='../public/css/theme.css' />
-  <script src="../public/js/index.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" rel="stylesheet">
 </head>
 <body style="background-color: transparent;">
@@ -15,12 +15,12 @@
             <div style="-webkit-app-region: drag;position:absolute;width:100%;top:0;left:50%;transform:translateX(-50%);-webkit-transform: translateX(-50%);height:10%;">
 
             </div>
-            <div class="centercontainer" style="height:80%;width:80%;text-align: center;">
+            <div class="centercontainer" style="height:80%;width:90%;text-align: center;">
             <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block">Welcome!</span><br/>
             <span style="text-align: center;color:white;font-size: 20px;font-weight: 600;display:inline-block">Please Select a Role</span>
             <br/>
             <br/>
-            <div id="roleList" style="height:75%;overflow-y:auto;width:90%">
+            <div id="roleList" style="height:75%;overflow-y:auto;width:100%;padding:5px">
 
             </div>
             
@@ -56,22 +56,37 @@
 var allRoles = [];
 
     function openMainWindow(event){
-        ipcRenderer.send('selectRole', { 'role' : event.srcElement.id })
+      
+        ipcRenderer.send('selectRole', { 'role' : event.srcElement.id, 'password' : document.getElementById(event.srcElement.id + "_password").value })
     }
   ipcRenderer.on("rolesToSelect", (event,args) => {
     args['roles'].forEach(role => {
       allRoles.push(role)
     });
     allRoles.forEach(role => {
-        document.getElementById("roleList").innerHTML = document.getElementById("roleList").innerHTML + `<div class="elevatedframe" style="display: inline-block;margin-bottom:5px;margin-top:5px;width:95%">
-          <span class="material-icons-round iconbutton thissong" style="font-size:24px;display: inline-block;vertical-align:middle;margin-right:5px" id="${role.identifier}">add_circle_outline</span>
-          <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;margin-right: 20px;overflow:hidden;vertical-align:middle;width:80%;white-space: nowrap;text-overflow: ellipsis;">${role.prettyName}</span>
+        document.getElementById("roleList").innerHTML = document.getElementById("roleList").innerHTML + `<div class="elevatedframe" style="display: flex;width:100%;text-align:left;align-items: center">
+          
+          <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-flex;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;flex-grow: 1;">${role.prettyName}</span>
+          <input type="password" class="textbox" style="font-size:16px;vertical-align:middle;width:20%;${role.password ? 'display:inline-flex' : 'display:none'}" placeholder="Password" id="${role.identifier}_password"/>
+          <span class="elevatedbutton thissong" style="font-size:12px;display: inline-flex;vertical-align:middle;margin-left:10px" id="${role.identifier}">Sign In</span>
         </div><br/>`
         Array.from(document.getElementsByClassName("thissong")).forEach(btn => {
           btn.addEventListener("click", openMainWindow)
         })
     });
   });
+  ipcRenderer.on("passwordFail", (event, args) => {
+    document.getElementById(args["role"] + "_password").style.borderColor = "#ff6b8b"
+    document.getElementById(args["role"]).style.color = "#ff6b8b"
+    document.getElementById(args["role"] + "_password").value = ""
+    document.getElementById(args["role"] + "_password").placeholder = "Invalid Pass"
+    setTimeout(function(){
+      document.getElementById(args["role"] + "_password").style.borderColor = ""
+      document.getElementById(args["role"] + "_password").placeholder = "Password"
+      document.getElementById(args["role"]).style.color = ""
+    }, 5000);
+  });
+  
   const closeApp = document.getElementById('closeApp');
   closeApp.addEventListener('click', () => {
     ipcRenderer.send('quitapp');

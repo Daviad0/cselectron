@@ -12,6 +12,7 @@ const app = express();
 // stores current schema for both the notes & songs
 let jsonSchemaTest = ""
 let noteSchemaTest = ""
+let roles = ""
 
 // defines the current state of the theater (the server) and is able to be changed throughout
 let serverState = undefined;
@@ -62,7 +63,7 @@ const path = require('path')
 // function to actively reset the song schema whenever it is requested to be changed
 function resetShowSchema(){
   // this is a GET function; the file path should stay like this unless a different name is used
-  fs.readFile('./storage/schema/testSchema.json', 'utf-8', (err, jsonString) => {
+  fs.readFile('./storage/schema/show.json', 'utf-8', (err, jsonString) => {
     jsonSchemaTest = jsonString;
   });
 }
@@ -70,18 +71,31 @@ function resetShowSchema(){
 // function to actively reset the note schema whenever it is requested to be changed
 function resetNoteSchema(){
   // this is a GET function; the file path should stay like this unless a different name is used
-  fs.readFile('./storage/schema/testNoteSchema.json', 'utf-8', (err, jsonString) => {
+  fs.readFile('./storage/schema/notes.json', 'utf-8', (err, jsonString) => {
     noteSchemaTest = JSON.parse(jsonString);
   });
 } 
+function resetRoleSchema(){
+  // this is a GET function; the file path should stay like this unless a different name is used
+  fs.readFile('./storage/schema/roles.json', 'utf-8', (err, jsonString) => {
+    roles = JSON.parse(jsonString);
+  });
+} 
 function pushNoteSchema(){
-  fs.writeFile('./storage/schema/testNoteSchema.json', JSON.stringify(noteSchemaTest), function(err){
+  fs.writeFile('./storage/schema/notes.json', JSON.stringify(noteSchemaTest), function(err){
+    // we don't need a response as it is pushing the note schema up :D
+  }); 
+}
+function pushRoleSchema(){
+  fs.writeFile('./storage/schema/roles.json', JSON.stringify(roles), function(err){
     // we don't need a response as it is pushing the note schema up :D
   }); 
 }
 // initialize the schemas at the start of the program so clients are able to receive the value
 resetNoteSchema()
+resetRoleSchema()
 resetShowSchema()
+
 
 // for webserver, allow connections to reach the storage area for audio & schema
 app.use(express.static(path.join(__dirname, 'storage')))
@@ -101,17 +115,18 @@ class Note {
 
 // role obj to define all of the roles and their permissions. is passed down to clients at beginning of runtime
 class Role {
-  constructor(identifier, prettyName, max, elevated){
+  constructor(identifier, prettyName, max, elevated, password){
     this.identifier = identifier
     this.prettyName = prettyName
     this.max = max
     this.elevated = elevated
+    this.password = password
   }
 }
 
 // instance obj to store all of the client instances. references to role obj. is frequently changed & tracked, and can have CRUD actions
 class Instance {
-  constructor(socketId, lastRequest, role, deviceId, name, unresponsive, ready){
+  constructor(socketId, lastRequest, role, deviceId, name, unresponsive, ready, data){
     this.socketId = socketId
     this.lastRequest = lastRequest
     this.role = role
@@ -119,6 +134,7 @@ class Instance {
     this.name = name
     this.unresponsive = unresponsive;
     this.ready = ready;
+    this.data = data;
   }
 }
 
@@ -129,7 +145,7 @@ let savedDevices = {};
 let instances = [];
 
 // array to initialize an unchanging list of roles that are available throughout the runtime of the theater
-let roles = [new Role("controller_music", "Music Controller", 1, false), new Role("crew_backstage", "Backstage Progress Viewer", -1, false), new Role("controller_schema", "Schema Designer", 1, true), new Role("director", "Director", 1, true), new Role("crew_spotlight", "Spotlight", -1, false)]
+
 
 // variables to track un/responsive instances while doing a PING/PONG request every 7 seconds
 var unresponsiveSockets = []
@@ -294,12 +310,18 @@ io.on('connection', (socket) => {
   });
   console.log('a user connected');
   socket.on('requestRoles', (loginRequest) => {
+    var sentDownRoles = []
+    roles.forEach(el => {
+      var newEl = JSON.parse(JSON.stringify(el))
+      newEl.password = (newEl.password != undefined && newEl.password != "") ? true : false
+      sentDownRoles.push(newEl)
+    });
     if(savedDevices[instances.filter(el => el.socketId == socket.id)[0].deviceId] !== undefined){
       // There is already an instance of this device in the saved database, so it will pass down the preivous login information
       instances.filter(el => el.socketId == socket.id)[0].name = savedDevices[instances.filter(el => el.socketId == socket.id)[0].deviceId].name
-      socket.emit('rolesSent',roles, {'name' : savedDevices[instances.filter(el => el.socketId == socket.id)[0].deviceId].name, 'role' : savedDevices[instances.filter(el => el.socketId == socket.id)[0].deviceId].role})
+      socket.emit('rolesSent',sentDownRoles, {'name' : savedDevices[instances.filter(el => el.socketId == socket.id)[0].deviceId].name, 'role' : savedDevices[instances.filter(el => el.socketId == socket.id)[0].deviceId].role})
     }
-    socket.emit('rolesSent',roles)
+    socket.emit('rolesSent',sentDownRoles)
   });
   socket.on('loginWithRole', (roleIdentifier) => {
     console.log(socket.id + " logged in with role " + roleIdentifier)
@@ -307,6 +329,14 @@ io.on('connection', (socket) => {
     instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
       io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'update', data: instances.filter(el => el.socketId == socket.id)[0]}]), dirIns.socketId);
     });
+  });
+  socket.on('tryRoleLogin', (role, password) => {
+    var roleToCheck = roles.filter(el => el.identifier == role)[0]
+    if(roleToCheck.password == password || roleToCheck.password == undefined || roleToCheck.password == ""){
+      socket.emit("roleLoginStatus", role, true)
+    }else{
+      socket.emit("roleLoginStatus", role, false)
+    }
   });
   socket.on('getNoteList', (loginRequest) => {
     // might want to handle note auth here instead of client side
@@ -320,7 +350,7 @@ io.on('connection', (socket) => {
     socket.emit('roleMap', JSON.stringify(roles));
   });
   socket.on('getAudioList', (loginRequest) => {
-    fs.readFile('./storage/schema/testSchema.json', 'utf-8', (err, jsonString) => {
+    fs.readFile('./storage/schema/show.json', 'utf-8', (err, jsonString) => {
       var songList = JSON.parse(jsonString);
       console.log("Audio files requested by client")
       songList["tracks"] = songList["tracks"].filter(el => el["visible"] == true || instances.filter(el => el.socketId == socket.id)[0].role.elevated == true)
@@ -332,7 +362,7 @@ io.on('connection', (socket) => {
   socket.on('saveSchema', (typeOf, rawJson) => {
     console.log(typeOf + " " + rawJson);
     if(typeOf == "show") { 
-      fs.writeFile('./storage/schema/testSchema.json', rawJson, function(err){
+      fs.writeFile('./storage/schema/show.json', rawJson, function(err){
         console.log(err)
         resetShowSchema();
       }); 
