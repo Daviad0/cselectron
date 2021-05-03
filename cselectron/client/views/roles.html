@@ -57,7 +57,7 @@ var allRoles = [];
 
     function openMainWindow(event){
       
-        ipcRenderer.send('selectRole', { 'role' : event.srcElement.id, 'password' : document.getElementById(event.srcElement.id + "_password").value })
+        ipcRenderer.send('selectRole', { 'role' : event.srcElement.id, 'password' : document.getElementById(event.srcElement.id + "|password").value })
     }
   ipcRenderer.on("rolesToSelect", (event,args) => {
     args['roles'].forEach(role => {
@@ -66,24 +66,43 @@ var allRoles = [];
     allRoles.forEach(role => {
         document.getElementById("roleList").innerHTML = document.getElementById("roleList").innerHTML + `<div class="elevatedframe" style="display: flex;width:100%;text-align:left;align-items: center">
           
-          <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-flex;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;flex-grow: 1;">${role.prettyName}</span>
-          <input type="password" class="textbox" style="font-size:16px;vertical-align:middle;width:20%;${role.password ? 'display:inline-flex' : 'display:none'}" placeholder="Password" id="${role.identifier}_password"/>
-          <span class="elevatedbutton thissong" style="font-size:12px;display: inline-flex;vertical-align:middle;margin-left:10px" id="${role.identifier}">Sign In</span>
+          <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-flex;margin-right: 20px;margin-left: 5px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;flex-grow: 1;">${role.prettyName} ${role.password ? '<span class="material-icons-round iconbutton download" style="font-size:24px;vertical-align:middle;margin-left:5px;text-align:right;">security</span>' : ''}</span>
+          ${role.currentlyConnected >= role.max && role.max != -1 ? `<span style="cursor:not-allowed;text-align: right;color:white;font-size: 14px;font-weight: 600;display:inline-flex;margin-right: 10px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;">Role Filled</span><span class="material-icons-round iconbutton download" style="cursor:not-allowed;font-size:24px;vertical-align:middle;margin-right:5px;text-align:right;display: inline-flex;margin-top:7px;margin-bottom:7px">lock</span>` : `<input type="password" class="textbox autoenter" style="font-size:16px;vertical-align:middle;width:20%;${role.password ? 'display:inline-flex' : 'display:none'}" placeholder="Password" id="${role.identifier}|password"/>
+          <span class="elevatedbutton thissong" style="font-size:12px;display: inline-flex;vertical-align:middle;margin-left:10px" id="${role.identifier}">Sign In</span>`}
+          
         </div><br/>`
-        Array.from(document.getElementsByClassName("thissong")).forEach(btn => {
-          btn.addEventListener("click", openMainWindow)
-        })
+        
     });
+
+    /*
+      Title: Detect Enter keyup
+      Author: Gibolt
+      Date: 5/3/21
+      Source: https://stackoverflow.com/questions/7060750/detect-the-enter-key-in-a-text-input-field
+     */
+    Array.from(document.getElementsByClassName("thissong")).forEach(btn => {
+      btn.addEventListener("click", openMainWindow)
+    })
+    const nodes = document.getElementsByClassName("autoenter");
+    Array.from(nodes).forEach(el => {
+      el.addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+          // -8 for password
+          var roleId = event.srcElement.id.split("|")[0]
+          ipcRenderer.send('selectRole', { 'role' : roleId, 'password' : document.getElementById(roleId + "|password").value })
+        }
+      });
+    })
   });
   ipcRenderer.on("passwordFail", (event, args) => {
-    document.getElementById(args["role"] + "_password").style.borderColor = "#ff6b8b"
-    document.getElementById(args["role"]).style.color = "#ff6b8b"
-    document.getElementById(args["role"] + "_password").value = ""
-    document.getElementById(args["role"] + "_password").placeholder = "Invalid Pass"
+    document.getElementById(args["role"] + "|password").style.borderColor = "#ff6b8b"
+    //document.getElementById(args["role"]).style.color = "#ff6b8b"
+    document.getElementById(args["role"] + "|password").value = ""
+    document.getElementById(args["role"] + "|password").placeholder = "Invalid Pass"
     setTimeout(function(){
-      document.getElementById(args["role"] + "_password").style.borderColor = ""
-      document.getElementById(args["role"] + "_password").placeholder = "Password"
-      document.getElementById(args["role"]).style.color = ""
+      document.getElementById(args["role"] + "|password").style.borderColor = ""
+      document.getElementById(args["role"] + "|password").placeholder = "Password"
+      //document.getElementById(args["role"]).style.color = ""
     }, 5000);
   });
   

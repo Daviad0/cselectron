@@ -314,6 +314,7 @@ io.on('connection', (socket) => {
     roles.forEach(el => {
       var newEl = JSON.parse(JSON.stringify(el))
       newEl.password = (newEl.password != undefined && newEl.password != "") ? true : false
+      newEl.currentlyConnected = instances.filter(el => el.role != undefined && el.role.identifier == newEl.identifier).length
       sentDownRoles.push(newEl)
     });
     if(savedDevices[instances.filter(el => el.socketId == socket.id)[0].deviceId] !== undefined){
