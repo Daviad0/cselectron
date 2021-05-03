@@ -1,0 +1,635 @@
+<html lang="en">
+<head>
+  <title>Management System</title>
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css' />
+  <link rel='stylesheet' href='../public/css/theme.css' />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" rel="stylesheet">
+</head>
+
+<body class="bg">
+  <div class="outsidecontainer">
+    <div class="fullcontainer">
+      
+      
+      <div style="text-align:center;height:500px;width:80%%;" class="elevatedframe">
+
+      </div>
+      <br/>
+      <span style="text-align: left;color:white;font-size: 40px;font-weight: 600;display:inline-block;vertical-align: middle;">Notes</span>
+      <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="addNote" type="button" value="Add Note"/>
+      <select name="noteCategory" id="noteCategory" style="display:inline-block;padding:10px" class="textbox">
+          <option value="All">All Notes</option>
+      </select>
+        <br/>
+        <div style="overflow-x: auto;overflow-y: hidden;white-space: nowrap;padding-bottom:10px" id="noteList">
+          <span class="material-icons-round iconbutton" style="text-align: left;color:white;font-size: 24px;font-weight: 600;display:none;vertical-align:middle;margin:5px" id="noteList_pinnedLabel">push_pin</span>
+          <div style="text-align: center;display:inline-block;white-space: nowrap;vertical-align:middle" id="noteList_pinned">
+            
+          </div>
+          <span class="material-icons-round iconbutton" style="text-align: left;color:white;font-size: 24px;font-weight: 600;display:none;vertical-align:middle;margin:5px;margin-left:10px" id="noteList_allnotesLabel">speaker_notes</span>
+          <div style="text-align: left;display:inline-block;white-space: nowrap;vertical-align:middle" id="noteList_allnotes">
+            
+          </div>
+        </div>
+        
+      
+      
+    </div>
+    <div class="statuscontainer">
+      <div style="display: flex;">
+        <div class="elevatedframe" style="display: inline-block;margin-right: 12px;padding-top: 8px;padding-bottom: 8px;vertical-align: middle">
+          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;vertical-align: middle">Act 1</span>
+        </div>
+        <div class="elevatedframe" style="display: inline-block;padding-top: 8px;padding-bottom: 8px;margin-right: 12px;vertical-align: middle">
+          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;margin-right: 5px;vertical-align: middle">Music Controller</span>
+          <span style="height: 10px;width: 10px;background-color: green;display: inline-block;border-radius: 50%;vertical-align: middle" title="You Are Online!"></span>
+          
+        </div>
+        <input style="display:inline-block;text-align: center;border-radius: 20px;font-size: 15px;padding: 8px 15px 8px 15px;" class="elevatedbutton" id="closeApp" type="button" value="Sign Out"/>
+      </div>
+      
+    </div>
+    <div class="additionalcontainer" style="bottom: 20px;">
+      <div style="display: flex;">
+        <div class="elevatedframe elevatedframebutton" style="display: inline-block;margin-right: 12px;padding-top: 8px;padding-bottom: 8px;vertical-align: middle" id="readyToggle">
+          <span class="material-icons-round iconbutton" style="text-align: center;color:white;font-size: 18px;display:inline-block;vertical-align: middle;margin-right:4px" id="readyIcon">thumb_down</span>
+          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;vertical-align: middle" id="readyLabel">Not Ready</span>
+          
+        </div>
+      </div>
+      
+    </div>
+    
+    <div id="createNote" class="overlayBox" style="display:none;text-align:center;">
+      <div style="width:100%;height:100%;display: flex;align-items:center;justify-content:center">
+        <div class="elevatedframe" style="display:inline-block;max-width:500px;padding:30px">
+          <span style="color: white;font-size:20px;font-weight:600;margin-bottom: 5px;display:block">Create a Note</span>
+          
+          <span style="color: white;font-size:12px;margin-bottom: 20px;display:block">Phases are certain segments of your program that hold music and notes. The director may choose to hide a phase or enforce the use of a phase during a show.</span>
+          <table style="width:100%;margin-bottom:10px">
+            <tr>
+              <td style="text-align:right;padding:5px;width:40%;vertical-align: middle;">
+                <span style="color: white;font-size:12px;font-weight:600;margin-right:5px">Phase Name   </span>
+              </td>
+              <td style="text-align:left;padding:5px;width:60%;vertical-align: middle;">
+                <select name="phaseName" id="phases_addNote" style="display:inline-block;padding:10px;width:90%" class="textbox"></select>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:right;padding:5px;width:40%;vertical-align: middle;">
+                <span style="color: white;font-size:12px;font-weight:600;margin-right:5px">Song Name (+ Number)   </span>
+              </td>
+              <td style="text-align:left;padding:5px;width:60%;vertical-align: middle;">
+                <select name="songName" id="songs_addNote" style="display:inline-block;padding:10px;width:90%" class="textbox">
+            
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:right;padding:5px;width:40%;vertical-align: middle;">
+                <span style="color: white;font-size:12px;font-weight:600;margin-right:5px">After Song?   </span>
+              </td>
+              <td style="text-align:left;padding:5px;width:60%;vertical-align: middle;">
+                <input type="checkbox" class="textbox" id="after_addNote" style="margin-left:10px"/>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:right;padding:5px;width:40%;vertical-align: middle;padding-top:12px">
+                <span style="color: white;font-size:12px;font-weight:600;margin-right:5px">Note Title   </span>
+              </td>
+              <td style="text-align:left;padding:5px;width:60%;vertical-align: middle;">
+                <input class="textbox" style="display:inline-block;font-size:14px;width:90%;margin-top: 4px;" id="title_addNote" placeholder="Cool Title..."/>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:right;padding:5px;width:40%;vertical-align: middle;padding-top:12px">
+                <span style="color: white;font-size:12px;font-weight:600;margin-right:5px;">Note Content   </span>
+              </td>
+              <td style="text-align:left;padding:5px;width:60%;vertical-align: middle;">
+                <input class="textbox" style="display:inline-block;font-size:14px;width:90%;margin-top: 4px;" id="content_addNote" placeholder="Descriptive Description..."/><br/>
+              </td>
+            </tr>
+            
+          </table>
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="cancel_addNote" type="button" value="Cancel"/>
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="save_addNote" type="button" value="Save"/>
+        </div>
+      </div>
+      
+    </div>
+    <div id="changeNote" class="overlayBox" style="display:none;text-align:center;">
+      <div style="width:100%;height:100%;display: flex;align-items:center;justify-content:center">
+        <div class="elevatedframe" style="display:inline-block;max-width:500px;padding:30px">
+          <input style="display: none;" id="selected_editNote" value=""/>
+          <span style="color: white;font-size:20px;font-weight:600;margin-bottom: 5px;display:block">Edit Note</span>
+          
+          <span style="color: white;font-size:12px;margin-bottom: 20px;display:block">Phases are certain segments of your program that hold music and notes. The director may choose to hide a phase or enforce the use of a phase during a show.</span>
+          <table style="width:100%;margin-bottom:10px">
+            <tr>
+              <td style="text-align:right;padding:5px;width:40%;vertical-align: middle;">
+                <span style="color: white;font-size:12px;font-weight:600;margin-right:5px">Phase Name   </span>
+              </td>
+              <td style="text-align:left;padding:5px;width:60%;vertical-align: middle;">
+                <select name="phaseName" id="phases_editNote" style="display:inline-block;padding:10px;width:90%" class="textbox"></select>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:right;padding:5px;width:40%;vertical-align: middle;">
+                <span style="color: white;font-size:12px;font-weight:600;margin-right:5px">Song Name (+ Number)   </span>
+              </td>
+              <td style="text-align:left;padding:5px;width:60%;vertical-align: middle;">
+                <select name="songName" id="songs_editNote" style="display:inline-block;padding:10px;width:90%" class="textbox">
+            
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:right;padding:5px;width:40%;vertical-align: middle;">
+                <span style="color: white;font-size:12px;font-weight:600;margin-right:5px">After Song?   </span>
+              </td>
+              <td style="text-align:left;padding:5px;width:60%;vertical-align: middle;">
+                <input type="checkbox" class="textbox" id="after_editNote" style="margin-left:10px"/>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:right;padding:5px;width:40%;vertical-align: middle;padding-top:12px">
+                <span style="color: white;font-size:12px;font-weight:600;margin-right:5px">Note Title   </span>
+              </td>
+              <td style="text-align:left;padding:5px;width:60%;vertical-align: middle;">
+                <input class="textbox" style="display:inline-block;font-size:14px;width:90%;margin-top: 4px;" id="title_editNote" placeholder="Cool Title..."/>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:right;padding:5px;width:40%;vertical-align: middle;padding-top:12px">
+                <span style="color: white;font-size:12px;font-weight:600;margin-right:5px;">Note Content   </span>
+              </td>
+              <td style="text-align:left;padding:5px;width:60%;vertical-align: middle;">
+                <input class="textbox" style="display:inline-block;font-size:14px;width:90%;margin-top: 4px;" id="content_editNote" placeholder="Descriptive Description..."/><br/>
+              </td>
+            </tr>
+            
+          </table>
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="cancel_editNote" type="button" value="Cancel"/>
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="save_editNote" type="button" value="Save"/>
+        </div>
+      </div>
+      
+    </div>
+    <div id="deleteNote" class="overlayBox" style="display:none;text-align:center;">
+      <div style="width:100%;height:100%;display: flex;align-items:center;justify-content:center">
+        <div class="elevatedframe" style="display:inline-block;padding:30px;max-width:500px">
+          <input style="display: none;" id="selected_removeNote" value=""/>
+          <span style="color: white;font-size:20px;font-weight:600;margin-bottom: 5px;display:block">Are you sure?</span>
+          <span style="color: white;font-size:12px;margin-bottom: 10px;display:block">You are about to permanately delete a note for everyone who has access to it. This action cannot be reversed!</span>
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="cancel_removeNote" type="button" value="Cancel"/>
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="delete_removeNote" type="button" value="Delete"/>
+        </div>
+      </div>
+      
+    </div>
+</body>
+<script>
+
+    $(document).ready(function(){
+    $(".pinThisNote").live('click',function(){
+      if($(this).attr("value") == "Unpin"){
+        $(this).css("background-color", "")
+        $(this).css("color", "white")
+        $(this).attr("value", "Pin")
+
+        $($(this).parent().parent().find(".thisispinned")[0]).css("margin-right", "0px")
+        $(this).parent().parent().find(".thisispinned")[0].innerHTML = ""
+        var notCurrentlyUpNext = notes.filter(note => !currentlyUpNext.includes(note))
+        var toSetBackTo = notes.indexOf(notCurrentlyUpNext.filter(note => note == ($($(this).parent().parent()).attr("id")))[0])
+        var save = $(this).parent().parent().clone()[0]
+        $(this).parent().parent().remove()
+        if(toSetBackTo > 0){
+          $(save).insertAfter("#noteList div:nth-child(" + (toSetBackTo) + ")")
+        }else{
+          $("#noteList").prepend(save);
+        }
+        previouslyPinned = undefined
+        //$(this).parent().parent().remove();
+      }else{
+        if(previouslyPinned != undefined && $(previouslyPinned).parent().parent().attr("id") != $(this).parent().parent().attr("id")){
+          var element = $("#noteList").find("#" + $($(previouslyPinned).parent().parent()).attr("id"))
+          $(previouslyPinned).css("background-color", "")
+          console.log($(previouslyPinned).css("background-color"))
+          $(previouslyPinned).css("color", "white")
+          $(previouslyPinned).attr("value", "Pin")
+          $($(previouslyPinned).parent().parent().find(".thisispinned")[0]).css("margin-right", "0px")
+          $(previouslyPinned).parent().parent().find(".thisispinned")[0].innerHTML = ""
+          
+          var notCurrentlyUpNext = notes.filter(note => !currentlyUpNext.includes(note))
+          var toSetBackTo = notes.indexOf(notCurrentlyUpNext.filter(note => note == ($($(previouslyPinned).parent().parent()).attr("id")))[0])
+          var save = $(previouslyPinned).parent().parent().clone()[0]
+          $(previouslyPinned).parent().parent().remove()
+          if(toSetBackTo > 0){
+            $(save).insertAfter("#noteList div:nth-child(" + (toSetBackTo) + ")")
+          }else{
+            $("#noteList").prepend(save);
+          }
+          
+          
+          
+        }
+        $(this).css("background-color", "white")
+        $(this).attr("value", "Unpin")
+        $(this).css("color", "#202342")
+        $(this).parent().parent().find(".thisispinned")[0].innerHTML = "push_pin"
+        $($(this).parent().parent().find(".thisispinned")[0]).css("margin-right", "3px")
+        $(this).parent().parent().hide().prependTo("#noteList").show();
+        
+        previouslyPinned = this
+      }
+      
+      
+    });
+  });
+
+  function refreshSongDropDown(trackName){
+    var listOfAccordingSongs = songList[rawTrackList.indexOf(trackName)]["trackSongs"];
+    document.getElementById("songs_addNote").innerHTML = "";
+    document.getElementById("songs_editNote").innerHTML = "";
+    var i = 0;
+    listOfAccordingSongs.forEach(song => {
+      document.getElementById("songs_addNote").innerHTML = document.getElementById("songs_addNote").innerHTML + "<option value=" + i + ">" + (song["songName"] + " (#" + (i+1) + ")") + "</option>"
+      document.getElementById("songs_editNote").innerHTML = document.getElementById("songs_editNote").innerHTML + "<option value=" + i + ">" + (song["songName"] + " (#" + (i+1) + ")") + "</option>"
+      i = i + 1;
+    });
+  }
+
+  class Song{
+    constructor(name, filetype, location, downloaded){
+      this.name = name;
+      this.filetype = filetype;
+      this.location = location;
+      this.downloaded = downloaded;
+    }
+  }
+
+  // THERE IS NO CAP ON THIS NUMBER
+  // WHATEVER YOU DO, DO NOT PUT THIS OVER 1
+  var setVolume = .5
+  var currentTrack = "";
+  var currentlyChangingVolume = false;
+  let rawTrackList = []
+  let downloadedSongs = []
+  var currentSong = undefined;
+  let autoplay = false;
+  let songList = []
+  var sound = undefined
+  var songFilesTracked = []
+  var notes = []
+  var pinnedNotes = []
+  document.getElementById("addNote").addEventListener('click', function(evt){
+    document.getElementById("title_addNote").value = ""
+    document.getElementById("content_addNote").value = ""
+    document.getElementById("after_addNote").checked = false
+    document.getElementById("phases_addNote").value = rawTrackList[0]
+    refreshSongDropDown(rawTrackList[0]);
+    document.getElementById("songs_addNote").value = 0
+    document.getElementById("createNote").style.display = "";
+  });
+  document.getElementById("cancel_addNote").addEventListener('click', function(evt){
+    document.getElementById("createNote").style.display = "none";
+  });
+
+  document.getElementById("cancel_editNote").addEventListener('click', function(evt){
+    document.getElementById("changeNote").style.display = "none";
+  });
+
+  
+  document.getElementById("cancel_removeNote").addEventListener('click', function(evt){
+    document.getElementById("deleteNote").style.display = "none";
+  });
+  document.getElementById("phases_addNote").addEventListener('change', function(){
+    var trackName = document.getElementById("phases_addNote")
+    refreshSongDropDown(document.getElementById("phases_addNote").value);
+  });
+  document.getElementById("phases_editNote").addEventListener('change', function(){
+    var trackName = document.getElementById("phases_editNote")
+    refreshSongDropDown(document.getElementById("phases_editNote").value);
+  });
+  const {ipcRenderer} = require('electron');
+function resetNoteList(idToScrollTo){
+    var rawStringsPinned = []
+    pinnedNotes.forEach(el => {
+      rawStringsPinned.push(el["id"])
+    });
+    document.getElementById('noteList_allnotes').innerHTML = "";
+    document.getElementById('noteList_pinned').innerHTML = "";
+    notes.filter(note => !rawStringsPinned.includes(note["id"])).sort((a,b) => (rawTrackList.indexOf(a["noteTrack"]) > rawTrackList.indexOf(b["noteTrack"])) ? 1 : ((rawTrackList.indexOf(a["noteTrack"]) == rawTrackList.indexOf(b["noteTrack"])) ? ((parseInt(a["noteSongIndex"]) > parseInt(b["noteSongIndex"]) ? 1 : -1)) : -1)).forEach(remake => {
+      var trackIndex = rawTrackList.indexOf(remake["noteTrack"])
+      document.getElementById("noteList_allnotes").innerHTML = document.getElementById("noteList_allnotes").innerHTML + `
+      <div id="${remake["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;display:inline-block">
+        <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${remake["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${remake["noteTitle"]}</span><div style="display: inline-block;">
+          <span class="material-icons-round iconbutton" id="${remake["id"]}_triggerOptions" style="font-size:20px;display: inline-block;text-align:left">more_horiz</span>
+          <div class="option-dropdown" id="${remake["id"]}_options" style="outline:none" tabindex="-1">
+            <a href="#" class="pinNote option-dropdown-enabled" style="border-radius: 8px 8px ${remake["isAdminIssued"] ? "8px 8px" : "0px 0px"}" id="${remake["id"]}|pin">Pin</a>
+            <a href="#" class="editNote" style="text-decoration: none;border-radius: 0px 0px 0px 0px;display:${remake["isAdminIssued"] ? "none" : "block"}" id="${remake["id"]}|edit">Edit</a>
+            <a href="#" class="removeNote" style="text-decoration: none;border-radius: 0px 0px 8px 8px;color:pink;display:${remake["isAdminIssued"] ? "none" : "block"}" id="${remake["id"]}|delete">Delete</a>
+          </div>
+        </div><br/>
+        <span id="${remake["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${remake["isDuring"] ? "" : "After "}${remake["noteSong"]} (${trackIndex+1}.${parseInt(remake["noteSongIndex"])+1})</i></span><br/>
+        <span id="${remake["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${remake["isAdminIssued"] ? "Director's Note - Only For You" : "Your Personal Note by You!"}</i></span><br/>
+        <span id="${remake["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${remake["noteContent"]}</span><br/>
+        
+        
+      </div>
+      `
+    });
+    if(pinnedNotes.length > 0){
+      document.getElementById("noteList_pinnedLabel").style.display = "inline-block"
+      document.getElementById("noteList_allnotesLabel").style.display = "inline-block"
+    }else{
+      document.getElementById("noteList_pinnedLabel").style.display = "none"
+      document.getElementById("noteList_allnotesLabel").style.display = "none"
+    }
+    pinnedNotes.sort((a,b) => (rawTrackList.indexOf(a["noteTrack"]) > rawTrackList.indexOf(b["noteTrack"])) ? 1 : ((rawTrackList.indexOf(a["noteTrack"]) == rawTrackList.indexOf(b["noteTrack"])) ? ((parseInt(a["noteSongIndex"]) > parseInt(b["noteSongIndex"]) ? 1 : -1)) : -1)).forEach(remake => {
+      var trackIndex = rawTrackList.indexOf(remake["noteTrack"])
+      document.getElementById("noteList_pinned").innerHTML = document.getElementById("noteList_pinned").innerHTML + `
+      <div id="${remake["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;display:inline-block">
+        <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${remake["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${remake["noteTitle"]}</span><div style="display: inline-block;">
+          <span class="material-icons-round iconbutton" id="${remake["id"]}_triggerOptions" style="font-size:20px;display: inline-block;text-align:left">more_horiz</span>
+          <div class="option-dropdown" id="${remake["id"]}_options" style="outline:none" tabindex="-1">
+            <a href="#" class="pinNote option-dropdown-enabled" style="border-radius: 8px 8px ${remake["isAdminIssued"] ? "8px 8px" : "0px 0px"}" id="${remake["id"]}|pin">Unpin</a>
+            <a href="#" class="editNote" style="text-decoration: none;border-radius: 0px 0px 0px 0px;display:${remake["isAdminIssued"] ? "none" : "block"}" id="${remake["id"]}|edit">Edit</a>
+            <a href="#" class="removeNote" style="text-decoration: none;border-radius: 0px 0px 8px 8px;color:pink;display:${remake["isAdminIssued"] ? "none" : "block"}" id="${remake["id"]}|delete">Delete</a>
+          </div>
+        </div><br/>
+        <span id="${remake["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${remake["isDuring"] ? "" : "After "}${remake["noteSong"]} (${trackIndex+1}.${parseInt(remake["noteSongIndex"])+1})</i></span><br/>
+        <span id="${remake["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${remake["isAdminIssued"] ? "Director's Note - Only For You" : "Your Personal Note by You!"}</i></span><br/>
+        <span id="${remake["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${remake["noteContent"]}</span><br/>
+        
+        
+      </div>
+      `
+    });
+    
+    notes.forEach(el => {
+      document.getElementById(el["id"] + "_triggerOptions").addEventListener('click', function(){
+        document.getElementById(el["id"] + "_options").style.transform = "translateX(-" + document.getElementById("noteList").scrollLeft + "px)"
+        document.getElementById(el["id"] + "_options").style.display = "block"
+        document.getElementById(el["id"] + "_options").focus()
+      });
+      document.getElementById(el["id"] + "_options").addEventListener('focusout', function(evt){
+        if(evt.relatedTarget == null || evt.relatedTarget.localName != "a"){
+          document.getElementById(el["id"] + "_options").style.display = "none"
+        }
+        
+      });
+    });
+
+    Array.from(document.getElementsByClassName("removeNote")).forEach(el => {
+      el.addEventListener('click', function(evt){
+      var noteId = evt.srcElement.id.split("|")[0]
+      document.getElementById(noteId + "_options").style.display = "none"
+      document.getElementById("selected_removeNote").value = noteId;
+      document.getElementById("deleteNote").style.display = "";
+      
+    });
+    
+    })
+    Array.from(document.getElementsByClassName("editNote")).forEach(el => {
+      el.addEventListener('click', function(evt){
+      var noteId = evt.srcElement.id.split("|")[0]
+      var noteObject = notes.filter(note => note["id"] == noteId)[0]
+      document.getElementById(noteId + "_options").style.display = "none"
+      document.getElementById("selected_editNote").value = noteId;
+      document.getElementById("title_editNote").value = noteObject["noteTitle"]
+      document.getElementById("content_editNote").value = noteObject["noteContent"]
+      document.getElementById("after_editNote").checked = !noteObject["isDuring"]
+      document.getElementById("phases_editNote").value = noteObject["noteTrack"]
+      refreshSongDropDown(noteObject["noteTrack"]);
+      document.getElementById("songs_editNote").value = parseInt(noteObject["noteSongIndex"])
+      document.getElementById("changeNote").style.display = "";
+      
+    });
+    
+    })
+    Array.from(document.getElementsByClassName("pinNote")).forEach(el => {
+      
+        el.addEventListener('click', function(evt){
+        var noteId = evt.srcElement.id.split("|")[0]
+        if(pinnedNotes.filter(el => el["id"] == noteId).length == 0){
+          document.getElementById(noteId + "_options").style.display = "none"
+          var element = $('#' + noteId).detach();
+          pinnedNotes.push(notes.filter(note => note["id"] == noteId)[0])
+          resetNoteList();
+        }else{
+          console.log(pinnedNotes.filter(el => el["id"] == noteId)[0])
+          console.log(pinnedNotes.indexOf(pinnedNotes.filter(el => el["id"] == noteId)[0]))
+          pinnedNotes.splice(pinnedNotes.indexOf(pinnedNotes.filter(el => el["id"] == noteId)[0]),1)
+          resetNoteList();
+        }
+        
+        
+      });
+      
+    })
+
+    if(idToScrollTo != undefined && idToScrollTo != null){
+      var topPos = document.getElementById(idToScrollTo).offsetTop;
+      document.getElementById('noteList').scrollTop = topPos;
+    }
+  }
+  ipcRenderer.on("songsToLoad", (event,args) => {
+    // rename to songSchema soon
+    songList = args['songs']['tracks']
+    var phaseCreationIndex = 0
+    songList.forEach(track => {
+      rawTrackList.push(track["trackName"])
+        document.getElementById('phases_addNote').innerHTML = document.getElementById('phases_addNote').innerHTML + '<option value="' + track["trackName"] + '">' + track["trackName"] + '</option>'
+        document.getElementById('phases_editNote').innerHTML = document.getElementById('phases_editNote').innerHTML + '<option value="' + track["trackName"] + '">' + track["trackName"] + '</option>'
+    });
+    ipcRenderer.send("getNotes")
+  });
+  ipcRenderer.on("notifyNoteChange", (event, args) => {
+    var el = JSON.parse(args["data"])
+    if(args["change"] == 'delete'){
+      notes.splice(notes.indexOf(notes.filter(note => note["id"] == el["id"])[0]),1)
+      document.getElementById(el["id"]).remove()
+    }
+    else if(args["change"] == 'update'){
+      
+      notes[notes.indexOf(notes.filter(note => note["id"] == el["id"])[0])] = el
+      console.log(notes.filter(note => note["id"] == el["id"])[0])
+      if(pinnedNotes.filter(note => note["id"] == el["id"]).length > 0){
+        pinnedNotes[pinnedNotes.indexOf(pinnedNotes.filter(note => note["id"] == el["id"])[0])] = el
+      }
+      var keepTrackOf = el["id"]
+      resetNoteList()
+    }
+    else if(args["change"] == 'create'){
+      notes.push(el)
+      var keepTrackOf = el["id"]
+      resetNoteList()
+      
+    }
+    
+  });
+
+  ipcRenderer.on('notesToLoad', (event,args) => {
+      if(args["roleNotes"] != null && args["roleNotes"] != undefined){
+          args["roleNotes"].sort((a,b) => (rawTrackList.indexOf(a["noteTrack"]) > rawTrackList.indexOf(b["noteTrack"])) ? 1 : ((rawTrackList.indexOf(a["noteTrack"]) == rawTrackList.indexOf(b["noteTrack"])) ? ((parseInt(a["noteSongIndex"]) > parseInt(b["noteSongIndex"]) ? 1 : -1)) : -1)).forEach(el => {
+            var trackIndex = rawTrackList.indexOf(el["noteTrack"])
+            if(trackIndex != -1){
+                var isValidlyPlaced = false
+                if(songList[trackIndex]["trackSongs"][el["noteSongIndex"]]["songName"] == el["noteSong"]){
+                isValidlyPlaced = true;
+                }
+                notes.push(el)
+                document.getElementById("noteList_allnotes").innerHTML = document.getElementById("noteList_allnotes").innerHTML + `
+                <div id="${el["id"]}" class="elevatedframe note" style="margin:5px;text-align: left;display:inline-block">
+                <span class="material-icons-round iconbutton thisispinned" style="font-size:20px;display: inline-block;text-align:left"></span><span id="${el["id"]}_title" class="thisismoved" style="text-align: left;color:white;font-size: 18px;font-weight: 600;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;width:90%">${el["noteTitle"]}</span><div style="display: inline-block;">
+                    <span class="material-icons-round iconbutton" id="${el["id"]}_triggerOptions" style="font-size:20px;display: inline-block;text-align:left">more_horiz</span>
+                    <div class="option-dropdown" id="${el["id"]}_options" style="outline:none" tabindex="-1">
+                    <a href="#" class="pinNote option-dropdown-enabled" style="border-radius: 8px 8px ${el["isAdminIssued"] ? "8px 8px" : "0px 0px"}" id="${el["id"]}|pin">Pin</a>
+                    <a href="#" class="editNote" style="text-decoration: none;border-radius: 0px 0px 0px 0px;display:${el["isAdminIssued"] ? "none" : "block"}" id="${el["id"]}|edit">Edit</a>
+                    <a href="#" class="removeNote" style="text-decoration: none;border-radius: 0px 0px 8px 8px;color:pink;display:${el["isAdminIssued"] ? "none" : "block"}" id="${el["id"]}|delete">Delete</a>
+                    </div>
+                </div><br/>
+                <span id="${el["id"]}_location" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isDuring"] ? "" : "After "}${el["noteSong"]} (${trackIndex+1}.${parseInt(el["noteSongIndex"])+1})</i></span><br/>
+                <span id="${el["id"]}_creator" style="text-align: left;color:white;font-size: 12px;display:inline-block;overflow:hidden;white-space: nowrap;text-overflow: ellipsis"><i>${el["isAdminIssued"] ? "Director's Note - Only For You" : "Your Personal Note by You!"}</i></span><br/>
+                <span id="${el["id"]}_content" style="text-align: left;color:white;font-size: 14px;display:inline-block;word-wrap: break-word;overflow-x:hidden">${el["noteContent"]}</span><br/>
+                
+                
+                </div>
+                `
+            }
+            
+            
+            });
+            notes.forEach(el => {
+            document.getElementById(el["id"] + "_triggerOptions").addEventListener('click', function(){
+                document.getElementById(el["id"] + "_options").style.transform = "translateX(-" + document.getElementById("noteList").scrollLeft + "px)"
+                document.getElementById(el["id"] + "_options").style.display = "block"
+                document.getElementById(el["id"] + "_options").focus()
+            });
+            document.getElementById(el["id"] + "_options").addEventListener('focusout', function(evt){
+                if(evt.relatedTarget == null || evt.relatedTarget.localName != "a"){
+                document.getElementById(el["id"] + "_options").style.display = "none"
+                }
+                
+            });
+            });
+            Array.from(document.getElementsByClassName("removeNote")).forEach(el => {
+            el.addEventListener('click', function(evt){
+            var noteId = evt.srcElement.id.split("|")[0]
+            document.getElementById(noteId + "_options").style.display = "none"
+            document.getElementById("selected_removeNote").value = noteId;
+            document.getElementById("deleteNote").style.display = "";
+            
+            });
+            
+            })
+            Array.from(document.getElementsByClassName("editNote")).forEach(el => {
+            el.addEventListener('click', function(evt){
+            var noteId = evt.srcElement.id.split("|")[0]
+            var noteObject = notes.filter(note => note["id"] == noteId)[0]
+            document.getElementById(noteId + "_options").style.display = "none"
+            document.getElementById("selected_editNote").value = noteId;
+            document.getElementById("title_editNote").value = noteObject["noteTitle"]
+            document.getElementById("content_editNote").value = noteObject["noteContent"]
+            document.getElementById("after_editNote").checked = !noteObject["isDuring"]
+            document.getElementById("phases_editNote").value = noteObject["noteTrack"]
+            refreshSongDropDown(noteObject["noteTrack"]);
+            document.getElementById("songs_editNote").value = parseInt(noteObject["noteSongIndex"])
+            document.getElementById("changeNote").style.display = "";
+            
+            });
+            
+            })
+            Array.from(document.getElementsByClassName("pinNote")).forEach(el => {
+            
+                el.addEventListener('click', function(evt){
+                var noteId = evt.srcElement.id.split("|")[0]
+                if(pinnedNotes.filter(el => el["id"] == noteId).length == 0){
+                document.getElementById(noteId + "_options").style.display = "none"
+                var element = $('#' + noteId).detach();
+                pinnedNotes.push(notes.filter(note => note["id"] == noteId)[0])
+                resetNoteList();
+                }else{
+                console.log(pinnedNotes.filter(el => el["id"] == noteId)[0])
+                console.log(pinnedNotes.indexOf(pinnedNotes.filter(el => el["id"] == noteId)[0]))
+                pinnedNotes.splice(pinnedNotes.indexOf(pinnedNotes.filter(el => el["id"] == noteId)[0]),1)
+                resetNoteList();
+                }
+                
+                
+            });
+            
+            })
+      }
+    
+    
+  });
+  ipcRenderer.send("getMeSpiderman")
+  
+  const closeApp = document.getElementById('closeApp');
+  closeApp.addEventListener('click', () => {
+    ipcRenderer.send('logOut');
+  });
+
+
+  function createNoteAndSubmit(){
+    document.getElementById("createNote").style.display = "none";
+    // assume that since it is the client, it is automatically going to be this role
+    // maybe change calc id
+    var id = "controller_music_" + (new Date().getTime())
+    var trackIndex = rawTrackList.indexOf(document.getElementById("phases_addNote").value)
+    var newObject = { 'id' : id, "noteTitle" : document.getElementById("title_addNote").value, "noteSong" : songList[trackIndex]["trackSongs"][document.getElementById("songs_addNote").value]["songName"], "noteSongIndex" : document.getElementById("songs_addNote").value, "noteTrack" : document.getElementById("phases_addNote").value, "isDuring" : (!document.getElementById("after_addNote").checked), "isDialogue" : false, "noteContent" : document.getElementById("content_addNote").value, "isAdminIssued" : false}
+    console.log(newObject)
+    ipcRenderer.send("noteChange", {change: 'create', data: JSON.stringify(newObject), role: 'controller_music'});
+  }
+
+  function deleteNoteAndSubmit(){
+    document.getElementById("deleteNote").style.display = "none";
+    // assume that since it is the client, it is automatically going to be this role
+    // maybe change calc id
+    var id = document.getElementById("selected_removeNote").value
+    var noteToDelete = notes.filter(el => el["id"] == id)[0]
+    
+    console.log(noteToDelete)
+    ipcRenderer.send("noteChange", {change: 'delete', data: JSON.stringify(noteToDelete), role: 'controller_music'});
+  }
+
+  function changeNoteAndSubmit(){
+    document.getElementById("changeNote").style.display = "none";
+    // assume that since it is the client, it is automatically going to be this role
+    // maybe change calc id
+    var id = document.getElementById("selected_editNote").value
+    var trackIndex = rawTrackList.indexOf(document.getElementById("phases_editNote").value)
+    console.log(songList[trackIndex]["trackSongs"][document.getElementById("songs_editNote").value])
+    console.log(songList[trackIndex]["trackSongs"][document.getElementById("songs_editNote").value]["songName"])
+
+    console.log(document.getElementById("songs_editNote").value)
+    var newObject = { 'id' : id, "noteTitle" : document.getElementById("title_editNote").value, "noteSong" : songList[trackIndex]["trackSongs"][document.getElementById("songs_editNote").value]["songName"], "noteSongIndex" : document.getElementById("songs_editNote").value, "noteTrack" : document.getElementById("phases_editNote").value, "isDuring" : (!document.getElementById("after_editNote").checked), "isDialogue" : false, "noteContent" : document.getElementById("content_editNote").value, "isAdminIssued" : false}
+    console.log(newObject)
+    ipcRenderer.send("noteChange", {change: 'update', data: JSON.stringify(newObject), role: 'controller_music'});
+  }
+
+  document.getElementById("delete_removeNote").addEventListener('click',deleteNoteAndSubmit);
+  document.getElementById("save_editNote").addEventListener('click',changeNoteAndSubmit);
+
+  document.getElementById("save_addNote").addEventListener('click', createNoteAndSubmit);
+
+  let isReady = false;
+
+  function toggleReady(evt){
+    if(isReady){
+      isReady = false;
+      document.getElementById("readyIcon").innerHTML = "thumb_down"
+      document.getElementById("readyLabel").innerHTML = "Not Ready"
+      
+    }else{
+      isReady = true;
+      document.getElementById("readyIcon").innerHTML = "thumb_up"
+      document.getElementById("readyLabel").innerHTML = "Ready"
+    }
+    ipcRenderer.send("readyStatus", {isReady: isReady});
+  }
+  document.getElementById("readyToggle").addEventListener('click', toggleReady)
+</script>
