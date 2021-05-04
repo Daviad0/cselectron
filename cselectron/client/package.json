@@ -1,20 +1,16 @@
 {
-  "name": "node-desktop-app-template",
+  "name": "fortinale",
   "version": "1.0.0",
-  "description": "Simple Node.js Desktop Application Template using Electron and Bootstrap",
+  "description": "Theater Management System",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "fileTest": "node tryUpdateId3.js"
+    "start": "electron ."
   },
-  "repository": "https://github.com/majikarp/node-desktop-app-template",
   "keywords": [
     "Electron",
-    "Node",
-    "Template",
-    "Hackathon"
+    "Node"
   ],
-  "author": "GitHub",
+  "author": ":) Hi There CollegeBoard",
   "license": "CC0-1.0",
   "dependencies": {
     "bootstrap": "4.2.1",
