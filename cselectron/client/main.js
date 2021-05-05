@@ -57,11 +57,66 @@ machineId.machineId({original: true}).then((id) => {
 
 // socket server at port 3000 (for the purposes of the CollegeBoard demonstration, the server and client are both packaged together)
 const socket = io.connect("http://localhost:3000", {reconnect: true});
-
 socket.on("connect", function(instance){
   
 })
 
+socket.on("kickUserRequest", (reason) => {
+  console.log("YOU GOT KICKED")
+  try{
+    mainWindow.close();
+  }catch(err){
+
+  }
+  try{
+    roleSelectionWindow.close();
+  }catch(err){
+
+  }
+
+  removeUserWindow("kick", reason)
+  socket.disconnect();
+});
+
+socket.on("banUserRequest", (reason) => {
+  console.log("YOU GOT BANNED")
+  try{
+    mainWindow.close();
+  }catch(err){
+
+  }
+  try{
+    roleSelectionWindow.close();
+  }catch(err){
+
+  }
+  removeUserWindow("ban", reason)
+  socket.disconnect();
+});
+
+function removeUserWindow(type, reason){
+  var punishmentWindow = new BrowserWindow({
+    width: 800,
+    height:600,
+    webPreferences: {
+      nodeIntegration: true
+    }, 
+    show: false,
+    frame: false,
+    transparent: true,
+    resizable: false
+  });
+  //punishmentWindow.setIcon("'/src/assets/logo-small.png'")
+  punishmentWindow.loadFile("views/punishment.html")
+  punishmentWindow.isMenuBarVisible(false)
+  punishmentWindow.on('closed', function () {
+    punishmentWindow = null
+  });
+  punishmentWindow.webContents.on('did-finish-load', function(){
+    punishmentWindow.webContents.send("punishmentReason", {"type" : type, "reason" : reason});
+    punishmentWindow.show();
+  })
+}
 
 // send back message when asked to confirm alive-ness
 socket.on("PING", () => {
@@ -360,6 +415,16 @@ ipcMain.on("getNotes", (event, args) => {
   socket.emit('getNoteList')
   // trying to get a list of current ids from the server
 });
+
+ipcMain.on("sendKickUserRequest", (event, args) => {
+  socket.emit('kickUserRequest', args["socketId"], args["reason"])
+  // trying to get a list of current ids from the server
+});
+ipcMain.on("sendBanUserRequest", (event, args) => {
+  socket.emit('banUserRequest', args["socketId"], args["reason"])
+  // trying to get a list of current ids from the server
+});
+
 
 // sends a change in the client's notes to the server. Responded to by an event to update the page
 ipcMain.on("noteChange", (event, args) => {

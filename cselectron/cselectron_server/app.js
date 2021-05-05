@@ -144,6 +144,7 @@ let savedDevices = {};
 // array to store all of the instances (a dynamic amount which cannot be done using individual vars)
 let instances = [];
 
+let bannedDevices = [];
 // array to initialize an unchanging list of roles that are available throughout the runtime of the theater
 
 
@@ -160,7 +161,8 @@ function pingInstances(){
     var updatedInstances = []
     var deletedInstances = []
     instances.forEach(inso => {
-      var ins = inso.socketId
+      try{
+        var ins = inso.socketId
       // 3 warning system for unresponsiveness
       if(respondedSockets.filter(soc => soc == ins).length == 0){
         console.log("Failed to connect to " + ins)
@@ -195,6 +197,10 @@ function pingInstances(){
           // nothing bad happened here, it just meant that the socket was never in unresponsiveSockets in the first place, so times cannot be set.
         }
       }
+      }catch(notexist){
+
+      }
+      
     });
     // puts changes into an interable array that is easier to work with when sending down to the client (adding the "update" or "delete" event parameters)
     changesArray = []
@@ -232,15 +238,47 @@ io.on('connection', (socket) => {
   }
   // request back from the client that it has recieved the PING request and the connection is alive
   socket.on("PONG", () => {
-    respondedSockets.push(socket.id)
-    if(instances.filter(el => el.socketId == socket.id)[0].unresponsive){
-      // LET THE DIRECTOR KNOW THAT IT ISN'T UNRESPONSIVE
-      instances.filter(el => el.socketId == socket.id)[0].unresponsive = false
-      
-      
+    try{
+      respondedSockets.push(socket.id)
+      if(instances.filter(el => el.socketId == socket.id)[0].unresponsive){
+        // LET THE DIRECTOR KNOW THAT IT ISN'T UNRESPONSIVE
+        instances.filter(el => el.socketId == socket.id)[0].unresponsive = false
+        
+        
+      }
+    }catch(err){
+
     }
     
+    
   });
+
+  socket.on("kickUserRequest", (socketId, reason) => {
+    console.log(socketId)
+    var del = instances.splice(instances.indexOf(instances.filter(el => el.socketId == socketId)[0]), 1)
+    io.to(socketId).emit("kickUserRequest", reason);
+    console.log("KICKED USER: " + del[0])
+    instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
+      io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'delete', data: del[0]}]), dirIns.socketId);
+    });
+  });
+
+  socket.on("banUserRequest", (socketId, reason) => {
+    var del = instances.splice(instances.indexOf(instances.filter(el => el.socketId == socketId)[0]), 1)
+    bannedDevices.push(del.deviceId);
+    instances.filter(el => el.deviceId == del.deviceId).forEach(el => {
+      // kill all offending sockets under same deviceId
+      io.to(el.socketId).emit("banUserRequest", reason);
+      instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
+        io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'delete', data: el}]), dirIns.socketId);
+      });
+    });
+    io.to(socketId).emit("banUserRequest", reason);
+    instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
+      io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'delete', data: del[0]}]), dirIns.socketId);
+    });
+  });
+
   // logout request that just changes the status of the client in the instances list along with sending to the director
   socket.on("logOut", () => {
     instances.filter(el => el.socketId == socket.id)[0].role = undefined

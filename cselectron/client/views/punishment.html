@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Management System</title>
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css' />
+  <link rel='stylesheet' href='../public/css/theme.css' />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" rel="stylesheet">
+</head>
+<body style="background-color: transparent;">
+    <div class="bg" style="border-radius:8px;">
+
+    
+        <div class="outsidecontainer">
+            <div style="-webkit-app-region: drag;position:absolute;width:100%;top:0;left:50%;transform:translateX(-50%);-webkit-transform: translateX(-50%);height:10%;">
+
+            </div>
+            <div class="centercontainer" style="height:80%;width:90%;text-align: center;">
+            <span style="text-align: center;color:white;font-size: 40px;font-weight: 600;display:inline-block">Attention!</span><br/>
+            <span style="text-align: center;color:white;font-size: 20px;font-weight: 600;display:inline-block" id="message">You have been kicked from the server!</span>
+            <br/>
+            <br/>
+            
+            
+            </div>
+            
+            <div class="statuscontainer">
+                <div style="display: flex;">
+                    <input style="display:inline-block;text-align: center;border-radius: 20px;font-size: 15px;padding: 8px 15px 8px 15px;" class="elevatedbutton" id="closeApp" type="button" value="Exit App"/>
+                </div>
+            
+            </div>
+        </div>
+    </div>
+  
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</body>
+<script src="../vendor/howler/dist/howler.js"></script>
+<script>
+
+  
+  const {ipcRenderer} = require('electron');
+
+   
+  ipcRenderer.on("punishmentReason", (event,args) => {
+    if(args["type"] == "ban"){
+        document.getElementById("message").innerHTML = "Your device has been banned from the server!<br/><br/>You may not rejoin unless you are specifically removed from the ban list<br/><br/>Reason: " + args["reason"]
+    }else{
+        document.getElementById("message").innerHTML = "You have been kicked from the server!<br/><br/>Reason: " + args["reason"]
+    }
+  });
+  
+  const closeApp = document.getElementById('closeApp');
+  closeApp.addEventListener('click', () => {
+    ipcRenderer.send('quitapp');
+  });
+</script>
+
+</html>
