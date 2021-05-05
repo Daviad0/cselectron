@@ -10,7 +10,12 @@
 <body class="bg">
   <div class="outsidecontainer">
     <div class="leftcontainer" style="height:80%">
-      <div id="instanceList">
+      <span style="text-align: left;color:white;font-size: 40px;font-weight: 600;display:inline-block;vertical-align: middle;" id="labelLeftContainer">All Instances</span></br>
+      <span class="iconbutton" style="text-align: left;font-size: 20px;font-weight: 600;display:inline-block;vertical-align: middle;cursor:pointer" id="toggleLeftContainer">Switch to All Roles</span></br>
+      <div id="instanceList" style="display: inline-block;margin-top: 10px;width:100%">
+        
+      </div>
+      <div id="roleList" style="display: none;margin-top: 10px;width:100%">
         
       </div>
       
@@ -205,6 +210,24 @@
   var songList = []
   var pinnedNotes = []
   var roles = []
+  var leftContainerOnRoles = false;
+
+  document.getElementById("toggleLeftContainer").addEventListener('click', function(){
+    if(leftContainerOnRoles){
+      // show the instances list
+      document.getElementById("toggleLeftContainer").innerHTML = "Switch to All Roles";
+      document.getElementById("labelLeftContainer").innerHTML = "All Instances"
+      document.getElementById("instanceList").style.display = "inline-block"
+      document.getElementById("roleList").style.display = "none"
+    }else{
+      document.getElementById("toggleLeftContainer").innerHTML = "Switch to All Instances";
+      document.getElementById("labelLeftContainer").innerHTML = "All Roles"
+      document.getElementById("instanceList").style.display = "none"
+      document.getElementById("roleList").style.display = "inline-block"
+    }
+    leftContainerOnRoles = !leftContainerOnRoles
+  });
+
   // NOTES WILL STORE ROLENOTES > NOTES instead of NOTES > NOTEDATA
   var notes = []
   function askDelete(evt){
@@ -540,6 +563,10 @@
       var roleId = note["roleId"]
       var trackIndex = rawTrackList.indexOf(el["noteTrack"])
       var isValidlyPlaced = false
+      if(trackIndex == -1){
+        // the act has been altered too harshly to replace the note
+        return
+      }
       if(songList[trackIndex]["trackSongs"][el["noteSongIndex"]]["songName"] == el["noteSong"]){
         isValidlyPlaced = true;
       }
@@ -638,6 +665,8 @@
     
   });
 
+  
+
   function createNoteAndSubmit(){
     document.getElementById("createNote").style.display = "none";
     // assume that since it is the client, it is automatically going to be this role
@@ -685,7 +714,48 @@
     roles.forEach(role => {
       document.getElementById("roles_editNote").innerHTML = document.getElementById("roles_editNote").innerHTML + `<option value="${role["identifier"]}">${role["prettyName"]}</option>`
       document.getElementById("roles_addNote").innerHTML = document.getElementById("roles_addNote").innerHTML + `<option value="${role["identifier"]}">${role["prettyName"]}</option>`
+      document.getElementById("roleList").innerHTML = document.getElementById("roleList").innerHTML + `
+              <div class="elevatedframe hovertoexpand" style="width:95%;margin-bottom:10px" id="${role.socketId}_frame">
+                <div style="display:table">
+                  <div style="display:table-cell;width:50%">
+                    <span style="text-align: left;color:white;font-size: 18px;font-weight: 600;margin-right: 20px;overflow:hidden;vertical-align:middle;white-space: nowrap;text-overflow: ellipsis;display:block" id="${role.identifier}_roleName">${role.prettyName}</span>
+                    
+                    
+                  </div>
+                  <span style="text-align: left;display: table-cell;color:white;font-size: 18px;font-weight: 600;margin-right: 20px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis" id="${role.identifier}_capacity">${role.max < 1 ? "No" : role.max} Maximum</span>
+                  
+                <div>
+                  <br/>
+                <div style="display:block;margin-top:30px">
+                  <div style="display:block">
+                      <input class="textbox" style="text-align: left;font-size: 12px;font-weight: 600;margin-right: 20px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis;display:inline-block" id="${role.identifier}_password" value="Secure"/>
+                      <span class="material-icons-round iconbutton" style="font-size:18px;display:inline-block" title="Toggle Password Visibility" id="${role.socketId}_passwordToggle">visibility_off</span> 
+                    </div>
+                  <div style="vertical-align:middle;text-align:right;width:21%">
+                  <span class="material-icons-round iconbutton download" style="font-size:24px;vertical-align:middle;margin-right:5px;text-align:right;">logout</span>
+                  <span class="material-icons-round iconbutton download" style="font-size:24px;vertical-align:middle;margin-right:5px;text-align:right;">trash</span>
+                  </div>
+                </div>
+                
+                
+                
+              </div><br/>`
     });
+    if (document.getElementsByClassName("hovertoexpand")) {
+      var autos = document.getElementsByClassName("hovertoexpand");
+      for (var i=0; i<autos.length; i++) {
+        autos[i].addEventListener("mouseover", autoOver);
+        autos[i].addEventListener("mouseout", autoOut);
+      }
+    }
+
+    function autoOver() {
+      this.style.height = this.scrollHeight + "px";
+    }
+
+    function autoOut() {
+      this.style.height = "60px";
+    }
     //document.getElementById("roles_editNote").innerHTML = document.getElementById("roles_editNote").innerHTML + `<option value="public_note">Public</option>`
     //document.getElementById("roles_addNote").innerHTML = document.getElementById("roles_editNote").innerHTML + `<option value="public_note">Public</option>`
     ipcRenderer.send("getMeSpiderman")

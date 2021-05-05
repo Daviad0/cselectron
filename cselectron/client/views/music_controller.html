@@ -1116,6 +1116,7 @@
       var trackIndex = rawTrackList.indexOf(el["noteTrack"])
       if(trackIndex != -1){
         var isValidlyPlaced = false
+        
         if(songList[trackIndex]["trackSongs"][el["noteSongIndex"]]["songName"] == el["noteSong"]){
           isValidlyPlaced = true;
         }

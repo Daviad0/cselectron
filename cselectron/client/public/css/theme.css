@@ -227,3 +227,9 @@
     font-weight: 600;
     background-color: #202342;
   }
+.hovertoexpand{
+    display: block;
+    height:60px;
+    overflow:hidden;
+    transition: all .5s ease-in-out;
+}
