@@ -10,6 +10,11 @@ const {app, BrowserWindow} = require('electron')
 const {ipcMain} = require('electron')
 // Defines where to grab the already available audio files.
 const audioFolder = "./public/audio/"
+var serverInstance = ""
+const image = require('electron').nativeImage.createFromPath(
+  app.getAppPath() + "/public/images/Drawing.png"
+);
+app.dock.setIcon(image);
 /*
   Title: FS (File System)
   Author: NPM Js
@@ -18,6 +23,23 @@ const audioFolder = "./public/audio/"
   Code Availaibility: https://nodejs.org/en/
 */
 const fs = require('fs')
+
+
+function resetServerMem(){
+  // this is a GET function; the file path should stay like this unless a different name is used
+  fs.readFile('./server.json', 'utf-8', (err, jsonString) => {
+    serverInstance = JSON.parse(jsonString);
+  });
+} 
+function pushServerMem(){
+  fs.writeFile('./server.json', JSON.stringify(serverInstance), function(err){
+    // we don't need a response as it is pushing the note schema up :D
+  }); 
+}
+
+resetServerMem();
+
+
 /*
   Title: Socket.IO (Client)
   Author: rauchg
@@ -101,10 +123,12 @@ function removeUserWindow(type, reason){
     webPreferences: {
       nodeIntegration: true
     }, 
+    title : 'Restricted Access',
     show: false,
     frame: false,
     transparent: true,
-    resizable: false
+    resizable: false,
+    
   });
   //punishmentWindow.setIcon("'/src/assets/logo-small.png'")
   punishmentWindow.loadFile("views/punishment.html")
@@ -329,7 +353,9 @@ function letUserSelectRole() {
     show: false,
     frame: false,
     transparent: true,
-    resizable: false
+    title : 'Logging In...',
+    resizable: false,
+    icon: image
   });
   //roleSelectionWindow.setIcon("'/src/assets/logo-small.png'")
   roleSelectionWindow.loadFile("views/roles.html")
@@ -358,7 +384,9 @@ function createWindow (role) {
     webPreferences: {
       nodeIntegration: true
     }, 
-    show: false
+    title : 'Fortinale',
+    show: false,
+    icon: image
     
   })
   //mainWindow.setFullScreen(true)
