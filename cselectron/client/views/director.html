@@ -28,7 +28,7 @@
           <option value="All">All Notes</option>
       </select>
         <br/>
-        <div style="overflow-y: auto;height:38vh" id="noteList">
+        <div style="overflow-y: auto;height:75vh" id="noteList">
           <span style="text-align: left;color:white;font-size: 24px;font-weight: 600;display:none;vertical-align: middle;" id="noteList_pinnedLabel">Pinned Notes</span>
           <div style="text-align: center;display: flex;flex-wrap: wrap;margin-bottom: 10px;" id="noteList_pinned">
             
@@ -208,7 +208,7 @@
           <span style="color: white;font-size:12px;margin-bottom: 10px;display:block">This user will be removed from the server, but will be allowed to rejoin.</span>
           <span style="color: white;font-size:12px;margin-bottom: 20px;font-weight:600;">Reason   </span><input class="textbox" style="display:inline-block;font-size:14px;margin-bottom: 20px;margin-left:10px" id="reason_kickUser" placeholder="Reason"/><br/>
           <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="cancel_kickUser" type="button" value="Cancel"/>
-          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="go_kickUser" type="button" value="Delete"/>
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="go_kickUser" type="button" value="Kick"/>
         </div>
       </div>
       
@@ -221,7 +221,7 @@
           <span style="color: white;font-size:12px;margin-bottom: 10px;display:block">This user will be removed from the server and will not be allowed to rejoin from the device that they are using!</span>
           <span style="color: white;font-size:12px;margin-bottom: 20px;font-weight:600;">Reason   </span><input class="textbox" style="display:inline-block;font-size:14px;margin-bottom: 20px;margin-left:10px" id="reason_banUser" placeholder="Reason"/><br/>
           <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="cancel_banUser" type="button" value="Cancel"/>
-          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="go_banUser" type="button" value="Delete"/>
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="go_banUser" type="button" value="Ban"/>
         </div>
       </div>
       
@@ -333,6 +333,21 @@
 */
   const {ipcRenderer} = require('electron');
 
+  function submitNoteChange(identifier){
+    var updateObj = { "identifier" : identifier, "max" : parseInt(document.getElementById(identifier + "_max").value), "password" : document.getElementById(identifier + "_password").value }
+    ipcRenderer.send("roleUpdateSubmit", { "updateObj" : JSON.stringify(updateObj) });
+  }
+
+  function kickAllUsers(identifier){
+    ipcRenderer.send("kickAllUsers", { "target" : identifier });
+  }
+
+  ipcRenderer.on("roleUpdate", (event, args) => {
+    var obj = JSON.parse(args["updateObj"])
+    document.getElementById(obj["identifier"] + "_max").value = parseInt(obj["max"])
+    document.getElementById(obj["identifier"] + "_password").value = obj["password"]
+  });
+
   function kickInstance(id, reason){
     ipcRenderer.send("sendKickUserRequest", { "socketId" : id, "reason" : reason});
   }
@@ -343,7 +358,7 @@
     kickInstance(document.getElementById("selected_kickUser").value, document.getElementById("reason_kickUser").value)
     document.getElementById("kickUser").style.display = "none";
   });
-  document.getElementById("go_kickUser").addEventListener('click', function(evt){
+  document.getElementById("go_banUser").addEventListener('click', function(evt){
     banInstance(document.getElementById("selected_banUser").value, document.getElementById("reason_banUser").value)
     document.getElementById("banUser").style.display = "none";
   });
@@ -800,17 +815,17 @@
               <div style="display:block;text-align:center">
                   <div style="display:inline-block">
                   <span style="color: white;font-size:12px;font-weight:600;margin-right:5px">Password   </span>
-                      <input class="textbox" title="Leave blank for no password!" type="password" style="text-align: left;font-size: 12px;font-weight: 600;margin-right: 5px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis;display:inline-block" data-id="${role.identifier}" id="${role.identifier}_password" value="${role.password}"/>
+                      <input class="textbox setPw" title="Leave blank for no password!" type="password" style="text-align: left;font-size: 12px;font-weight: 600;margin-right: 5px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis;display:inline-block" data-id="${role.identifier}" id="${role.identifier}_password" value="${role.password}"/>
                       <span class="material-icons-round iconbutton togglePw" style="font-size:18px;display:inline-block;vertical-align:middle" title="Toggle Password Visibility" data-id="${role.identifier}" id="${role.identifier}_passwordToggle">visibility_off</span> 
                     </div>
                     <br/>
                   <div style="display:inline-block;margin-top:10px">
                   <span style="color: white;font-size:12px;font-weight:600;margin-right:5px">Max Users   </span>
-                      <input class="textbox" title="-1 for unlimited users!" type="number" style="text-align: left;font-size: 12px;font-weight: 600;margin-right: 5px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis;display:inline-block" min="-1" data-id="${role.identifier}" id="${role.identifier}_max" value="${role.max}"/>
+                      <input class="textbox setMax" title="-1 for unlimited users!" type="number" style="text-align: left;font-size: 12px;font-weight: 600;margin-right: 5px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis;display:inline-block" min="-1" data-id="${role.identifier}" id="${role.identifier}_max" value="${role.max}"/>
                       
                     </div>
                     <br/>
-                    <input style="display:inline-block;text-align: center;margin-top:20px;font-size: 15px;padding: 8px 15px 8px 15px;vertical-align: middle;" class="elevatedbutton" id="${role.identifier}_kickAll" type="button" value="Kick All Users"/>
+                    <input style="display:inline-block;text-align: center;margin-top:20px;font-size: 15px;padding: 8px 15px 8px 15px;vertical-align: middle;" class="elevatedbutton kickAll" id="${role.identifier}_kickAll" data-id="${role.identifier}" type="button" value="Kick All Users"/>
                   <!--<div style="vertical-align:middle;width:21%;display:inline-block">
                   <span class="material-icons-round iconbutton download" style="font-size:24px;vertical-align:middle;margin-right:5px;text-align:right;">logout</span>
                   <span class="material-icons-round iconbutton download" style="font-size:24px;vertical-align:middle;margin-right:5px;text-align:right;">trash</span>
@@ -823,6 +838,21 @@
                 
               </div><br/>`
     });
+    Array.from(document.getElementsByClassName("kickAll")).forEach(el => {
+      el.addEventListener('click', function(){
+        kickAllUsers(el.dataset.id)
+      });
+    });
+    Array.from(document.getElementsByClassName("setPw")).forEach(el => {
+      el.addEventListener('change', function(){
+        submitNoteChange(el.dataset.id)
+      });
+    });
+    Array.from(document.getElementsByClassName("setMax")).forEach(el => {
+      el.addEventListener('change', function(){
+        submitNoteChange(el.dataset.id)
+      });
+    });
     Array.from(document.getElementsByClassName("togglePw")).forEach(el => {
       el.addEventListener('click', function(){
         document.getElementById(el.dataset.id + "_password").type == "password" ? document.getElementById(el.dataset.id + "_password").type = "text" : document.getElementById(el.dataset.id + "_password").type = "password"
@@ -830,6 +860,12 @@
       });
       
     });
+    /*
+      Title: Expand on Hover
+      Author: berge
+      Date: 5/4/2021
+      Code Availaibility: https://stackoverflow.com/questions/27441404/how-to-expand-a-div-and-its-contents-on-hover
+    */
     if (document.getElementsByClassName("hovertoexpand")) {
       var autos = document.getElementsByClassName("hovertoexpand");
       for (var i=0; i<autos.length; i++) {
@@ -856,7 +892,7 @@
         el.role = el.role == undefined ? {} : el.role
         el.role.prettyName = el.role.prettyName == undefined ? "Logging in..." : el.role.prettyName
         document.getElementById("instanceList").innerHTML = document.getElementById("instanceList").innerHTML + `
-              <div class="elevatedframe" style="display: table;width:95%" id="${el.socketId}_frame">
+              <div class="elevatedframe" style="display: table;width:95%;margin-bottom:10px" id="${el.socketId}_frame">
                 <div style="vertical-align:middle;width:7%;display:${el.unresponsive ? "none" : "table-cell"}" id="${el.socketId}_responsive">
                   <span class="material-icons-round iconbuttonalt thissong" style="font-size:18px;" title="Connected!">done</span> 
                 </div>
@@ -875,7 +911,7 @@
                 <span class="material-icons-round iconbutton banUser" style="font-size:24px;vertical-align:middle;margin-right:5px;text-align:right;" data-id="${el.socketId}">block</span>
                 </div>
                 
-              </div><br/>
+              </div>
               `
     });
     Array.from(document.getElementsByClassName("kickUser")).forEach(el => {
@@ -915,7 +951,7 @@
               el.role = el.role == undefined ? {} : el.role
               el.role.prettyName = el.role.prettyName == undefined ? "Logging in..." : el.role.prettyName
               document.getElementById("instanceList").innerHTML = document.getElementById("instanceList").innerHTML + `
-              <div class="elevatedframe" style="display: table;width:95%" id="${el.socketId}_frame">
+              <div class="elevatedframe" style="display: table;width:95%;margin-bottom:10px" id="${el.socketId}_frame">
                 <div style="vertical-align:middle;width:7%;display:${el.unresponsive ? "none" : "table-cell"}" id="${el.socketId}_responsive">
                   <span class="material-icons-round iconbuttonalt thissong" style="font-size:18px;" title="Connected!">done</span> 
                 </div>
@@ -929,12 +965,29 @@
                 </div>
                 <span style="text-align: left;display: table-cell;color:white;font-size: 18px;font-weight: 600;margin-right: 20px;overflow:hidden;vertical-align:middle;max-width:70%;white-space: nowrap;text-overflow: ellipsis" id="${el.socketId}_ready">${el.ready == true ? "Ready" : "Not Ready"}</span>
                 <div style="display:table-cell;vertical-align:middle;text-align:right;width:21%%">
-                  <span class="material-icons-round iconbutton download" style="font-size:24px;vertical-align:middle;margin-right:5px;text-align:right;" data-id="${el.socketId}"lock</span>
-                <span class="material-icons-round iconbutton download" style="font-size:24px;vertical-align:middle;margin-right:5px;text-align:right;" data-id="${el.socketId}">logout</span>
-                <span class="material-icons-round iconbutton download" style="font-size:24px;vertical-align:middle;margin-right:5px;text-align:right;" data-id="${el.socketId}">block</span>
+                  <span class="material-icons-round iconbutton download" style="font-size:24px;vertical-align:middle;margin-right:5px;text-align:right;" data-id="${el.socketId}">lock</span>
+                <span class="material-icons-round iconbutton kickUser" style="font-size:24px;vertical-align:middle;margin-right:5px;text-align:right;" data-id="${el.socketId}">logout</span>
+                <span class="material-icons-round iconbutton banUser" style="font-size:24px;vertical-align:middle;margin-right:5px;text-align:right;" data-id="${el.socketId}">block</span>
                 </div>
-              </div><br/>
+                
+              </div>
               `
+              Array.from(document.getElementsByClassName("kickUser")).forEach(el => {
+                el.addEventListener('click', function(){
+                  document.getElementById("selected_kickUser").value = el.dataset.id
+                  document.getElementById("reason_kickUser").value = "";
+                  document.getElementById("kickUser").style.display = "block"
+                })
+                
+              })
+              Array.from(document.getElementsByClassName("banUser")).forEach(el => {
+                el.addEventListener('click', function(){
+                  document.getElementById("selected_banUser").value = el.dataset.id
+                  document.getElementById("reason_banUser").value = "";
+                  document.getElementById("banUser").style.display = "block"
+                })
+                
+              })
             }
         });
     });
