@@ -11,10 +11,16 @@ const {ipcMain} = require('electron')
 // Defines where to grab the already available audio files.
 const audioFolder = "./public/audio/"
 var serverInstance = ""
+
 const image = require('electron').nativeImage.createFromPath(
   app.getAppPath() + "/public/images/Drawing.png"
 );
-app.dock.setIcon(image);
+try{
+  app.dock.setIcon(image);
+}catch(err){
+
+}
+
 /*
   Title: FS (File System)
   Author: NPM Js
@@ -37,7 +43,7 @@ function pushServerMem(){
   }); 
 }
 
-resetServerMem();
+//resetServerMem();
 
 
 /*
@@ -84,41 +90,20 @@ socket.on("connect", function(instance){
 })
 
 socket.on("kickUserRequest", (reason) => {
-  console.log("YOU GOT KICKED")
-  try{
-    mainWindow.close();
-  }catch(err){
-
-  }
-  try{
-    roleSelectionWindow.close();
-  }catch(err){
-
-  }
-
+  // B O N K 
   removeUserWindow("kick", reason)
   socket.disconnect();
 });
 
 socket.on("banUserRequest", (reason) => {
-  console.log("YOU GOT BANNED")
-  try{
-    mainWindow.close();
-  }catch(err){
-
-  }
-  try{
-    roleSelectionWindow.close();
-  }catch(err){
-
-  }
+  // sends the user to permanent horny jail
   removeUserWindow("ban", reason)
   socket.disconnect();
 });
 
 function removeUserWindow(type, reason){
   var punishmentWindow = new BrowserWindow({
-    width: 800,
+    width: 600,
     height:600,
     webPreferences: {
       nodeIntegration: true
@@ -137,6 +122,16 @@ function removeUserWindow(type, reason){
     punishmentWindow = null
   });
   punishmentWindow.webContents.on('did-finish-load', function(){
+    try{
+      mainWindow.close();
+    }catch(err){
+  
+    }
+    try{
+      roleSelectionWindow.close();
+    }catch(err){
+  
+    }
     punishmentWindow.webContents.send("punishmentReason", {"type" : type, "reason" : reason});
     punishmentWindow.show();
   })
@@ -281,6 +276,16 @@ ipcMain.on('saveSchema', (evt, arg) => {
 ipcMain.on('selectRole', (evt, arg) => {
   socket.emit('tryRoleLogin', arg['role'], arg['password'])
 })
+
+ipcMain.on("roleUpdateSubmit", (evt, arg) => {
+  socket.emit("roleUpdateSubmit", arg["updateObj"])
+});
+ipcMain.on("kickAllUsers", (evt, arg) => {
+  socket.emit("kickAllUsers", arg["target"])
+});
+socket.on('roleUpdate', (role) => {
+  mainWindow.webContents.send("roleUpdate", {'updateObj' : role});
+});
 
 socket.on("roleLoginStatus", (roleId, success) => {
   if(success){

@@ -13,6 +13,7 @@ const app = express();
 let jsonSchemaTest = ""
 let noteSchemaTest = ""
 let roles = ""
+let bannedDevices = "";
 
 // defines the current state of the theater (the server) and is able to be changed throughout
 let serverState = undefined;
@@ -91,10 +92,22 @@ function pushRoleSchema(){
     // we don't need a response as it is pushing the note schema up :D
   }); 
 }
+function resetBannedSchema(){
+  // this is a GET function; the file path should stay like this unless a different name is used
+  fs.readFile('./storage/schema/banned.json', 'utf-8', (err, jsonString) => {
+    bannedDevices = JSON.parse(jsonString);
+  });
+} 
+function pushBannedSchema(){
+  fs.writeFile('./storage/schema/banned.json', JSON.stringify(bannedDevices), function(err){
+    // we don't need a response as it is pushing the note schema up :D
+  }); 
+}
 // initialize the schemas at the start of the program so clients are able to receive the value
 resetNoteSchema()
 resetRoleSchema()
 resetShowSchema()
+resetBannedSchema()
 
 
 // for webserver, allow connections to reach the storage area for audio & schema
@@ -144,7 +157,7 @@ let savedDevices = {};
 // array to store all of the instances (a dynamic amount which cannot be done using individual vars)
 let instances = [];
 
-let bannedDevices = [];
+
 // array to initialize an unchanging list of roles that are available throughout the runtime of the theater
 
 
@@ -253,6 +266,27 @@ io.on('connection', (socket) => {
     
   });
 
+  socket.on("kickAllUsers", (target) => {
+    instances.filter(el => el.role != undefined && el.role.identifier == target).forEach(el => {
+      // purge all offending sockets under same identifier
+      instances.splice(instances.indexOf(el), 1)
+      io.to(el.socketId).emit("kickUserRequest", "Mass purge of your role was done. You may rejoin if you wish.");
+      instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
+        io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'delete', data: el}]), dirIns.socketId);
+      });
+    });
+  });
+
+  socket.on("roleUpdateSubmit", (updateObj) => {
+    updateObj = JSON.parse(updateObj)
+    roles[roles.indexOf(roles.filter(el => el.identifier == updateObj["identifier"])[0])].password = updateObj["password"]
+    roles[roles.indexOf(roles.filter(el => el.identifier == updateObj["identifier"])[0])].max = updateObj["max"]
+    instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
+      io.to(dirIns.socketId).emit("roleUpdate", JSON.stringify(roles.filter(el => el.identifier == updateObj["identifier"])[0]));
+    });
+    pushRoleSchema()
+  });
+
   socket.on("kickUserRequest", (socketId, reason) => {
     console.log(socketId)
     var del = instances.splice(instances.indexOf(instances.filter(el => el.socketId == socketId)[0]), 1)
@@ -265,14 +299,16 @@ io.on('connection', (socket) => {
 
   socket.on("banUserRequest", (socketId, reason) => {
     var del = instances.splice(instances.indexOf(instances.filter(el => el.socketId == socketId)[0]), 1)
-    bannedDevices.push(del.deviceId);
-    instances.filter(el => el.deviceId == del.deviceId).forEach(el => {
+    bannedDevices.push(del[0].deviceId);
+    instances.filter(el => el.deviceId == del[0].deviceId).forEach(el => {
       // kill all offending sockets under same deviceId
+      instances.splice(instances.indexOf(el), 1)
       io.to(el.socketId).emit("banUserRequest", reason);
       instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
         io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'delete', data: el}]), dirIns.socketId);
       });
     });
+    pushBannedSchema()
     io.to(socketId).emit("banUserRequest", reason);
     instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
       io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'delete', data: del[0]}]), dirIns.socketId);
@@ -339,11 +375,20 @@ io.on('connection', (socket) => {
   socket.emit('requestDeviceInfo', ["deviceId"])
   socket.on('receiveDeviceInfo', (informationes) => {
     if(informationes['deviceId'] != undefined){
-      instances.filter(el => el.socketId == socket.id)[0].deviceId = informationes['deviceId']
-      console.log(socket.id + " identified with " + informationes['deviceId'])
-      instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
-        io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'create', data: instances.filter(el => el.socketId == socket.id)[0]}]), dirIns.socketId);
-      });
+      console.log(bannedDevices)
+      console.log(bannedDevices.includes(informationes['deviceId']))
+      if(!bannedDevices.includes(informationes['deviceId'])){
+        instances.filter(el => el.socketId == socket.id)[0].deviceId = informationes['deviceId']
+        console.log(socket.id + " identified with " + informationes['deviceId'])
+        instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
+          io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'create', data: instances.filter(el => el.socketId == socket.id)[0]}]), dirIns.socketId);
+        });
+      }else{
+        instances.splice(instances.indexOf(instances.filter(el => el.socketId == socket.id)[0]), 1)
+        socket.emit("banUserRequest", "You are not allowed to join from a device that had been previously banned!")
+      }
+      
+      
     }
   });
   console.log('a user connected');
