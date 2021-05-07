@@ -152,7 +152,7 @@ class Instance {
 }
 
 // UNUSED: saved instances using the UUID of the device that is passed up (like a token system)
-let savedDevices = {};
+let savedDevices = [];
 
 // array to store all of the instances (a dynamic amount which cannot be done using individual vars)
 let instances = [];
@@ -190,7 +190,17 @@ function pingInstances(){
             var del = instances.splice(instances.indexOf(instances.filter(el => el.socketId == ins)[0]), 1)
             deletedInstances.push(del[0])
             console.log("Removed " + ins + " from the system")
-            
+            if(savedDevices.filter(el => el.deviceId == del.deviceId).length == 0){
+              // add an instance to saved devices
+              if(del.role != undefined){
+                // no use in saving if they didn't already join a role!
+                // allows for 5 minutes of waiting before not being allowed to rejoin
+                savedDevices.push({deviceId : del.deviceId, role: del.role, finalChance : new Date(new Date().getTime + (5*60000))})
+              }
+              
+            }else{
+              // edit an instance to saved devices
+            }
           }
         }else{
           // this block means this was the first time that it had disconnected
@@ -226,6 +236,11 @@ function pingInstances(){
     // UPDATE DIRECTOR PAGE
     instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
       io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify(changesArray), dirIns.socketId);
+    });
+    var i = 0;
+    instances.filter(el => el.role != undefined && el.role.identifier == "crew_spotlight").forEach(dirIns => {
+      io.to(dirIns.socketId).emit("spotlightInstance", i);
+      i = i + 1
     });
 
   }, 3000);
@@ -276,7 +291,14 @@ io.on('connection', (socket) => {
       });
     });
   });
-
+  socket.on('getSpotlightInstance', () => {
+    var i = 1;
+    instances.filter(el => el.role != undefined && el.role.identifier == "crew_spotlight").forEach(dirIns => {
+      io.to(dirIns.socketId).emit("spotlightInstance", i);
+      i = i + 1
+    });
+    
+  });
   socket.on("roleUpdateSubmit", (updateObj) => {
     updateObj = JSON.parse(updateObj)
     roles[roles.indexOf(roles.filter(el => el.identifier == updateObj["identifier"])[0])].password = updateObj["password"]
@@ -400,12 +422,20 @@ io.on('connection', (socket) => {
       newEl.currentlyConnected = instances.filter(el => el.role != undefined && el.role.identifier == newEl.identifier).length
       sentDownRoles.push(newEl)
     });
-    if(savedDevices[instances.filter(el => el.socketId == socket.id)[0].deviceId] !== undefined){
-      // There is already an instance of this device in the saved database, so it will pass down the preivous login information
-      instances.filter(el => el.socketId == socket.id)[0].name = savedDevices[instances.filter(el => el.socketId == socket.id)[0].deviceId].name
-      socket.emit('rolesSent',sentDownRoles, {'name' : savedDevices[instances.filter(el => el.socketId == socket.id)[0].deviceId].name, 'role' : savedDevices[instances.filter(el => el.socketId == socket.id)[0].deviceId].role})
+    if(savedDevices.filter(el => el.deviceId == instances.filter(el => el.socketId == socket.id)[0].deviceId).length != 0){
+      var obj = savedDevices.filter(el => el.deviceId == instances.filter(el => el.socketId == socket.id)[0].deviceId)[0]
+      if(obj.finalChance.getTime() > new Date().getTime()){
+        // There is already an instance of this device in the saved database, so it will pass down the preivous login information
+        socket.emit('rolesSent',sentDownRoles, {'role' : obj.role})
+        savedDevices.splice(savedDevices.indexOf(obj), 1)
+      }else{
+        socket.emit('rolesSent',sentDownRoles, undefined)
+      }
+      
+    }else{
+      socket.emit('rolesSent',sentDownRoles, undefined)
     }
-    socket.emit('rolesSent',sentDownRoles)
+    
   });
   socket.on('loginWithRole', (roleIdentifier) => {
     console.log(socket.id + " logged in with role " + roleIdentifier)
@@ -421,6 +451,10 @@ io.on('connection', (socket) => {
     }else{
       socket.emit("roleLoginStatus", role, false)
     }
+  });
+  socket.on('savedRoleLogin', (role) => {
+    // automatic login
+    socket.emit("roleLoginStatus", role, true)
   });
   socket.on('getNoteList', (loginRequest) => {
     // might want to handle note auth here instead of client side

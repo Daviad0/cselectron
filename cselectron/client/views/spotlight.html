@@ -11,10 +11,27 @@
   <div class="outsidecontainer">
     <div class="fullcontainer">
       
-      
-      <div style="text-align:center;height:500px;width:80%%;" class="elevatedframe">
-
+      <div style="text-align:center">
+      <div class="elevatedframe" style="display: inline-block;padding-top: 8px;padding-bottom: 8px;margin-right: 12px;vertical-align: middle">
+          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;margin-right: 5px;vertical-align: middle" id="spotlightIdentifier">You are Spotlight #1</span>
+          
+        </div>
+        <br/>
+        <br/>
+        <span style="text-align: center;color:white;font-size: 60px;font-weight: 600;display:inline-block" id="currentSongTitle">No Song Selected</span><br/>
+                <span style="text-align: center;color:white;font-size: 30px;font-weight: 600;display:inline-block" id="currentSongSubtitle">Please Wait...</span><br/><br/>
+                <div style="border: 3px solid white;height: 30px;width: 50%;display: inline-block;border-radius: 18px;background-color: transparent;padding-left: 4px;padding-right: 4px;padding-top:4px;text-align: left;margin-top: 12px;margin-left:0px" id="progressSlider">
+                    <div style="border: none;height: 16px;display: inline-block;border-radius: 18px;background-color: white" class="songprogress" id="songProgress"></div>
+                  </div><br/>
+                  <div style="display: inline-block;width: 25%;text-align: left;">
+                    <span class="material-icons-round iconbutton" style="color:white;font-size: 25px;display:inline-block;margin-right:5px;" id="isPaused">play_arrow</span>
+                    <span class="material-icons-round iconbutton" style="color:white;font-size: 25px;display:none" id="isShuffled">shuffle</span>
+                  </div>
+                  <div style="display: inline-block;width: 25%;text-align: right;">
+                    <span style="color:white;font-size: 25px;display:inline-block" id="progressText">0:00 / 0:00</span>
+                  </div><br/><br/>
       </div>
+      
       <br/>
       <span style="text-align: left;color:white;font-size: 40px;font-weight: 600;display:inline-block;vertical-align: middle;">Notes</span>
       <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="addNote" type="button" value="Add Note"/>
@@ -42,7 +59,7 @@
           <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;vertical-align: middle">Act 1</span>
         </div>
         <div class="elevatedframe" style="display: inline-block;padding-top: 8px;padding-bottom: 8px;margin-right: 12px;vertical-align: middle">
-          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;margin-right: 5px;vertical-align: middle">Music Controller</span>
+          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;margin-right: 5px;vertical-align: middle">Spotlight</span>
           <span style="height: 10px;width: 10px;background-color: green;display: inline-block;border-radius: 50%;vertical-align: middle" title="You Are Online!"></span>
           
         </div>
@@ -192,6 +209,7 @@
 <script>
 
     $(document).ready(function(){
+
     $(".pinThisNote").live('click',function(){
       if($(this).attr("value") == "Unpin"){
         $(this).css("background-color", "")
@@ -247,7 +265,39 @@
       
     });
   });
-
+  /*
+  THIS DOESNT WORK. HORRAYYYYY
+  var currentPos = [undefined, undefined] // X,Y of former position of click
+  var currentlyDragging = false
+    document.getElementById("staging").addEventListener('mousedown', function(evt){
+        console.log("MOUSE DOWN" + evt)
+        currentPos = [evt.offsetX, evt.offsetY]
+        var fixedDivWidth = document.getElementById("staging").clientWidth
+        console.log(fixedDivWidth)
+        console.log(evt.clientX)
+        console.log(evt)
+        document.getElementById("spotlightDrag").style.transform = "translate(" +  evt.offsetX + "px, " + evt.offsetY + "px)"
+        document.getElementById("spotlightDrag").style.display = "block"
+        currentlyDragging = true;
+    });
+    document.getElementById("staging").addEventListener('mouseup', function(evt){
+        console.log("MOUSE UP" + evt)
+        console.log((currentPos[0] - evt.offsetX) + " " + (currentPos[1] - evt.offsetY))
+        document.getElementById("spotlightDrag").style.display = "none"
+        currentlyDragging = false;
+        // handle end of drag dropdown
+    });
+    document.getElementById("staging").addEventListener("mousemove", function(evt){
+        if(currentlyDragging){
+            
+            console.log(currentPos[0] - evt.offsetX)
+            console.log(currentPos[1] - evt.offsetY)
+            document.getElementById("spotlightDrag").style.width = currentPos[0] - evt.offsetX
+            document.getElementById("spotlightDrag").style.height = currentPos[1] - evt.offsetY
+            
+        }
+    });*/
+    // "spotlightDrag"
   function refreshSongDropDown(trackName){
     var listOfAccordingSongs = songList[rawTrackList.indexOf(trackName)]["trackSongs"];
     document.getElementById("songs_addNote").innerHTML = "";
@@ -321,6 +371,29 @@
   Notes: This is the library that brings the HTML page to life in a new window instead of the Chrome browser. All content that shows up inside the window is not within Electron's control, and is completely coded by this project's author
 */
   const {ipcRenderer} = require('electron');
+  
+  ipcRenderer.on("songUpdate", (event,args) => {
+    document.getElementById("currentSongTitle").innerHTML = args["songTitle"]
+    document.getElementById("currentSongSubtitle").innerHTML = args["songSubtitle"]
+    if(args["songPaused"]){
+        document.getElementById("isPaused").innerHTML = "play_arrow"
+    }else{
+        document.getElementById("isPaused").innerHTML = "pause"
+    }
+    if(args["songDuration"] != undefined){
+        document.getElementById("songProgress").style.width = (args["songDuration"] / args["songLength"])*100 + "%"
+        inSong = Math.round(args["songDuration"])
+        outOfSong = Math.round(args["songLength"])
+        var inSongM = Math.floor(inSong / 60)
+        var inSongS = Math.floor(inSong % 60)
+        var inSongF = inSongM + ":" + (inSongS.toString().length == 1 ? "0" + inSongS : inSongS);
+        var outOfSongM = Math.floor(outOfSong / 60)
+        var outOfSongS = Math.floor(outOfSong % 60)
+        var outOfSongF = outOfSongM + ":" + (outOfSongS.toString().length == 1 ? "0" + outOfSongS : outOfSongS);
+        document.getElementById("progressText").innerHTML = inSongF + " / " + outOfSongF;
+    }
+    
+  });
 function resetNoteList(idToScrollTo){
     var rawStringsPinned = []
     pinnedNotes.forEach(el => {
@@ -574,7 +647,7 @@ function resetNoteList(idToScrollTo){
     
     
   });
-  ipcRenderer.send("getMeSpiderman")
+  
   
   const closeApp = document.getElementById('closeApp');
   closeApp.addEventListener('click', () => {
@@ -623,7 +696,11 @@ function resetNoteList(idToScrollTo){
   document.getElementById("save_editNote").addEventListener('click',changeNoteAndSubmit);
 
   document.getElementById("save_addNote").addEventListener('click', createNoteAndSubmit);
-
+    ipcRenderer.on("spotlightInstance", (event, args) => {
+        document.getElementById("spotlightIdentifier").innerHTML = "You are Spotlight #" + args["instanceNum"]
+        ipcRenderer.send("getMeSpiderman")
+    });
+    ipcRenderer.send("getSpotlightInstance")
   let isReady = false;
 
   function toggleReady(evt){

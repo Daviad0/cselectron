@@ -6,7 +6,7 @@
   Code Availaibility: https://www.electronjs.org/
   Notes: This is the library that brings the HTML page to life in a new window instead of the Chrome browser. All content that shows up inside the window is not within Electron's control, and is completely coded by this project's author
 */
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, dialog} = require('electron')
 const {ipcMain} = require('electron')
 // Defines where to grab the already available audio files.
 const audioFolder = "./public/audio/"
@@ -161,6 +161,15 @@ socket.on('instancesSent', (rawJson, mySocketId) => {
 // update each client as there is a change
 socket.on('instancesUpdate', (rawJson, mySocketId) => {
   mainWindow.webContents.send('instancesUpdate', { 'rawJson' : rawJson, 'mySocketId' : mySocketId })
+});
+
+ipcMain.on('getSpotlightInstance', (event, args) => {
+  socket.emit('getSpotlightInstance');
+});
+
+// update each client as there is a change
+socket.on('spotlightInstance', (instanceNum) => {
+  mainWindow.webContents.send('spotlightInstance', { 'instanceNum' : instanceNum })
 });
 
 // send down all of the notes to the client depending on the role that is being requested from. If the user is a director, it will send down all notes as the client is specifically built for role-based notes
@@ -376,8 +385,20 @@ function letUserSelectRole() {
 }
 
 // send role list to client (to select)
-socket.on('rolesSent', (roles) => {
-  roleSelectionWindow.webContents.send("rolesToSelect", {'roles' : roles});
+socket.on('rolesSent', (roles, saved) => {
+  if(saved != undefined){
+    dialog.showMessageBox(roleSelectionWindow, {buttons: ["Yes", "No"], message: "There is a saved instance found for this device. Would you like to log in as " + saved["role"] + "?"}, (response, checkbox) => {
+      if(response == "Yes"){
+        // log in as saved instance
+        socket.emit('savedRoleLogin', arg['role'])
+      }else{
+        roleSelectionWindow.webContents.send("rolesToSelect", {'roles' : roles});
+      }
+    }); 
+  }else{
+    roleSelectionWindow.webContents.send("rolesToSelect", {'roles' : roles});
+  }
+  
 });
 
 // main window that actually allows the user to interact with the show
