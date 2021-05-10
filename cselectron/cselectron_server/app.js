@@ -437,9 +437,13 @@ io.on('connection', (socket) => {
     }
     
   });
+  // LOGIN event where the client selects the role that they want to be
   socket.on('loginWithRole', (roleIdentifier) => {
+    // notify CONSOLE
     console.log(socket.id + " logged in with role " + roleIdentifier)
+    // set the role of the instance
     instances.filter(el => el.socketId == socket.id)[0].role = roles.filter(el => el.identifier == roleIdentifier)[0]
+    // notify director that a change was made by instances
     instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
       io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify([{change: 'update', data: instances.filter(el => el.socketId == socket.id)[0]}]), dirIns.socketId);
     });
@@ -462,6 +466,7 @@ io.on('connection', (socket) => {
   });
   socket.on('getInstanceList', (loginRequest) => {
     var allUsers = instances
+    // to send down to the director/user manager all of the currently connected clients in order to GET/SEND data
     socket.emit('instancesSent',JSON.stringify(allUsers), socket.id);
   });
   socket.on('getRoleMap', (loginRequest) => {
