@@ -31,7 +31,7 @@
             <div style="display: flex;">
                 
                 <div class="elevatedframe" style="display: inline-block;margin-right: 12px;padding-top: 8px;padding-bottom: 8px;">
-                <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block">Act 1</span>
+                <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block" id="currentPhase">Loading...</span>
                 </div>
                 <div class="elevatedframe" style="display: inline-block;padding-top: 8px;padding-bottom: 8px;margin-right: 12px;">
                 <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;margin-right: 5px;">Choosing Role</span>
@@ -117,6 +117,10 @@ var allRoles = [];
   closeApp.addEventListener('click', () => {
     ipcRenderer.send('quitapp');
   });
+  ipcRenderer.on("phaseUpdate", (event, args) => {
+    document.getElementById("currentPhase").innerHTML = args["phaseName"];
+  });
+  ipcRenderer.send("getPhaseUpdate");
 </script>
 
 </html>

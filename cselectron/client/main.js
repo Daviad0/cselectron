@@ -470,6 +470,25 @@ ipcMain.on("getNotes", (event, args) => {
   // trying to get a list of current ids from the server
 });
 
+ipcMain.on("sendPhaseUpdate", (event, args) => {
+  socket.emit('sendPhaseUpdate', args["phaseName"])
+});
+ipcMain.on("getPhaseUpdate", (event, args) => {
+  socket.emit('getPhaseUpdate')
+});
+socket.on("phaseUpdate", (phaseName) => {
+  try{
+    mainWindow.webContents.send("phaseUpdate", {"phaseName" : phaseName})
+  }catch(err){
+
+  }
+  try{
+    roleSelectionWindow.webContents.send("phaseUpdate", {"phaseName" : phaseName})
+  }catch(err){
+    
+  }
+});
+
 ipcMain.on("sendKickUserRequest", (event, args) => {
   socket.emit('kickUserRequest', args["socketId"], args["reason"])
   // trying to get a list of current ids from the server

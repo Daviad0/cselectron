@@ -80,7 +80,7 @@
     <div class="statuscontainer">
       <div style="display: flex;">
         <div class="elevatedframe" style="display: inline-block;margin-right: 12px;padding-top: 8px;padding-bottom: 8px;vertical-align: middle">
-          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;vertical-align: middle">Act 1</span>
+          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;vertical-align: middle" id="currentPhase">Loading...</span>
         </div>
         <div class="elevatedframe" style="display: inline-block;padding-top: 8px;padding-bottom: 8px;margin-right: 12px;vertical-align: middle">
           <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;margin-right: 5px;vertical-align: middle">Music Controller</span>
@@ -1217,7 +1217,10 @@
   closeApp.addEventListener('click', () => {
     ipcRenderer.send('logOut');
   });
-
+  ipcRenderer.on("phaseUpdate", (event, args) => {
+    document.getElementById("currentPhase").innerHTML = args["phaseName"];
+  });
+  ipcRenderer.send("getPhaseUpdate");
 
   function createNoteAndSubmit(){
     document.getElementById("createNote").style.display = "none";

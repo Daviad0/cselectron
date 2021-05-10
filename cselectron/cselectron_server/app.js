@@ -25,7 +25,7 @@ class TheaterState {
     this.musicStage = musicStage
   }
 }
-serverState = new TheaterState(new Date(), true, true, "Pre-Show")
+serverState = new TheaterState(new Date(), true, true, "Not Yet Started")
 
 /*
   Title: HTTP
@@ -279,6 +279,15 @@ io.on('connection', (socket) => {
     }
     
     
+  });
+
+  socket.on("getPhaseUpdate", () => {
+    socket.emit("phaseUpdate", serverState.musicStage);
+  });
+
+  socket.on("sendPhaseUpdate", (phaseName) => {
+    serverState.musicStage = phaseName;
+    io.emit("phaseUpdate", serverState.musicStage);
   });
 
   socket.on("kickAllUsers", (target) => {

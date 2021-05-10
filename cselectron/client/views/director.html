@@ -44,8 +44,8 @@
     <div class="statuscontainer">
       <div style="display: flex;">
         
-        <div class="elevatedframe" style="display: inline-block;margin-right: 12px;padding-top: 8px;padding-bottom: 8px;">
-          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block">Act 1</span>
+        <div class="elevatedframe" style="display: inline-block;margin-right: 12px;padding-top: 8px;padding-bottom: 8px;cursor: pointer;" id="currentPhaseButton">
+          <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block" id="currentPhase">Loading...</span>
         </div>
         <div class="elevatedframe" style="display: inline-block;padding-top: 8px;padding-bottom: 8px;margin-right: 12px;">
           <span style="text-align: center;color:white;font-size: 15px;font-weight: 600;display:inline-block;margin-right: 5px;">Director</span>
@@ -188,6 +188,7 @@
       </div>
       
     </div>
+
     <div id="deleteNote" class="overlayBox" style="display:none;text-align:center;">
       <div style="width:100%;height:100%;display: flex;align-items:center;justify-content:center">
         <div class="elevatedframe" style="display:inline-block;padding:30px;max-width:500px">
@@ -222,6 +223,21 @@
           <span style="color: white;font-size:12px;margin-bottom: 20px;font-weight:600;">Reason   </span><input class="textbox" style="display:inline-block;font-size:14px;margin-bottom: 20px;margin-left:10px" id="reason_banUser" placeholder="Reason"/><br/>
           <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="cancel_banUser" type="button" value="Cancel"/>
           <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="go_banUser" type="button" value="Ban"/>
+        </div>
+      </div>
+      
+    </div>
+    <div id="changePhase" class="overlayBox" style="display:none;text-align:center;">
+      <div style="width:100%;height:100%;display: flex;align-items:center;justify-content:center">
+        <div class="elevatedframe" style="display:inline-block;max-width:500px;padding:30px">
+          <span style="color: white;font-size:20px;font-weight:600;margin-bottom: 5px;display:block">Set Theater Phase</span>
+          
+          <span style="color: white;font-size:12px;margin-bottom: 20px;display:block">Phases are certain segments of your program that hold music and notes. You can change the current phase for everyone to view!</span>
+          <span style="color: white;font-size:12px;font-weight:600;margin-right:5px">Phase   </span><select name="phaseName" id="phases_changePhase" style="display:inline-block;padding:10px;width:90%" class="textbox"></select><br/><br/>
+          
+          
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="cancel_changePhase" type="button" value="Cancel"/>
+          <input style="display:inline-block;text-align: center;font-size: 15px;padding: 8px 15px 8px 15px;margin-left:10px;vertical-align: middle;" class="elevatedbutton" id="confirm_changePhase" type="button" value="Confirm"/>
         </div>
       </div>
       
@@ -276,6 +292,12 @@
     document.getElementById("deletePhase").style.display = "none";
     somethingWasChanged();
   }
+
+
+  document.getElementById("cancel_changePhase").addEventListener('click', function(evt){
+    document.getElementById("changePhase").style.display = "none";
+  });
+  
 
   document.getElementById("cancel_addNote").addEventListener('click', function(evt){
     document.getElementById("createNote").style.display = "none";
@@ -333,6 +355,20 @@
 */
   const {ipcRenderer} = require('electron');
 
+
+  document.getElementById("currentPhaseButton").addEventListener('click', function(evt){
+    document.getElementById("changePhase").style.display = "";
+  });
+  ipcRenderer.on("phaseUpdate", (event, args) => {
+    document.getElementById("currentPhase").innerHTML = args["phaseName"];
+  });
+  ipcRenderer.send("getPhaseUpdate");
+
+
+  document.getElementById("confirm_changePhase").addEventListener('click', function(evt){
+    ipcRenderer.send("sendPhaseUpdate", { 'phaseName' : document.getElementById("phases_changePhase").value });
+    document.getElementById("changePhase").style.display = "none";
+  });
   function submitNoteChange(identifier){
     var updateObj = { "identifier" : identifier, "max" : parseInt(document.getElementById(identifier + "_max").value), "password" : document.getElementById(identifier + "_password").value }
     ipcRenderer.send("roleUpdateSubmit", { "updateObj" : JSON.stringify(updateObj) });
@@ -549,11 +585,15 @@
     // rename to songSchema soon
     songList = args['songs']['tracks']
     var phaseCreationIndex = 0
+    document.getElementById("phases_changePhase").innerHTML = document.getElementById("phases_changePhase").innerHTML + "<option value='Not Yet Started'>Not Yet Started</option>"
     songList.forEach(track => {
+      document.getElementById("phases_changePhase").innerHTML = document.getElementById("phases_changePhase").innerHTML + "<option value='" + track["trackName"] + "'>" + track["trackName"] + "</option>"
       rawTrackList.push(track["trackName"])
         document.getElementById('phases_addNote').innerHTML = document.getElementById('phases_addNote').innerHTML + '<option value="' + track["trackName"] + '">' + track["trackName"] + '</option>'
         document.getElementById('phases_editNote').innerHTML = document.getElementById('phases_editNote').innerHTML + '<option value="' + track["trackName"] + '">' + track["trackName"] + '</option>'
     });
+    document.getElementById("phases_changePhase").innerHTML = document.getElementById("phases_changePhase").innerHTML + "<option value='Intermission'>Intermission</option>"
+    document.getElementById("phases_changePhase").innerHTML = document.getElementById("phases_changePhase").innerHTML + "<option value='Finished'>Finished</option>"
     ipcRenderer.send("getNotes")
   });
 
