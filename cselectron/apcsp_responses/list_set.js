@@ -2,10 +2,6 @@
  NOTICE: This code segment omits other parts of code that are not necessary for the answering of question 3B. Please refer to the entire PDF document for the correctly formatted code that is runnable!
 */
 
-/* 
- REMINDER: As stated on the author's APCSP portfolio profile, CollegeBoard has absolutely no rights to reproduce, reuse, or republish this code unless it is being used for the purposes of scoring (or validating the originality of the program from) the author in question. This code may be used for other professional projects by the student in the future, and the author retains ALL rights to publish the code on GitHub after the CollegeBoard scoring administration is over.
-*/
-
 // This code shows the tracking of all of the clients (on the server side) throughout the runtime of all of the applications
 let instances = [];
 

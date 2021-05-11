@@ -237,7 +237,7 @@ function pingInstances(){
     instances.filter(el => el.role != undefined && el.role.identifier == "director").forEach(dirIns => {
       io.to(dirIns.socketId).emit("instancesUpdate", JSON.stringify(changesArray), dirIns.socketId);
     });
-    var i = 0;
+    var i = 1;
     instances.filter(el => el.role != undefined && el.role.identifier == "crew_spotlight").forEach(dirIns => {
       io.to(dirIns.socketId).emit("spotlightInstance", i);
       i = i + 1

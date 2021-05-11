@@ -553,6 +553,7 @@ function resetNoteList(idToScrollTo){
   });
 
   ipcRenderer.on('notesToLoad', (event,args) => {
+    if(notes.length == 0){
       if(args["roleNotes"] != null && args["roleNotes"] != undefined){
           args["roleNotes"].sort((a,b) => (rawTrackList.indexOf(a["noteTrack"]) > rawTrackList.indexOf(b["noteTrack"])) ? 1 : ((rawTrackList.indexOf(a["noteTrack"]) == rawTrackList.indexOf(b["noteTrack"])) ? ((parseInt(a["noteSongIndex"]) > parseInt(b["noteSongIndex"]) ? 1 : -1)) : -1)).forEach(el => {
             var trackIndex = rawTrackList.indexOf(el["noteTrack"])
@@ -644,6 +645,8 @@ function resetNoteList(idToScrollTo){
             
             })
       }
+    }
+      
     
     
   });
